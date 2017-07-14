@@ -1,0 +1,15 @@
+{
+  "chart": "progress",
+  "data": [
+    {
+      "graph": "error",
+      "x": 5,
+      "y": 8
+    },
+    {
+      "graph": "test",
+      "x": 8,
+      "y": 10
+    }
+  ]
+}

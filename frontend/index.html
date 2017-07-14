@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/materialize/materialize.css">
+    <link rel="stylesheet" href="css/prism.css">
+
+    <script type="text/javascript" src="js/lib/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="js/lib/Chart.bundle.min.js"></script>
+    <script type="text/javascript" src="js/lib/materialize.min.js"></script>
+    <script type="text/javascript" src="js/lib/prism.js"></script>
+
+
+    <link rel="stylesheet" href="css/main.css">
+
+    <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/network.js"></script>
+
+    <title>OpenHab AI</title>
+</head>
+<body>
+
+    <!-- Navigation ------------------------------------ -->
+    <nav class="nav-extended">
+        <div class="nav-wrapper">
+            <!-- <a href="#" class="brand-logo right">Logo</a> -->
+            <div class="col s12" style="margin-left: 20px">
+                <a class="breadcrumb">Network #1</a>
+                <a class="breadcrumb">Checkpoint #1</a>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="nav-content">
+            <ul class="tabs tabs-transparent">
+                <li class="tab"><a href="#tab-train">Train</a></li>
+                <li class="tab"><a href="#tab-checkpoints">Checkpoints</a></li>
+                <li class="tab"><a href="#tab-run">Run</a></li>
+                <li class="tab"><a href="#tab-settings"><i class="material-icons">settings</i></a></li>
+            </ul>
+        </div>
+    </nav>
+
+
+
+    <!-- Tab Train ------------------------------------ -->
+    <div id="tab-train" class="col s12">
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <a id="bt-startTrain" class="waves-effect waves-light btn green"><i class="material-icons right">play_arrow</i>start train</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Network Progress</span>
+
+                        <div class="row">
+                            <div class="col s12 m6">
+                                <canvas id="chart-learnRate"></canvas>
+                            </div>
+                            <div class="col s4 m2">
+                                <p>Some interesting statistics</p>
+                            </div>
+
+                            <div class="col s8 m4">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Tab Checkpoints ------------------------------------ -->
+    <div id="tab-checkpoints" class="col s12">
+    </div>
+
+    <!-- Tab Run ------------------------------------ -->
+    <div id="tab-run" class="col s12">
+        <div class="row">
+            <div class="col  s12">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-title">Settings</div>
+                        <div class="divider"></div>
+                        <div class="section">
+                            <h7>Section 1</h7>
+                            <p>Stuff</p>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="section">
+                            <h5>Section 2</h5>
+                            <p>Stuff</p>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="section">
+                            <h5>Section 3</h5>
+                            <p>Stuff</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Manage ------------------------------------ -->
+    <div id="tab-settings" class="col s12">
+        <div class="fixed-action-btn">
+            <a id="bt-save" class="btn-floating btn-large waves-effect waves-light green"><i class="material-icons">save</i></a>
+        </div>
+        <div class="row">
+
+            <div class="col s12 m12 l6">
+                <div class="card">
+                    <div class="card-content">
+                        <ul class="collection" id="network-settings">
+
+                            <li class="collection-item avatar">
+                                <i class="material-icons circle green lighten-1">build</i>
+                                <span class="title">Learn Rate</span>
+                                <p>Size of learn step</p>
+                                <div class="input-field secondary-content">
+                                    <input id="learnRate" step="0.05" min="0" max="1" type="number" class="">
+                                    <label for="learnRate">Rate</label>
+                                </div>
+                            </li>
+
+                            <li class="collection-item avatar">
+                                <i class="material-icons circle green lighten-1">build</i>
+                                <span class="title">Hidden Layers</span>
+                                <p>Amount of hidden layers</p>
+                                <div class="input-field secondary-content">
+                                    <input id="hiddenLayers" step="1" min="0" max="1000" type="number" class="">
+                                    <label for="hiddenLayers">Amount</label>
+                                </div>
+                            </li>
+
+                            <li class="collection-item avatar">
+                                <i class="material-icons circle green lighten-1">build</i>
+                                <span class="title">Neurons per Layer</span>
+                                <p>Amount of neurons per hidden layers</p>
+                                <div class="input-field secondary-content">
+                                    <input id="neuronsPerLayer" step="1" min="0" max="1000" type="number" class="">
+                                    <label for="neuronsPerLayer">Amount</label>
+                                </div>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col s12 m12 l6">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-title">Danger Zone</div>
+                        <ul class="collection">
+                            <li class="collection-item avatar">
+                                <i class="material-icons circle large">error_outline</i>
+                                <span class="title">Delete Network</span>
+                                <p>Delete the hole neural network with all settings and learned parameters.</p>
+                                <a  class="secondary-content btn waves-effect red"><i class="material-icons">delete</i></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="fixedbutton row card">
+
+        <div class="card-content">
+            <div class="card-title">Debug console</div>
+            <div class="col s12">
+                <div class="col s6">
+                    <pre class="debug-network"  id="debug-network-console"></pre>
+                </div>
+                <div class="col s6">
+                    <textarea class="materialize-textarea" type="text" rows="25" id="txtSendTest"></textarea>
+                    <a id="bt-sendTxtTest" class="btn waves-effect waves-light tooltipped" data-tooltip="send json to this side">Send</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
