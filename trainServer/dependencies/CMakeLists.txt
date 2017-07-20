@@ -2,43 +2,55 @@ include(ExternalProject)
 
 # compile dependencies
 
+# -- MXNET -------------------------------------------------
+#[[
+ExternalProject_Add(mxnet_external
+        GIT_REPOSITORY https://github.com/dmlc/mxnet
+        PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/mxnet"
+        BUILD_IN_SOURCE 1
+        INSTALL_DIR ${OUTPUT}
+
+        CMAKE_ARGS
+        "-DCMAKE_INSTALL_PREFIX=${OUTPUT}"
+        "-DTESTS=OFF"
+        "-DUSE_CPP_PACKAGE=ON"
+        "-DUSE_BLAS=openblas"
+        "-DUSE_CUDA=0"
+        "-DUSE_OPENCV=0"
+        )
+        ]]
+#add_library(mxnet SHARED IMPORTED)
+set(DEPENDENCIES_MXNET_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/                        PARENT_SCOPE)
+set(DEPENDENCIES_MXNET_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/cpp-package/include
+                               ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/nnvm/include
+                               ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/include                 PARENT_SCOPE)
+set(DEPENDENCIES_MXNET_LIB     mxnet                                                                       PARENT_SCOPE)
+
 
 # -- TENSORFLOW -------------------------------------------------
+#[[
 set(DEPENDENCIES_TENSORFLOW_DIR     /home/joshua/Downloads/tensorflow-cpp/lib/      PARENT_SCOPE)
 set(DEPENDENCIES_TENSORFLOW_INCLUDE /home/joshua/Downloads/tensorflow-cpp/include/  PARENT_SCOPE)
 set(DEPENDENCIES_TENSORFLOW_LIB     tensorflow                                      PARENT_SCOPE)
-
-
+]]
 
 
 # -- SEASOCKS -------------------------------------------------
-ExternalProject_Add(seasocks
+# [[
+ExternalProject_Add(seasocks_external
         GIT_REPOSITORY https://github.com/mattgodbolt/seasocks.git
         PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/seasocks"
-        BUILD_IN_SOURCE 1
-        INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/seasocksInstall
+        #BUILD_IN_SOURCE 1
 
         CMAKE_ARGS
             "-DCMAKE_INSTALL_PREFIX=${OUTPUT}"
             "-DUNITTESTS=OFF"
         )
+add_library(seasocks SHARED IMPORTED)
+#]]
+set(DEPENDENCIES_SEASOCKS_LIB     seasocks           PARENT_SCOPE)
 
 
 
-# -- TENSORFLOW -------------------------------------------------
-find_package(SDL2 QUIET)
-
-if (SDL2_FOUND)
-    message(STATUS "[DEPENDENCY] SDL2 => Found includeDir: ${SDL2_INCLUDE_DIRS}, libDir: ${SDL2_LIBDIR}")
-
-    set(DEPENDENCIES_SDL2_INCLUDE ${SDL2_INCLUDE_DIRS} PARENT_SCOPE)
-    set(DEPENDENCIES_SDL2_DIR ${SDL2_LIBDIR} PARENT_SCOPE)
-    set(DEPENDENCIES_SDL2_LIB SDL2 PARENT_SCOPE)
-else ()
-    message(STATUS "[DEPENDENCY] SDL2 => NOT found => will compile SDL")
-
-endif ()
-
-
-# -- GLM -------------------------------------------------
-set(DEPENDENCIES_GLM_INCLUDE ${CMAKE_SOURCE_DIR}/dependencies/glm/glm PARENT_SCOPE)
+# -- JSON -------------------------------------------------
+set(DEPENDENCIES_JSON_INCLUDE     ${CMAKE_CURRENT_SOURCE_DIR}/json           PARENT_SCOPE)

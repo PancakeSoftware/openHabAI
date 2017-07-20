@@ -5,7 +5,9 @@ set(SRC)
 
 # files
 file(GLOB SRC_FILES
-        ${SOURCE_DIR}*.cpp
+        ${SOURCE_DIR}Frontend.cpp
+        ${SOURCE_DIR}main.cpp
+        ${SOURCE_DIR}NeuralNetwork.cpp
         ${SOURCE_DIR}*.c
         ${INCLUDE_DIR}*.h)
 

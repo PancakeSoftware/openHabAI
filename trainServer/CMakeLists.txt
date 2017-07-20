@@ -59,17 +59,23 @@ add_subdirectory(dependencies)
 link_directories(
         ${OUTPUT_LIB}
         ${DEPENDENCIES_TENSORFLOW_DIR}
+        ${DEPENDENCIES_MXNET_DIR}
 )
 
 
 # default headers, libs
 set(DEFAULT_INCLUDE_DIRECTORIES
         ${DEPENDENCIES_TENSORFLOW_INCLUDE}
+        ${DEPENDENCIES_JSON_INCLUDE}
+        ${DEPENDENCIES_MXNET_INCLUDE}
         ${OUTPUT_INCLUDE}
         )
 
 set(DEFAULT_LIBRARIES
         ${DEPENDENCIES_TENSORFLOW_LIB}
+        ${DEPENDENCIES_SEASOCKS_LIB}
+        ${DEPENDENCIES_MXNET_LIB}
+        pthread
         )
 
 

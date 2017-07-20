@@ -1,38 +1,132 @@
 #include <iostream>
+#include <condition_variable>
+#include <signal.h>
+#include <unistd.h>
 
-#include <tensorflow/cc/client/client_session.h>
-#include <tensorflow/cc/ops/standard_ops.h>
-#include <tensorflow/core/framework/tensor.h>
+#include "NeuralNetwork.h"
+#include "Frontend.h"
 
 using namespace std;
-using namespace tensorflow;
-using namespace tensorflow::ops;
 
+// var
+std::mutex mainLockMutex;
+condition_variable mainLockCondition;
+bool condition = false;
+
+void testData();
+
+void atExit(int code)
+{
+  cout << "will stop main thread" << endl;
+  mainLockCondition.notify_one();
+}
 
 /* -- MAIN PROGRAM ------------------------------------------- */
 int main(int argc, char *argv[])
 {
-  Scope root = Scope::NewRootScope();
+  // stop main thread at terminate signal
+  signal(SIGTERM, atExit);
+
+  // start frontend
+  Frontend::start(5555);
+
+  cout << "start" << endl;
+
+  vector<float> x = {0, 1, 2};
+  vector<float> y = {5, 2, 3};
 
 
-  // Matrix A = [3 2; -1 0]
-  auto A = Const(root, {{3.f, 2.f}, {-1.f, 0.f}});
-  // Vector b = [3 5]
-  auto b = Const(root, {{3.f, 5.f}});
+  NeuralNetwork *network = nullptr;
 
-  // v = Ab^T
-  auto v = MatMul(root.WithOpName("v"), A, b, MatMul::TransposeB(true));
+  Frontend::onData = [&](Json data)
+  {
+    if (data["type"] == "do")
+    {
+      if (data["what"] == "startTrain")
+      {
+        cout << "=>> start train" << endl;
+
+        if (network != nullptr) {
+          Frontend::send("message", {"message", "kill old training"});
+
+          cout << "-- WILL KILL OLD" << endl;
+
+          network->stopTrain();
+          network->joinTrainThread();
+
+          delete(network);
+          network = nullptr;
+        }
+
+        network = new NeuralNetwork(1, 1);
+
+        // feedback
+        Frontend::respond("ok", data);
+
+        network->trainInNewThread();
+      }
+
+      if (data["what"] == "stopTrain")
+      {
+        cout << "=>> stop train" << endl;
+
+        if (network != nullptr)
+        {
+          network->stopTrain();
+          network->joinTrainThread();
+
+          delete (network);
+          network = nullptr;
+
+          // feedback
+          Frontend::respond("ok", data);
+        }
+      }
+    }
+  };
 
 
-  std::vector<Tensor> outputs;
-  ClientSession session(root);
+  //testData();
 
+  // wait until terminate signal
+  unique_lock<std::mutex> lock(mainLockMutex);
+  mainLockCondition.wait(lock);
 
-  // Run and fetch v
-  TF_CHECK_OK(session.Run({v}, &outputs));
-
-  // Expect outputs[0] == [19; -3]
-  cout << outputs[0].matrix<float>();
+  NeuralNetwork::shutdown();
 
   return 0;
+}
+
+
+
+void testData()
+{
+  // test data
+  for (float i = 10; i < 100; i+=0.01)
+  {
+    Json data = {
+        {"chart", "progress"},
+        {"data", {}}
+    };
+
+    data["data"].push_back(
+        {
+            {"graph", "error"},
+            { "x", i },
+            { "y", sin(i*i) }
+        }
+    );
+
+    data["data"].push_back(
+        {
+            {"graph", "test"},
+            { "x", i },
+            { "y", i*cos(i*i) }
+        }
+    );
+
+    Frontend::sendData(data);
+
+    usleep(400000);
+  }
 }

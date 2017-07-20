@@ -1,6 +1,7 @@
 $(function() {
     // chart style
     Chart.defaults.global.defaultFontFamily = "'Roboto','Helvetica','Arial','sans-serif'";
+    Chart.defaults.global.legend.position = "right";
 
 
     var chartLearnRate = new Chart($("#chart-learnRate"), {
@@ -9,11 +10,13 @@ $(function() {
             datasets: [{
                 data: [],
                 label: "Error",
+                backgroundColor: "#3e95cd",
                 borderColor: "#3e95cd",
                 fill: false
             }, {
                 data: [],
                 label: "Test",
+                backgroundColor: "#97e400",
                 borderColor: "#97e400",
                 fill: false
             }
@@ -21,11 +24,12 @@ $(function() {
         },
         options: {
             legend: {
-                display: false,
+                display: true,
                 position: 'right',
                 labels: {
-                    usePointStyle: true
-                }
+                    usePointStyle: false
+                },
+
             },
             scales: {
                 xAxes: [{
@@ -40,28 +44,32 @@ $(function() {
         }
     });
 
+    var chartOutputShape= new Chart($("#chart-outputShape"), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: "Network",
+                borderColor: "#3e95cd",
+                backgroundColor: "#3e95cd",
+                fill: false
+            }, {
+                label: "Real",
+                borderColor: "#97e400",
+                backgroundColor: "#97e400",
+                fill: false
+            }
+            ]
+        }
+    });
+
     registerUpdatableChartGraph("progress", ["error", "test"], chartLearnRate);
+    registerUpdatableChartGraph("outputShape", ["network", "real"], chartOutputShape);
 
     var i = 0;
     
-    // buttons
-    $('#bt-startTrain').click(function () {
-        console.log("click");
-        chartLearnRate.data.datasets[0].data.push({x:i,  y:Math.sin(i)});
-        chartLearnRate.data.datasets[1].data.push({x:i,  y:Math.cos(i)});
-        chartLearnRate.update();
-        i+= 0.7;
-
-        toast('Add x: ' + i +"  y: " + i*i);
-
-    });
 
 
-    // test network
-    $('#bt-sendTxtTest').click(function () {
-        console.log($('#txtSendTest').val());
-        sockSend(JSON.parse($('#txtSendTest').val()));
-    });
+
 
     $.ajax({url: "jsonProtocol/updateChart.json", success: function(result){
         console.log(result);
