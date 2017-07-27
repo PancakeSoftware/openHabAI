@@ -143,7 +143,6 @@ void Frontend::start(int port)
 void Frontend::serverThreadFunction()
 {
   server.addWebSocketHandler("/", make_shared<WebSocketHandler>());
-
   server.serve("", port);
 }
 

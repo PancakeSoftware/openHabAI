@@ -29,3 +29,21 @@
     position: absolute;
     height:80%;
 }
+
+.list {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.list .card {
+    cursor: pointer;
+}
+
+#home {
+    color: white;
+    cursor: pointer;
+}
+
+.no-display {
+    display: none;
+}

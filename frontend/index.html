@@ -8,51 +8,144 @@
     <link rel="stylesheet" href="css/prism.css">
 
     <script type="text/javascript" src="js/lib/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.13.3/math.min.js"></script>
     <script type="text/javascript" src="js/lib/Chart.bundle.min.js"></script>
     <script type="text/javascript" src="js/lib/materialize.min.js"></script>
     <script type="text/javascript" src="js/lib/prism.js"></script>
 
+    <script type="text/javascript" src="js/DataStructuresList.js"></script>
+    <script type="text/javascript" src="js/NetworksList.js"></script>
+    <script type="text/javascript" src="js/NetworkTrain.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/BackendSocket.js"></script>
+    <script type="text/javascript" src="js/Navigation.js"></script>
+
 
     <link rel="stylesheet" href="css/main.css">
 
-    <script type="text/javascript" src="js/main.js"></script>
-    <script type="text/javascript" src="js/network.js"></script>
 
     <title>OpenHab AI</title>
 </head>
 <body>
 
-    <!-- Navigation ------------------------------------ -->
-    <nav class="nav-extended">
-        <div class="nav-wrapper">
-            <!-- <a href="#" class="brand-logo right">Logo</a> -->
-            <div class="col s12" style="margin-left: 20px">
-                <a class="breadcrumb">Network #1</a>
-                <a class="breadcrumb">Checkpoint #1</a>
+<!-- Navigation ------------------------------------ -->
+<nav class="nav-extended">
+    <div class="nav-wrapper">
+        <!-- <a href="#" class="brand-logo right">Logo</a> -->
+        <div class="col s12" id="nav-at" style="margin-left: 20px">
+            <a class="breadcrumb no-select" id="home"><i class="material-icons">home</i></a>
+        </div>
+    </div>
+
+    <!-- Tabs Network -->
+    <div class="nav-network no-display">
+        <ul class="tabs tabs-transparent">
+            <li class="tab"><a href="#tab-train">Train</a></li>
+            <li class="tab"><a class="active" href="#tab-networks">Networks</a></li>
+            <li class="tab disabled"><a href="#tab-run">Run</a></li>
+            <li class="tab disabled"><a href="#tab-settings"><i class="material-icons">settings</i></a></li>
+        </ul>
+    </div>
+
+    <!-- Tabs DataStructure -->
+    <div class="nav-dataStructure">
+        <ul class="tabs tabs-transparent">
+            <li class="tab"><a href="#tab-dataStructure">Data structures</a></li>
+            <li class="tab disabled"><a href="#tab-generalSettings">Settings</a></li>
+        </ul>
+    </div>
+</nav>
+
+
+<!-- View DataStructure ------------------------------------------------ -->
+<div id="view-dataStructure">
+    <!-- Button New -->
+    <div class="fixed-action-btn">
+        <a href="#modal-new-dataStructure" class="btn-floating btn-large waves-effect waves-light tooltipped"
+           data-position="left" data-tooltip="New dataStructure"><i class="material-icons">add</i></a>
+    </div>
+
+    <!-- Tab DataStructures -->
+    <div id="tab-dataStructure" class="col s12 no-select list">
+    </div>
+
+    <!-- Tab Settings -->
+    <div id="tab-generalSettings" class="col s12">
+        settingstz
+    </div>
+
+    <!-- Modal new DataStructure -->
+    <div id="modal-new-dataStructure" class="modal">
+        <div class="modal-content">
+            <h4 style="margin-bottom: 20px">New Data Structure</h4>
+
+            <div class="input-field col s12">
+                <input id="txt-name" type="text">
+                <label for="txtSendTest">Data Structure name</label>
             </div>
+
+            <div class="row">
+                <div class="col s12" style="margin-bottom: 30px">
+                    <ul class="tabs dStructure-type" style="background: transparent;">
+                        <li class="tab col s3"><a type="openhab" href="#tab-newD-openhab">OpenHab Data</a></li>
+                        <li class="tab col s3"><a type="function" class="active" href="#tab-newD-function">Function
+                            Approximation</a>
+                        </li>
+                    </ul>
+                </div>
+                <div id="tab-newD-openhab" class="col s12">openhab coming soon...</div>
+                <div id="tab-newD-function" class="col s12">
+                    <div class="row">
+                        <div class="col s12 m4">
+                            <div class="input-field col s12">
+                                <i class="material-icons prefix">functions</i>
+                                <input value="x^3" id="txt-func" type="text">
+                                <label for="txtSendTest">Function</label>
+                            </div>
+                            <div class="input-field col s6">
+                                <i class="material-icons prefix">drag_handle</i>
+                                <input value="-10" id="num-from" type="number">
+                                <label for="num-from">From</label>
+                            </div>
+                            <div class="input-field col s6">
+                                <input value="10" id="num-to" type="number">
+                                <label for="num-to">To</label>
+                            </div>
+                        </div>
+                        <div class="col s12 m8">
+                            <canvas id="chart-function"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
-
-        <!-- Tabs -->
-        <div class="nav-content">
-            <ul class="tabs tabs-transparent">
-                <li class="tab"><a href="#tab-train">Train</a></li>
-                <li class="tab"><a href="#tab-checkpoints">Checkpoints</a></li>
-                <li class="tab"><a href="#tab-run">Run</a></li>
-                <li class="tab"><a href="#tab-settings"><i class="material-icons">settings</i></a></li>
-            </ul>
+        <div class="modal-footer">
+            <a class="modal-action modal-close waves-effect  btn-flat red white-text">Cancel</a>
+            <a id="bt-new-DataStructure"
+               class="modal-action modal-close waves-effect waves-green btn-flat green white-text">Create</a>
         </div>
-    </nav>
+    </div>
+</div>
 
 
-
+<!-- View Network ---------------------------------------------- -->
+<div id="view-network" class="no-display">
     <!-- Tab Train ------------------------------------ -->
     <div id="tab-train" class="col s12">
         <div class="row">
             <div class="col s12">
                 <div class="card">
                     <div class="card-content">
-                        <a id="bt-startTrain" class="waves-effect waves-light btn green"><i class="material-icons right">play_arrow</i>start train</a>
-                        <a id="bt-stopTrain" class="waves-effect waves-light btn red"><i class="material-icons right">stop</i>stop train</a>
+                        <a id="bt-startTrain" class="waves-effect waves-light btn green"><i
+                                class="material-icons right">play_arrow</i>start train</a>
+                        <a id="bt-stopTrain" class="waves-effect waves-light btn red"><i class="material-icons right">stop</i>stop
+                            train</a>
+
+                        <div class="input-field col s6">
+                            <input value="0.0" id="train-learnRate" min="0" step="0.01" type="number">
+                            <label for="train-learnRate">Learn rate</label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -84,7 +177,43 @@
 
 
     <!-- Tab Checkpoints ------------------------------------ -->
-    <div id="tab-checkpoints" class="col s12">
+    <div id="tab-networks" class="col s12">
+        <!-- Button New -->
+        <div class="fixed-action-btn">
+            <a href="#modal-new-network" class="btn-floating btn-large waves-effect waves-light tooltipped"
+               data-position="left" data-tooltip="new network"><i class="material-icons">add</i></a>
+        </div>
+
+        <div class="col s12 networks no-select list" >
+        </div>
+
+        <!-- Modal new Network -->
+        <div id="modal-new-network" class="modal">
+            <div class="modal-content">
+                <h4 style="margin-bottom: 20px">New neural network</h4>
+
+                <div class="input-field col s12">
+                    <input id="txt-name-net" type="text">
+                    <label for="txt-name-net">network name</label>
+                </div>
+
+                <div class="row">
+                    <div class="input-field col s6">
+                        <input value="2" min="0" step="1" id="num-hidden" type="number">
+                        <label for="num-hidden">hidden layers</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <input value="10" min="0" step="1" id="num-neronsPerHidden" type="number">
+                        <label for="num-neronsPerHidden">neurons per layer</label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <a class="modal-action modal-close waves-effect  btn-flat red white-text">Cancel</a>
+                    <a id="bt-new-network" class="modal-action modal-close waves-effect waves-green btn-flat green white-text">Create</a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Tab Run ------------------------------------ -->
@@ -118,7 +247,8 @@
     <!-- Tab Manage ------------------------------------ -->
     <div id="tab-settings" class="col s12">
         <div class="fixed-action-btn">
-            <a id="bt-save" class="btn-floating btn-large waves-effect waves-light green"><i class="material-icons">save</i></a>
+            <a id="bt-save" class="btn-floating btn-large waves-effect waves-light green"><i
+                    class="material-icons">save</i></a>
         </div>
         <div class="row">
 
@@ -171,7 +301,8 @@
                                 <i class="material-icons circle large">error_outline</i>
                                 <span class="title">Delete Network</span>
                                 <p>Delete the hole neural network with all settings and learned parameters.</p>
-                                <a  class="secondary-content btn waves-effect red"><i class="material-icons">delete</i></a>
+                                <a class="secondary-content btn waves-effect red"><i
+                                        class="material-icons">delete</i></a>
                             </li>
                         </ul>
                     </div>
@@ -181,17 +312,20 @@
         </div>
     </div>
 
-    <div class="fixedbutton row card">
+</div>
 
+    <!-- Debug -->
+    <div class="fixedbutton row card">
         <div class="card-content">
             <div class="card-title">Debug console</div>
             <div class="col s12">
                 <div class="col s6">
-                    <pre class="debug-network"  id="debug-network-console"></pre>
+                    <pre class="debug-network" id="debug-network-console"></pre>
                 </div>
                 <div class="col s6">
                     <textarea class="materialize-textarea" type="text" rows="25" id="txtSendTest"></textarea>
-                    <a id="bt-sendTxtTest" class="btn waves-effect waves-light tooltipped" data-tooltip="send json to this side">Send</a>
+                    <a id="bt-sendTxtTest" class="btn waves-effect waves-light tooltipped"
+                       data-tooltip="send json to this side">Send</a>
                 </div>
             </div>
         </div>

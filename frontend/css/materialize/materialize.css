@@ -3094,7 +3094,7 @@ nav {
     nav.nav-extended .nav-wrapper {
       min-height: 56px;
       height: auto; }
-    nav.nav-extended .nav-content {
+    nav.nav-extended .nav-network {
       position: relative;
       line-height: normal; }
   nav a {
