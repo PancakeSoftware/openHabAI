@@ -3,23 +3,34 @@ var bowerFiles = require('main-bower-files');
 var filter = require('gulp-filter');
 var concat = require('gulp-concat');
 var print = require('gulp-print');
-var rename = require('gulp-rename');
 var addSrc = require('gulp-add-src');
 var order = require('gulp-order');
 var scss = require('gulp-scss');
+var bower = require('gulp-bower');
 var browserSync = require('browser-sync').create();
 
 // all
-gulp.task('default',['js', 'css', 'html']);
+gulp.task('default', ['js', 'css', 'html']);
 
 // Define default destination folder
-var destDir = 'www/';
-var depDir  = "dependencies/";
+var inSourceBuild = true;
+var depDir  = "bower_components/";
+var srcDir  = "web/";
+
+var destDir = '';
+if (inSourceBuild)
+    destDir = srcDir;
+else
+    destDir = 'www/';
 
 
+// download dependencies
+gulp.task('bower', function() {
+    return bower(depDir);
+});
 
 // js
-gulp.task('js', function() {
+gulp.task('js', ['bower'], function() {
 
     // prism
     gulp.src(bowerFiles())
@@ -36,15 +47,15 @@ gulp.task('js', function() {
         .pipe(filter(['**/*.js', '!**/*prism.js']))
         .pipe(gulp.dest(destDir + 'js/lib'));
 
-    gulp.src('js/*.js')
+    gulp.src(srcDir + 'js/*.js')
         .pipe(gulp.dest(destDir + 'js'));
 });
 
 
 // css
-gulp.task('css', function() {
+gulp.task('css', ['bower'], function() {
     // compile materialize
-    gulp.src('css/materialize/_variables.scss')
+    gulp.src(srcDir +'css/materialize/_variables.scss')
         .pipe(gulp.dest(depDir + 'materialize/sass/components/'));
 
     gulp.src(depDir + 'materialize/sass/materialize.scss')
@@ -58,21 +69,21 @@ gulp.task('css', function() {
         .pipe(filter(['**/*.css', '!**/*materialize.css']))
         .pipe(gulp.dest(destDir + 'css/lib'));
 
-    gulp.src('css/**/*')
+    gulp.src(srcDir +'css/**/*')
         .pipe(filter(['**/**/*']))
         .pipe(gulp.dest(destDir + 'css'));
 
 });
 
 // html
-gulp.task('html', function() {
-    gulp.src('index.html')
+gulp.task('html', ['bower'], function() {
+    gulp.src(srcDir +'index.html')
         .pipe(gulp.dest(destDir));
 });
 
 
 // auto refresh
-gulp.task('browserSync', ['default'], function() {
+gulp.task('webserver', ['default'], function() {
     browserSync.init({
         server: {
             baseDir: destDir
@@ -80,10 +91,8 @@ gulp.task('browserSync', ['default'], function() {
     })
 });
 
-gulp.task('watch', ['browserSync'], function (){
-    gulp.watch('js/*.js', ['js']);
-    gulp.watch('index.html', ['html']);
-
-    gulp.watch('index.html', browserSync.reload);
-    gulp.watch('js/*.js', browserSync.reload);
+gulp.task('watch', ['webserver'], function (){
+    gulp.watch(srcDir + 'index.html', ['html', browserSync.reload]);
+    gulp.watch(srcDir + 'js/*.js', ['js', browserSync.reload]);
+    gulp.watch(srcDir + 'css/*.css', ['css', browserSync.reload]);
 });

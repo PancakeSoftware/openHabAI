@@ -1,0 +1,10 @@
+!.gitignore
+.idea
+.gulp-scss-cache/
+.sass-cache/
+node_modules/
+bower_components/
+
+www
+web/css/lib/
+web/js/lib/
