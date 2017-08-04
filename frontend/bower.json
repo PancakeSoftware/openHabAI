@@ -1,0 +1,25 @@
+{
+  "name": "OpenHabAI_Fontend",
+  "homepage": "https://github.com/JeyRunner/openHabAI",
+  "authors": [
+    "JeyRunner <JeyRunner@users.noreply.github.com>"
+  ],
+  "description": "",
+  "main": "index.html",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "materialize": "^0.100.1",
+    "jquery": "^3.2.1",
+    "mathjs": "^3.15.0",
+    "chart.js": "chartjs#^2.6.0",
+    "prism": "prismjs#^1.6.0"
+  }
+}

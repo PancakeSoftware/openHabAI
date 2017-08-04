@@ -69,17 +69,20 @@ let Navi = new function () {
     // change url
     this.changeUrl = function (url) {
         history.replaceState({}, "", "#" + url);
-    }
+    };
 
     this.updateUrl = function () {
         this.changeUrl(this.datastructureName + (this.networkName == "" ? "" : "/" + this.networkName))
-    }
+    };
 
     // init all
     $(function () {
         $('#home').click(function () {
             Navi.showDataStructureView();
         });
+
+        $('select').material_select();
+        $('.modal').modal();
 
 
         // check what to show

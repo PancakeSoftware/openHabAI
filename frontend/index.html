@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="css/materialize/materialize.css">
-    <link rel="stylesheet" href="css/prism.css">
+    <link rel="stylesheet" href="css/lib/materialize.css">
+    <link rel="stylesheet" href="css/lib/prism.css">
 
-    <script type="text/javascript" src="js/lib/jquery-3.2.1.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.13.3/math.min.js"></script>
-    <script type="text/javascript" src="js/lib/Chart.bundle.min.js"></script>
-    <script type="text/javascript" src="js/lib/materialize.min.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/math.min.js"></script>
+    <script type="text/javascript" src="js/lib/Chart.js"></script>
+    <script type="text/javascript" src="js/lib/materialize.js"></script>
     <script type="text/javascript" src="js/lib/prism.js"></script>
 
     <script type="text/javascript" src="js/DataStructuresList.js"></script>
@@ -61,7 +61,7 @@
 <div id="view-dataStructure">
     <!-- Button New -->
     <div class="fixed-action-btn">
-        <a href="#modal-new-dataStructure" class="btn-floating btn-large waves-effect waves-light tooltipped"
+        <a href="#modal-new-dataStructure" class="btn-floating btn-large waves-effect waves-light tooltipped modal-trigger"
            data-position="left" data-tooltip="New dataStructure"><i class="material-icons">add</i></a>
     </div>
 
@@ -137,14 +137,28 @@
             <div class="col s12">
                 <div class="card">
                     <div class="card-content">
-                        <a id="bt-startTrain" class="waves-effect waves-light btn green"><i
-                                class="material-icons right">play_arrow</i>start train</a>
-                        <a id="bt-stopTrain" class="waves-effect waves-light btn red"><i class="material-icons right">stop</i>stop
-                            train</a>
+                        <div class="row s12">
+                            <a id="bt-startTrain" class="waves-effect waves-light btn green"><i
+                                    class="material-icons right">play_arrow</i>start train</a>
+                            <a id="bt-stopTrain" class="waves-effect waves-light btn red"><i
+                                    class="material-icons right">stop</i>stop
+                                train</a>
+                        </div>
 
-                        <div class="input-field col s6">
-                            <input value="0.0" id="train-learnRate" min="0" step="0.01" type="number">
-                            <label for="train-learnRate">Learn rate</label>
+                        <div class="row s12">
+                            <div class="input-field col s2">
+                                <select id="train-optimizer">
+                                    <option value="sdg" >Stochastic Gradient Decent</option>
+                                    <option value="rms" disabled>RMSProp (comming later)</option>
+                                    <option value="ada" disabled>Adagrad (comming later)</option>
+                                </select>
+                                <label>Optimizer</label>
+                            </div>
+                            <div class="input-field col s2">
+                                <input value="0.0" id="train-learnRate" min="0" step="0.01" type="number">
+                                <label for="train-learnRate">Learn rate</label>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -180,7 +194,7 @@
     <div id="tab-networks" class="col s12">
         <!-- Button New -->
         <div class="fixed-action-btn">
-            <a href="#modal-new-network" class="btn-floating btn-large waves-effect waves-light tooltipped"
+            <a href="#modal-new-network" class="btn-floating btn-large waves-effect waves-light tooltipped modal-trigger"
                data-position="left" data-tooltip="new network"><i class="material-icons">add</i></a>
         </div>
 

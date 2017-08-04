@@ -20,6 +20,9 @@ var Network = new function () {
         Sock.send("get", "network", function (what) {
             // set all fields
             $('#train-learnRate').val(what.learnRate);
+            $('#train-optimizer').val(what.optimizer).material_select();
+            // reinit select
+
 
             toastOk("load network " + what.name);
         }, this.jsonMe())
@@ -111,7 +114,10 @@ var Network = new function () {
                 function (status) {
                     if (status == "ok")
                         toastOk('start train');
-            }, Network.jsonMe());
+                }, $.extend(Network.jsonMe(), {
+                    optimizer: $('#train-optimizer').val(),
+                    learnRate: $('#train-learnRate').val()
+                }));
         });
 
         $('#bt-stopTrain').click(function () {

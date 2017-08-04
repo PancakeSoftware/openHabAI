@@ -24,13 +24,16 @@
 
 # Frontend ~> Backend
 ## Do
+#### Start train
 ```
 {
   "type": "do",
   "what": "startTrain",
   "data": {
     "datastructure": 2,
-    "network": 2
+    "network": 2,
+    "optimizer": "sgd",
+    "learnRate": 0.01
   },
   "respondId": 12
 }
@@ -174,7 +177,8 @@ respond:
   "respondId": 12,
   "what": {
     "name": "Test Net",
-    "learnRate": 0.001
+    "learnRate": 0.001,
+    "optimizer": "sgd"
   }
 }
 ```
