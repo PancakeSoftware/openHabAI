@@ -80,6 +80,7 @@ NeuralNetwork::NeuralNetwork(int inputNeuronsLen, int outputNeuronsLen)
 
   // inter args
   symLossOut.InferArgsMap(ctx, &graphValues, graphValues);
+  this->graphValueNames = symLossOut.ListArguments();
 
 
   // -- INIT ALL  ----
@@ -101,8 +102,13 @@ void NeuralNetwork::train()
  * Train
  */
   Executor* exe = symLossOut.SimpleBind(ctx, graphValues, map<std::string, NDArray>()); //, graphGradientOps);
-  Optimizer *optimizer = OptimizerRegistry::Find("sgd");
 
+  // setup optimizer
+  Optimizer *optimizer = OptimizerRegistry::Find("sgd");
+  optimizer
+      ->SetParam("rescale_grad", 1.0)
+      ->SetParam("lr", 0.005)           // learn rate
+      ->SetParam("wd", 0.01);           // weight decay
 
   // load training data
   /*
@@ -167,7 +173,13 @@ void NeuralNetwork::train()
     }
 
     exe->Backward();
-    exe->UpdateAll(optimizer, 0.005, 0.01);
+
+    // Update parameters
+    for (size_t i = 0; i < this->graphValueNames.size(); ++i)
+    {
+      if (this->graphValueNames[i] == "x" || this->graphValueNames[i] == "label") continue;
+      optimizer->Update(i, exe->arg_arrays[i], exe->grad_arrays[i]);
+    }
 
     iteration++;
   }

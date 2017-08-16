@@ -95,7 +95,8 @@ void Frontend::Chart::apply(string type)
 {
   Json data = {
       {"type", "updateChart"},
-      {"what",
+      {"what", "ok"},
+      {"data",
        {
           {"chart", this->name},
           {"type", type},

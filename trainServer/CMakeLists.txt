@@ -51,6 +51,10 @@ set(INSTALL_COMPONENTS applications libraries headers)
 set(SOURCE_DIR source/)
 set(INCLUDE_DIR include/)
 
+# warnings disable:
+# - unused variable
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wunused-variable")
+
 
 # ------------------------------------
 # -- Dependences
@@ -78,9 +82,16 @@ set(DEFAULT_LIBRARIES
         pthread
         )
 
+set(DEFAULT_DEPENDENCIES
+        mxnet_external
+        seasocks_external
+        )
+
 
 # source dir
 add_subdirectory(source)
+
+
 
 
 # ----------------------------------

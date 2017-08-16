@@ -44,8 +44,7 @@ target_include_directories(${TARGET}
 target_link_libraries(${TARGET}
         ${DEFAULT_LIBRARIES}
         )
-message(STATUS LinkLibs: "${DEFAULT_LIBRARIES}")
-message(STATUS LinkLibDir: "${DEPENDENCIES_FREETYPE_DIR}")
+add_dependencies(${TARGET} ${DEFAULT_DEPENDENCIES})
 
 # ########################################
 #

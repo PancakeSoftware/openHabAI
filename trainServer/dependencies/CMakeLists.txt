@@ -5,17 +5,19 @@ include(ExternalProject)
 # -- MXNET -------------------------------------------------
 ExternalProject_Add(mxnet_external
         GIT_REPOSITORY https://github.com/dmlc/mxnet
+        GIT_TAG 0.11.0.rc1
+
         PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/mxnet"
         BUILD_IN_SOURCE 1
         INSTALL_DIR ${OUTPUT}
 
         CMAKE_ARGS
-        "-DCMAKE_INSTALL_PREFIX=${OUTPUT}"
-        "-DTESTS=OFF"
-        "-DUSE_CPP_PACKAGE=ON"
-        "-DUSE_BLAS=openblas"
-        "-DUSE_CUDA=0"
-        "-DUSE_OPENCV=0"
+            -DCMAKE_INSTALL_PREFIX=${OUTPUT}
+            -DTESTS=OFF
+            -DUSE_CPP_PACKAGE=ON
+            -DUSE_BLAS=openblas
+            -DUSE_CUDA=0
+            -DUSE_OPENCV=0
         )
 
 add_library(mxnet SHARED IMPORTED)

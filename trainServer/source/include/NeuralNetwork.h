@@ -28,6 +28,7 @@ class NeuralNetwork
     void stopTrain();
   private:
     map<std::string, NDArray> graphValues;
+    vector<std::string> graphValueNames;
     Symbol symLossOut;
 
     Context ctx;
