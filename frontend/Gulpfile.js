@@ -10,7 +10,7 @@ var bower = require('gulp-bower');
 var browserSync = require('browser-sync').create();
 
 // all
-gulp.task('default', ['js', 'css', 'html']);
+gulp.task('default', ['bower', 'js', 'css', 'html']);
 
 // Define default destination folder
 var inSourceBuild = true;
@@ -30,7 +30,7 @@ gulp.task('bower', function() {
 });
 
 // js
-gulp.task('js', ['bower'], function() {
+gulp.task('js', [], function() {
 
     // prism
     gulp.src(bowerFiles())
@@ -47,13 +47,14 @@ gulp.task('js', ['bower'], function() {
         .pipe(filter(['**/*.js', '!**/*prism.js']))
         .pipe(gulp.dest(destDir + 'js/lib'));
 
+    if (!inSourceBuild)
     gulp.src(srcDir + 'js/*.js')
         .pipe(gulp.dest(destDir + 'js'));
 });
 
 
 // css
-gulp.task('css', ['bower'], function() {
+gulp.task('css', [], function() {
     // compile materialize
     gulp.src(srcDir +'css/materialize/_variables.scss')
         .pipe(gulp.dest(depDir + 'materialize/sass/components/'));
@@ -69,6 +70,7 @@ gulp.task('css', ['bower'], function() {
         .pipe(filter(['**/*.css', '!**/*materialize.css']))
         .pipe(gulp.dest(destDir + 'css/lib'));
 
+    if (!inSourceBuild)
     gulp.src(srcDir +'css/**/*')
         .pipe(filter(['**/**/*']))
         .pipe(gulp.dest(destDir + 'css'));
@@ -76,7 +78,8 @@ gulp.task('css', ['bower'], function() {
 });
 
 // html
-gulp.task('html', ['bower'], function() {
+gulp.task('html', [], function() {
+    if (!inSourceBuild)
     gulp.src(srcDir +'index.html')
         .pipe(gulp.dest(destDir));
 });

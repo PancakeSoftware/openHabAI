@@ -60,7 +60,7 @@ var Sock = new function () {
 
         switch (data.type) {
             case "updateChart":
-                Charts.pushToChartGraph(data.what);
+                Charts.pushToChartGraph(data.data);
                 break;
 
             case "respond":
@@ -90,7 +90,7 @@ var Sock = new function () {
         if ((data !== undefined) && (!$.isEmptyObject(data)))
             dataS.data = data;
 
-        if (callback !== undefined) {
+        if (callback !== undefined && callback !== null) {
             // want respond
             dataS.respondId = this.respondCounter;
             this.respondCallbacks[this.respondCounter] = callback;

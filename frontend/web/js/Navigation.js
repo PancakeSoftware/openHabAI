@@ -13,12 +13,15 @@ let Navi = new function () {
 
         $('#nav-at').find('.nav-at-structure, .nav-at-network, .nav-at-checkpoint').remove();
 
+        // show
+        DStructure.show();
+
         this.datastructureName = "";
         this.networkName ="";
         this.updateUrl();
     };
 
-    this.showNetworksView = function (dataStructureName, NoTab) {
+    this.showNetworksView = function (dataStructureId, NoTab) {
         if (this.viewState == "networks")
             return;
 
@@ -31,38 +34,47 @@ let Navi = new function () {
         if (NoTab == false || (typeof NoTab === 'undefined')) {
             $('.nav-network .tabs').tabs('select_tab', 'tab-networks');
         }
-        this.datastructureName = dataStructureName;
+
+        // show
+        DStructure.show();
+        Networks.show(dataStructureId);
+
+        this.datastructureName = dataStructureId;
         this.networkName ="";
         this.updateUrl();
 
         var el = $('#nav-at').find('.nav-at-structure');
         if (el.length) {
-            el.text(dataStructureName);
+            el.text(dataStructureId);
             return;
         }
 
 
         $('#nav-at')
-            .append('<a class="breadcrumb nav-at-structure">DataStructure_' + dataStructureName + '</a>');
+            .append('<a class="breadcrumb nav-at-structure">DataStructure_' + dataStructureId + '</a>');
     };
 
-    this.showNetwork = function (datastructureName, networkName) {
-        this.showNetworksView(datastructureName, true);
+    this.showNetwork = function (dataStructureId, networkId) {
+        this.showNetworksView(dataStructureId, true);
         $('.nav-network .tabs').tabs('select_tab', 'tab-train');
 
-        this.datastructureName = datastructureName;
-        this.networkName = networkName;
+        this.datastructureName = dataStructureId;
+        this.networkName = networkId;
         this.updateUrl();
+
+        // show
+        DStructure.show();
+        Networks.show(dataStructureId);
+        Network.show(dataStructureId, networkId);
 
         var el = $('#nav-at').find('.nav-at-network');
         if (el.length) {
-            el.text(networkName);
+            el.text(networkId);
             return;
         }
 
         $('#nav-at')
-            .append('<a class="breadcrumb nav-at-network">'+networkName+'</a>');
-            //.append('<a class="breadcrumb nav-at-checkpoint">Initial</a>');
+            .append('<a class="breadcrumb nav-at-network">'+networkId+'</a>');
     };
 
 
@@ -88,7 +100,7 @@ let Navi = new function () {
         // check what to show
         var url = window.location.hash;
         if (url.length <= 0 && (url.split('#')) <= 1) {
-            DStructure.show();
+            Navi.showDataStructureView();
             return;
         }
         url = url.split('#')[1];
@@ -101,19 +113,19 @@ let Navi = new function () {
         if (urlParts.length == 1 || (urlParts[1] == "")) {
             // show networks of dataStructure
             console.info("show dataS " + urlParts[0]);
-            Networks.show(urlParts[0]);
+            Navi.showNetworksView(urlParts[0]);
             return;
         }
 
         if (urlParts.length == 2) {
             // show network
             console.info("show net " + urlParts[0] + "." + urlParts[1]);
-            Network.show(urlParts[0], urlParts[1]);
+            Navi.showNetwork(urlParts[0], urlParts[1]);
             return;
         }
 
 
         // if url is ??
-        DStructure.show();
+        Navi.showDataStructureView();
     });
 };

@@ -1,14 +1,19 @@
 var DStructure = new function () {
 
-    this.show = function () {
-        Navi.showDataStructureView();
+    this.loaded = false;
 
+    this.show = function () {
+
+        // load if not already
+        if (this.loaded)
+            return;
+
+        this.loaded = true;
         this.clear();
 
-
         // load list
-        Sock.send("get", "datastructures", function (what) {
-            $.each(what, function (key, item) {
+        Sock.send("get", "datastructures", function (what, data) {
+            $.each(data, function (key, item) {
                 DStructure.addStructure(
                     item.name,
                     item.id,
@@ -44,7 +49,7 @@ var DStructure = new function () {
         let d = $(this).attr("datastructure");
         toast("ID: " + d);
         Networks.show(d);
-        //Navi.showNetworksView("||" + $(this).attr("datastructure"));
+        Navi.showNetworksView(d);
     };
 
 

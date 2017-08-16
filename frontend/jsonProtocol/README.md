@@ -1,9 +1,10 @@
 # Backend ~> Frontend
 ## Update Charts
-```
+```json
 {
   "type": "updateChart",
-  "what":{
+  "what": "",
+  "data": {
       "chart": "progress",
       "type": "change",
       "graphs": [
@@ -20,12 +21,23 @@
     }
 }
 ```
+Register chart updates for network (for unsubscribe:  ```"type": "unsubscribe"```)
+```json
+{
+  "type": "subscribe",
+  "what": "updateChart",
+  "data": {
+    "datastructure": 2,
+    "network": 2
+  }
+}
+```
 
 
 # Frontend ~> Backend
 ## Do
 #### Start train
-```
+```json
 {
   "type": "do",
   "what": "startTrain",
@@ -39,7 +51,7 @@
 }
 ```
 respond:
-```
+```json
 {
   "type": "respond",
   "what": "ok",
@@ -50,7 +62,7 @@ respond:
 
 ## DataStructs
 #### Get
-```
+```json
 {
   "type": "get",
   "what": "datastructures",
@@ -58,11 +70,12 @@ respond:
 }
 ```
 respond:
-```
+```json
 {
   "type": "respond",
   "respondId": 12,
-  "what": [
+  "what": "ok",
+  "data": [
     {
         "name": "first",
         "type": "function",
@@ -72,7 +85,7 @@ respond:
 }
 ```
 #### Create
-```
+```json
 {
   "type": "create",
   "what": "datastructure",
@@ -89,7 +102,7 @@ respond:
 }
 ```
 respond:
-```
+```json
 {
   "type": "respond",
   "respondId": 12,
@@ -106,7 +119,7 @@ respond:
 
 ## Networks
 #### Get
-```
+```json
 {
   "type": "get",
   "what": "networks",
@@ -117,11 +130,12 @@ respond:
 }
 ```
 respond:
-```
+```json
 {
   "type": "respond",
   "respondId": 12,
-  "what": [
+  "what": "ok",
+  "data":[
     {
         "name": "first",
         "id": 1
@@ -130,7 +144,7 @@ respond:
 }
 ```
 #### Create
-```
+```json
 {
   "type": "create",
   "what": "network",
@@ -144,7 +158,7 @@ respond:
 }
 ```
 respond:
-```
+```json
 {
   "type": "respond",
   "respondId": 12,
@@ -159,7 +173,7 @@ respond:
 
 ## Network
 #### Get
-```
+```json
 {
   "type": "get",
   "what": "network",
@@ -171,11 +185,12 @@ respond:
 }
 ```
 respond:
-```
+```json
 {
   "type": "respond",
   "respondId": 12,
-  "what": {
+  "what": "ok",
+  "data": {
     "name": "Test Net",
     "learnRate": 0.001,
     "optimizer": "sgd"

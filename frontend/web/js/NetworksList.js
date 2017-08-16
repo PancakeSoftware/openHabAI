@@ -3,20 +3,23 @@ var Networks = new function ()
     // var
     this.dataStructure = -1;
 
-    this.show = function (dataStructre) {
-        Navi.showNetworksView(dataStructre);
+    this.show = function (dataStructure) {
 
-        this.dataStructure = dataStructre;
+        // load if not already
+        if (this.dataStructure === dataStructure)
+            return;
+
+        this.dataStructure = dataStructure;
         this.clear();
 
         // load list
-        Sock.send("get", "networks", function (what) {
-            $.each(what, function (key, item) {
+        Sock.send("get", "networks", function (what, data) {
+            $.each(data, function (key, item) {
                 Networks.addNetwork(
                     item.name,
                     item.id);
             });
-        }, {dataStructureId: dataStructre});
+        }, {dataStructureId: dataStructure});
     };
 
     this.addNetwork = function (name, id) {
@@ -25,7 +28,6 @@ var Networks = new function ()
 
         toast("new net: " + name);
 
-        // noinspection JSAnnotator
         let n = $(`        
         <div class="card" network=`+id+`>
             <div class="card-content">
@@ -44,7 +46,7 @@ var Networks = new function ()
 
     this.onNetworkEntryClick = function () {
         toast("will load network " + $(this).attr("network"));
-        Network.show(Networks.dataStructure, $(this).attr("network"));
+        Navi.showNetwork(Networks.dataStructure, $(this).attr("network"));
     };
 
 

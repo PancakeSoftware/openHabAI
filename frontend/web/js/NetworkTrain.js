@@ -2,30 +2,44 @@ var Network = new function () {
 
     this.networkId = -1;
     this.datastructure = -1;
+
     this.jsonMe = function () {
         return {
             datastructure: this.datastructure,
             networkId: this.networkId}
     };
 
-    this.show = function (datastructure, networkId) {
+    this.show = function (dataStructure, networkId) {
+
+        // load if not already
+        if (this.dataStructure === dataStructure && this.networkId === networkId) {
+            return;
+        }
+
+        // unSubscribe old updates
+        Sock.send("unsubscribe", "updateChart",null, this.jsonMe());
+
         // clear
         this.clear();
-        Navi.showNetwork(datastructure, networkId);
 
         this.networkId = networkId;
-        this.datastructure = datastructure;
+        this.datastructure = dataStructure;
 
         // load contend
-        Sock.send("get", "network", function (what) {
+        Sock.send("get", "network", function (what, data) {
             // set all fields
-            $('#train-learnRate').val(what.learnRate);
-            $('#train-optimizer').val(what.optimizer).material_select();
+            $('#train-learnRate').val(data.learnRate);
+            $('#train-optimizer').val(data.optimizer).material_select();
             // reinit select
 
 
-            toastOk("load network " + what.name);
-        }, this.jsonMe())
+            toastOk("load network " + data.name);
+        }, this.jsonMe());
+
+
+        // register chart updates
+        Sock.send("subscribe", "updateChart", null, this.jsonMe());
+
     };
 
     this.clear = function () {
