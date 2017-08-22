@@ -10,7 +10,7 @@ var bower = require('gulp-bower');
 var browserSync = require('browser-sync').create();
 
 // all
-gulp.task('default', ['bower', 'js', 'css', 'html']);
+gulp.task('default', ['js-debs', 'js', 'css-debs', 'css', 'html']);
 
 // Define default destination folder
 var inSourceBuild = true;
@@ -25,12 +25,16 @@ else
 
 
 // download dependencies
+var bowerDone = false;
 gulp.task('bower', function() {
-    return bower(depDir);
+    if (!bowerDone) {
+        bowerDone = true;
+        return bower(depDir);
+    }
 });
 
 // js
-gulp.task('js', [], function() {
+gulp.task('js-debs', ['bower'], function() {
 
     // prism
     gulp.src(bowerFiles())
@@ -52,9 +56,15 @@ gulp.task('js', [], function() {
         .pipe(gulp.dest(destDir + 'js'));
 });
 
+gulp.task('js', [], function() {
+    if (!inSourceBuild)
+        gulp.src(srcDir + 'js/*.js')
+            .pipe(gulp.dest(destDir + 'js'));
+});
+
 
 // css
-gulp.task('css', [], function() {
+gulp.task('css-debs', ['bower'], function() {
     // compile materialize
     gulp.src(srcDir +'css/materialize/_variables.scss')
         .pipe(gulp.dest(depDir + 'materialize/sass/components/'));
@@ -69,13 +79,15 @@ gulp.task('css', [], function() {
     gulp.src(bowerFiles())
         .pipe(filter(['**/*.css', '!**/*materialize.css']))
         .pipe(gulp.dest(destDir + 'css/lib'));
-
-    if (!inSourceBuild)
-    gulp.src(srcDir +'css/**/*')
-        .pipe(filter(['**/**/*']))
-        .pipe(gulp.dest(destDir + 'css'));
-
 });
+
+gulp.task('css', [], function() {
+    if (!inSourceBuild)
+        gulp.src(srcDir +'css/**/*')
+            .pipe(filter(['**/**/*']))
+            .pipe(gulp.dest(destDir + 'css'));
+});
+
 
 // html
 gulp.task('html', [], function() {

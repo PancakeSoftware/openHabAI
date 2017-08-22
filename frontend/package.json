@@ -4,13 +4,17 @@
   "description": "",
   "main": "Gulpfile.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp test",
+    "server": "gulp webserver",
+    "server-watch": "gulp watch",
+    "build": "gulp"
   },
   "author": "Joshua Johannson",
   "license": "MIT",
   "dependencies": {
     "bower": "^1.8.0",
     "gulp": "^3.9.1",
+    "gulp-cli": "^1.4.0",
     "gulp-add-src": "^0.2.0",
     "gulp-bower": "0.0.13",
     "gulp-concat": "^2.6.1",

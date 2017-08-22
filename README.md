@@ -24,7 +24,7 @@ cmake ../
 make 
 ```
 The compiled trainSever executable can be found in build/bin. <br>
-To run frontend: ```make frontendRun``` or see in [README of frontend](frontend/REAME.md)
+To run frontend: ```make frontendRun``` or see in [README of frontend](frontend/README.md)
 
  
 #### Protocol

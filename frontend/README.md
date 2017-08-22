@@ -3,9 +3,9 @@
 Install nodejs, than:
 ```bash
 npm install
-gulp
+npm run build
 ```
 #### Run
 ```bash
-gulp webserver 
+npm run server
 ```
