@@ -5,11 +5,9 @@ set(SRC)
 
 # files
 file(GLOB SRC_FILES
-        ${SOURCE_DIR}Frontend.cpp
-        ${SOURCE_DIR}main.cpp
-        ${SOURCE_DIR}NeuralNetwork.cpp
-        ${SOURCE_DIR}*.c
-        ${INCLUDE_DIR}*.h)
+        ${SOURCE_DIR}*/*.cpp
+        ${SOURCE_DIR}*.cpp
+        ${INCLUDE_DIR}*/*.h)
 
 
 #
@@ -22,6 +20,8 @@ add_executable(
 # c++11
 setCpp11()
 
+# no json exceptions
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-variable -DJSON_NOEXCEPTION ")
 
 
 #
@@ -44,7 +44,9 @@ target_include_directories(${TARGET}
 target_link_libraries(${TARGET}
         ${DEFAULT_LIBRARIES}
         )
-add_dependencies(${TARGET} ${DEFAULT_DEPENDENCIES})
+if (${OPTION_BUILD_DEPS})
+    add_dependencies(${TARGET} ${DEFAULT_DEPENDENCIES})
+endif ()
 
 # ########################################
 #

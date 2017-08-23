@@ -9,6 +9,7 @@
 #include <seasocks/Server.h>
 #include <seasocks/PrintfLogger.h>
 #include <json.hpp>
+#include "Controller.h"
 
 using namespace std;
 using namespace seasocks;
@@ -21,13 +22,14 @@ class Frontend
 
     static void sendData(Json data);
     static void send(string type, Json what);
-    static function<void (Json data)> onData;
 
-    static void respond(string status, Json originalMsg);
+    static void respond(string what, Json originalMsg);
+    static void respond(string what, Json data, Json originalMsg);
 
 
     // chart
-    class Chart {
+    class Chart
+    {
       public:
         Chart(string name);
         Chart &setGraphData(string graph, vector<float> xVals, vector<float> yVals);
@@ -45,7 +47,8 @@ class Frontend
     static Chart &getChart(string name);
   private:
 
-    struct WebSocketHandler : WebSocket::Handler {
+    struct WebSocketHandler : WebSocket::Handler
+    {
         void onConnect(WebSocket *socket) override;
         void onData(WebSocket *, const char *data) override;
         void onDisconnect(WebSocket *socket) override;

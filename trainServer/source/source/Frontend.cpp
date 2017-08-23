@@ -2,7 +2,7 @@
 // Created by joshua on 14.07.17.
 //
 
-#include <ltdl.h>
+#include <Controller.h>
 #include "Frontend.h"
 
 using namespace seasocks;
@@ -13,25 +13,33 @@ int Frontend::port;
 Server Frontend::server(make_shared<PrintfLogger>
                             (Logger::Level::INFO)
 );
-function<void (Json data)> Frontend::onData;
-
 
 
 /*
  * -- Communication
  */
-void Frontend::respond(string status, Json originalMsg)
+void Frontend::respond(string what, Json originalMsg)
+{
+  Frontend::respond(what, NULL, originalMsg);
+}
+
+void Frontend::respond(string what, Json data, Json originalMsg)
 {
   if (originalMsg.find("respondId") == originalMsg.end())
+  {
     return;
+  }
 
-  sendData(
-      {
-          {"type", "respond"},
-          {"what", status},
-          {"respondId", originalMsg["respondId"]}
-      }
-  );
+  Json json = {
+      {"type", "respond"},
+      {"respondId", originalMsg["respondId"]},
+      {"what", what}
+  };
+
+  if (data != NULL)
+    json["data"] = data;
+
+  sendData(json);
 }
 
 void Frontend::send(string type, Json what)
@@ -50,16 +58,15 @@ void Frontend::send(string type, Json what)
  */
 
 Frontend::Chart::Chart(string name)
-  :tmpGraphs()
+    : tmpGraphs()
 {
   this->name = name;
 }
 
 
-
-Frontend::Chart & Frontend::Chart::setGraphData(string graph,
-                                                initializer_list<float> xVals,
-                                                initializer_list<float> yVals)
+Frontend::Chart &Frontend::Chart::setGraphData(string graph,
+                                               initializer_list<float> xVals,
+                                               initializer_list<float> yVals)
 {
   vector<float> x = xVals;
   vector<float> y = yVals;
@@ -67,7 +74,7 @@ Frontend::Chart & Frontend::Chart::setGraphData(string graph,
   return setGraphData(graph, x, y);
 }
 
-Frontend::Chart & Frontend::Chart::setGraphData(string graph, vector<float> xVals, vector<float> yVals)
+Frontend::Chart &Frontend::Chart::setGraphData(string graph, vector<float> xVals, vector<float> yVals)
 {
   Json data = {
       {"graph", graph},
@@ -79,12 +86,11 @@ Frontend::Chart & Frontend::Chart::setGraphData(string graph, vector<float> xVal
   {
     data["data"].push_back(
         {
-            { "x", xVals[i] },
-            { "y", yVals[i] }
+            {"x", xVals[i]},
+            {"y", yVals[i]}
         }
     );
   }
-
 
 
   tmpGraphs.push_back(data);
@@ -98,10 +104,10 @@ void Frontend::Chart::apply(string type)
       {"what", "ok"},
       {"data",
        {
-          {"chart", this->name},
-          {"type", type},
-          {"graphs", this->tmpGraphs}
-        }
+           {"chart", this->name},
+           {"type", type},
+           {"graphs", this->tmpGraphs}
+       }
       }
   };
 
@@ -119,13 +125,10 @@ void Frontend::Chart::changeApply()
   apply("change");
 }
 
-Frontend::Chart & Frontend::getChart(string name)
+Frontend::Chart &Frontend::getChart(string name)
 {
-  return *(new Chart(name));
+  return *new Chart(name);
 }
-
-
-
 
 
 // -- start
@@ -137,8 +140,6 @@ void Frontend::start(int port)
   thread serverThread(serverThreadFunction);
   serverThread.detach();
 }
-
-
 
 
 void Frontend::serverThreadFunction()
@@ -159,10 +160,11 @@ void Frontend::WebSocketHandler::onConnect(WebSocket *socket)
 
 void Frontend::sendData(Json data)
 {
-  server.execute([=](){
-    for (auto s : webSockConnections)
-      s->send(data.dump());
-  });
+  server.execute([=]()
+                 {
+                   for (auto s : webSockConnections)
+                     s->send(data.dump());
+                 });
 
   // cout << "SEND: " << data.dump() << endl;
 }
@@ -170,12 +172,20 @@ void Frontend::sendData(Json data)
 void Frontend::WebSocketHandler::onData(WebSocket *sock, const char *data)
 {
   auto j = Json::parse(data);
-  cout << j.dump(2) << endl;
-  //sock->send(data);
-  if (Frontend::onData) {
-    Frontend::onData(j);
-    //thread ex(Frontend::onData, j);
-    //ex.detach();
+
+  // check if msg has necessary fields
+  if (j["type"] != "" and j["what"] != "")
+  {
+    try
+    {
+      Controller::onFrontendMessage(j);
+    }
+    catch (domain_error ex)
+    {
+      // error
+      Frontend::send("error", {{"message", "cant't progress api request ("+ string(ex.what()) +"): '"+ j.dump(2) +"'"}});
+      cout << "[ERR] [FRONTEND] cant't progress api request ("<< string(ex.what()) <<"): '"<< j.dump(2) <<"'" << endl;
+    }
   }
 }
 

@@ -23,6 +23,7 @@ project(${META_PROJECT_NAME})
 # ------------------------------------
 # -- Project options
 option(OPTION_BUILD_TESTS "Build tests." OFF)
+option(OPTION_BUILD_DEPS  "Build dependencies." ON)
 
 
 # -----------------------------

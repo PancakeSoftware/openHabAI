@@ -1,16 +1,24 @@
-//
-// Created by joshua on 15.07.17.
-//
-
 #include <Frontend.h>
 #include "NeuralNetwork.h"
 
-// static
-//Scope NeuralNetwork::tfScope = Scope::NewRootScope();
+Context *NeuralNetwork::ctx;
+
+
+void NeuralNetwork::init(Context *mxContext)
+{
+  ctx = mxContext;
+}
+
 
 // constructor
-NeuralNetwork::NeuralNetwork(int inputNeuronsLen, int outputNeuronsLen)
-  :ctx(DeviceType::kCPU, 0)
+NeuralNetwork::NeuralNetwork(DataStructure *structure, Json params)
+    : NeuralNetwork(structure)
+{
+  fromJson(params);
+}
+
+NeuralNetwork::NeuralNetwork(DataStructure *structure)
+    : JsonListItem(structure->networkIdIncrement), structure(*structure)
 {
   // clear display
   auto chartFunc = Frontend::getChart("progress");
@@ -73,13 +81,13 @@ NeuralNetwork::NeuralNetwork(int inputNeuronsLen, int outputNeuronsLen)
    */
 
   graphValues = {
-      {"x", NDArray(Shape(batchSize, 1), ctx)},
-      {"label", NDArray(Shape(batchSize, 1), ctx)}
+      {"x", NDArray(Shape(batchSize, 1), *ctx)},
+      {"label", NDArray(Shape(batchSize, 1), *ctx)}
   };
 
 
   // inter args
-  symLossOut.InferArgsMap(ctx, &graphValues, graphValues);
+  symLossOut.InferArgsMap(*ctx, &graphValues, graphValues);
   this->graphValueNames = symLossOut.ListArguments();
 
 
@@ -92,16 +100,18 @@ NeuralNetwork::NeuralNetwork(int inputNeuronsLen, int outputNeuronsLen)
   }
 
   printSymbolShapes(graphValues);
+  cout << "new net created" << endl;
 }
 
 
-// -- TRAIN ---------------
+
+// -- TRAIN -----------------------------------------
 void NeuralNetwork::train()
 {
   /* --------------------------------------
  * Train
  */
-  Executor* exe = symLossOut.SimpleBind(ctx, graphValues, map<std::string, NDArray>()); //, graphGradientOps);
+  Executor* exe = symLossOut.SimpleBind(*ctx, graphValues, map<std::string, NDArray>()); //, graphGradientOps);
 
   // setup optimizer
   Optimizer *optimizer = OptimizerRegistry::Find("sgd");
@@ -188,7 +198,6 @@ void NeuralNetwork::train()
   //printMap(graphValues);
 }
 
-
 void NeuralNetwork::trainInNewThread()
 {
   this->trainThread = new thread(&NeuralNetwork::train, this);
@@ -207,12 +216,7 @@ void NeuralNetwork::stopTrain()
 
 
 
-
-void NeuralNetwork::generate(int hiddenLayersLen, int neuronsPerLayerLen)
-{
-
-}
-
+// -- HELPER ---------------------------------------------
 void NeuralNetwork::printSymbolShapes(map<string, NDArray> map1)
 {
   for (auto& t : map1)
@@ -228,11 +232,34 @@ void NeuralNetwork::printSymbolShapes(map<string, NDArray> map1)
   }
 };
 
+
+
+// -- JSON -------------------------------------------------
+Json NeuralNetwork::toJson()
+{
+  return JsonListItem::toJson().merge(Json {
+      {"name", name},
+      {"hidden", hiddenLayers},
+      {"neuronsPerHidden", neuronsPerLayer}
+      //{"learnRate", learnrate},
+      //{"optimizer", optimizer},
+  });
+}
+void NeuralNetwork::fromJson(Json params)
+{
+  JsonListItem::fromJson(params);
+  name = params["name"];
+  hiddenLayers = params["hidden"];
+  neuronsPerLayer = params["neuronsPerHidden"];
+  //learnrate = params["learnRate"];
+  //optimizer = params["optimizer"];
+}
+
+
 NeuralNetwork::~NeuralNetwork()
 {
   //stopTrain();
 }
-
 void NeuralNetwork::shutdown()
 {
   // exit
