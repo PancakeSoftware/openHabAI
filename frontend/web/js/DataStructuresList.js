@@ -12,7 +12,7 @@ var DStructure = new function () {
         this.clear();
 
         // load list
-        Sock.send("get", "datastructures", function (what, data) {
+        Sock.send("getAll", "datastructure", function (what, data) {
             $.each(data, function (key, item) {
                 DStructure.addStructure(
                     item.name,
@@ -128,7 +128,7 @@ var DStructure = new function () {
                 }
 
                 // add
-                DStructure.addStructure(data.name, data.dataStructureId, data.type);
+                DStructure.addStructure(data.name, data.id, data.type);
             }, send);
         })
     })

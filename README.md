@@ -9,12 +9,14 @@ OpenHabAI provides a fast c++ backend
 First **install** these packages:
 * For **frontend**
     * nodejs
+    * npm
 * For **trainServer**
+    * zlib1g-dev
     * for **mxnet**
         * libopenblas-dev 
         * liblapack-dev
         * *cuda (optional, if you want to use gpu)* [see at mxnet.io](http://mxnet.io/get_started/build_from_source.html#optional-cuda-cudnn-for-nvidia-gpus)
-    * cmake, c++ build tools
+    * cmake, git, c++ build tools
     
 Execute build command:
 ```bash

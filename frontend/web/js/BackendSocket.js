@@ -71,6 +71,10 @@ var Sock = new function () {
                 delete Sock.respondCallbacks[data.respondId];
                 break;
 
+            case "error":
+                toastErr(data.what.message)
+                break;
+
             case "message":
                 toast(data.what.message);
                 break;

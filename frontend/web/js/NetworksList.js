@@ -13,13 +13,13 @@ var Networks = new function ()
         this.clear();
 
         // load list
-        Sock.send("get", "networks", function (what, data) {
+        Sock.send("getAll", "network", function (what, data) {
             $.each(data, function (key, item) {
                 Networks.addNetwork(
                     item.name,
                     item.id);
             });
-        }, {dataStructureId: dataStructure});
+        }, {datastructure: dataStructure});
     };
 
     this.addNetwork = function (name, id) {
@@ -57,10 +57,10 @@ var Networks = new function ()
         $('#bt-new-network').click(function ()
         {
             let send = {
-                dataStructure: Networks.dataStructure,
+                datastructure: Networks.dataStructure,
                 name: $('#txt-name-net').val(),
-                hidden: $('#num-hidden').val(),
-                neuronsPerHidden: $('#num-neronsPerHidden').val()
+                hidden: Number($('#num-hidden').val()),
+                neuronsPerHidden: Number($('#num-neronsPerHidden').val())
             };
 
             Sock.send("create", "network", function (what, data) {
@@ -70,7 +70,7 @@ var Networks = new function ()
                 }
 
                 // add
-                Networks.addNetwork(data.name, data.networkId);
+                Networks.addNetwork(data.name, data.id);
             }, send);
 
             // reset all
