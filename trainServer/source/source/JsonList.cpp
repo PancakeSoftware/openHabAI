@@ -4,12 +4,12 @@
  *
   */
 #include <Frontend.h>
-#include <dirent.h>
+#include <boost/filesystem.hpp>
 #include <fstream>
 #include "JsonList.h"
-
-
 #include "util/Filesystem.h"
+namespace fs = boost::filesystem;
+
 
 JsonListItem::JsonListItem(int &idIncrementCounter) : idIncrementRef(idIncrementCounter)
 {
@@ -32,7 +32,8 @@ Json JsonListItem::toJson()
 bool JsonListItem::save(string path, string fileName)
 {
   // check if folder exists
-  Filesystem::createDirIfNotExists(path);
+  //Filesystem::createDirIfNotExists(path);
+  fs::create_directories(path);
 
   ofstream stream;
   stream.open(path + "/" + fileName);

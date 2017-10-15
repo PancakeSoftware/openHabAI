@@ -5,8 +5,8 @@ var Network = new function () {
 
     this.jsonMe = function () {
         return {
-            datastructure: this.datastructure,
-            networkId: this.networkId}
+            datastructure: Number(this.datastructure),
+            networkId: Number(this.networkId) }
     };
 
     this.show = function (dataStructure, networkId) {

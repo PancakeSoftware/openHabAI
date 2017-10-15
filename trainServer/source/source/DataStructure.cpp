@@ -7,6 +7,7 @@
 #include <json.hpp>
 #include <DataStructure.h>
 #include <NeuralNetwork.h>
+#include <exprtk.hpp>
 
 int DataStructure::idIncrement = 0;
 
@@ -102,6 +103,7 @@ bool DataStructure::operator==(const DataStructure &other) const
 }
 
 
+
 // -- FUCTION -------------------------------
 Json FunctionStructure::toJson()
 {
@@ -118,7 +120,38 @@ void FunctionStructure::fromJson(Json params)
 
 vector<float> FunctionStructure::getDataBatch(vector<float> input)
 {
-  return vector<float>();
+  cout << "get Batch: " << this->function << endl;
+
+  typedef exprtk::symbol_table<double> symbol_table_t;
+  typedef exprtk::expression<double>     expression_t;
+  typedef exprtk::parser<double>             parser_t;
+
+
+  vector<float> result;
+
+  double x;
+
+  // Register x with the symbol_table
+  symbol_table_t symbol_table;
+  symbol_table.add_variable("x",x);
+
+  // Instantiate expression and register symbol_table
+  expression_t expression;
+  expression.register_symbol_table(symbol_table);
+
+  // Instantiate parser and compile the expression
+  parser_t parser;
+  parser.compile(function, expression);
+
+
+  // evaluate
+  for (float val : input)
+  {
+    x = val;
+    result.push_back(expression.value());
+  }
+
+  return result;
 }
 
 FunctionStructure::FunctionStructure(Json params)

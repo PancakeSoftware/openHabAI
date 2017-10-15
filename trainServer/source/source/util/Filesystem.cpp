@@ -4,11 +4,11 @@
  *
   */
 #include <dirent.h>
-#include <cstring>
-#include <sys/stat.h>
 #include <iostream>
-#include "util/Filesystem.h"
-using namespace Filesystem;
+#include <sys/stat.h>
+#include <util/Filesystem.h>
+#include <boost/filesystem.hpp>
+using namespace boost::filesystem;
 
 bool Filesystem::lsFor(string path, function<void(string name, bool isDir)> onEntry)
 {

@@ -18,7 +18,9 @@ add_executable(
         ${SRC_FILES})
 
 # c++11
-setCpp11()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#setCpp11()
 
 # no json exceptions
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-variable -DJSON_NOEXCEPTION ")
@@ -29,6 +31,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-variable -DJSON_NOEXCEPTION ")
 #
 target_include_directories(${TARGET}
         PRIVATE
+
         ${PROJECT_BINARY_DIR}/source/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_BINARY_DIR}/include
@@ -47,6 +50,50 @@ target_link_libraries(${TARGET}
 if (${OPTION_BUILD_DEPS})
     add_dependencies(${TARGET} ${DEFAULT_DEPENDENCIES})
 endif ()
+
+
+# ########################################
+# test
+if (OPTION_TESTS)
+    list(REMOVE_ITEM SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_DIR}main.cpp)
+
+    # files
+    file(GLOB SRC_FILES_TEST
+            ${TEST_DIR_GLOB}*.cpp)
+
+    #
+    # extrutable / Lib
+    #
+    add_executable(
+            ${TARGET}-test
+            ${SRC_FILES}
+            ${SRC_FILES_TEST})
+
+
+
+    #
+    # Include directories
+    #
+    target_include_directories(${TARGET}-test
+            PRIVATE
+
+            ${PROJECT_BINARY_DIR}/source/include
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+            ${CMAKE_CURRENT_BINARY_DIR}/include
+
+            PUBLIC
+            ${DEFAULT_INCLUDE_DIRECTORIES}
+            )
+
+    #
+    # Libraries
+    #
+    target_link_libraries(${TARGET}-test
+            ${DEFAULT_LIBRARIES}
+            GTest::main
+            )
+endif()
+
 
 # ########################################
 #

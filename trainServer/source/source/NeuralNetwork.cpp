@@ -18,11 +18,12 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure, Json params)
 }
 
 NeuralNetwork::NeuralNetwork(DataStructure *structure)
-    : JsonListItem(structure->networkIdIncrement), structure(*structure)
+    : JsonListItem(structure->networkIdIncrement), structure(*structure),
+      chartProgress(Frontend::getChart("progress")),
+      chartShape(Frontend::getChart("outputShape"))
 {
   // clear display
-  auto chartFunc = Frontend::getChart("progress");
-  chartFunc.setGraphData("error",  {}, {}).changeApply();
+  chartProgress.setGraphData("error",  {}, {}).changeApply();
 
   auto numHidden = 40;
   batchSize = 20;
@@ -35,7 +36,7 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
 
 
   auto symL1 = tanh( FullyConnected(
-      "fullyConnected",
+      "fullyConnected1",
       symX,
       Symbol::Variable("weight1"),
       Symbol::Variable("bias1"),
@@ -43,7 +44,7 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
   ));
 
   auto symL2 = tanh( FullyConnected(
-      "fullyConnected",
+      "fullyConnected2",
       symL1,
       Symbol::Variable("weight2"),
       Symbol::Variable("bias2"),
@@ -51,7 +52,7 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
   ));
 
   auto symL3 = tanh( FullyConnected(
-      "fullyConnected",
+      "fullyConnected3",
       symL2,
       Symbol::Variable("weight3"),
       Symbol::Variable("bias3"),
@@ -60,7 +61,7 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
 
 
   auto symOut = tanh( FullyConnected(
-      "fullyConnected",
+      "fullyConnected4",
       symL3,
       Symbol::Variable("weightLast"),
       Symbol::Variable("biasLast"),
@@ -109,8 +110,8 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
 void NeuralNetwork::train()
 {
   /* --------------------------------------
- * Train
- */
+  * Train
+  */
   Executor* exe = symLossOut.SimpleBind(*ctx, graphValues, map<std::string, NDArray>()); //, graphGradientOps);
 
   // setup optimizer
@@ -120,17 +121,11 @@ void NeuralNetwork::train()
       ->SetParam("lr", 0.005)           // learn rate
       ->SetParam("wd", 0.01);           // weight decay
 
-  // load training data
-  /*
-  NDArray({
-              1,2,3,4,5,6,7,8,9,10
-          }, Shape(graphValues["x"].GetShape()), ctx).CopyTo(&graphValues["x"]);
 
-  NDArray({
-              5,6,7,8,7,6,5,2,0,-2
-          }, Shape(graphValues["label"].GetShape()), ctx).CopyTo(&graphValues["label"]);
-          */
 
+  /* -----------------------------------
+   * Generate Train data
+   */
   vector<float> x;
   vector<float> y;
 
@@ -143,22 +138,26 @@ void NeuralNetwork::train()
   graphValues["x"].SyncCopyFromCPU(x);
   graphValues["label"].SyncCopyFromCPU(y);
 
-
   cout << endl;
   cout << "X: " << graphValues["x"] << endl;
   cout << "L: " << graphValues["label"] << endl;
 
+
   // display function
-  auto chartFunc = Frontend::getChart("outputShape");
   vector<float> xs;
   vector<float> ys;
   graphValues["label"].SyncCopyToCPU(&ys, batchSize);
   graphValues["x"].SyncCopyToCPU(&xs, batchSize);
-  chartFunc.setGraphData("real",  xs, ys).changeApply();
+  chartShape.setGraphData("real",  xs, ys).changeApply();
 
 
+  //vector<float> xs{1,2,3};
+  //chartShape.setGraphData("real",  xs, structure.getDataBatch(xs)).changeApply();
 
-  // train loop
+
+  /* --------------------
+   * train loop
+   */
   cout << endl << "-- Train ----------------" << endl;
   trainEnable = true;
 
@@ -167,21 +166,26 @@ void NeuralNetwork::train()
   {
     exe->Forward(true);
 
+    /*
+     * Display Graph
+     */
     if (iteration% (1000) == 0)
     {
       cout << "Y: " << exe->outputs[0] << exe->outputs[0].At(0,0) << endl;
 
-      auto chart = Frontend::getChart("progress");
-      chart.setGraphData("error", {iteration}, {exe->outputs[0].At(0,0)}).addApply();
+      chartProgress.setGraphData("error", {iteration}, {exe->outputs[0].At(0,0)}).addApply();
 
-      auto chartFunc = Frontend::getChart("outputShape");
       vector<float> xs;
       vector<float> ys;
       exe->outputs[0].SyncCopyToCPU(&ys, batchSize);
       graphValues["x"].SyncCopyToCPU(&xs, batchSize);
-      chartFunc.setGraphData("network",  xs, ys).changeApply();
+      chartShape.setGraphData("network",  xs, ys).changeApply();
     }
 
+
+    /*
+     * Backprop
+     */
     exe->Backward();
 
     // Update parameters
@@ -193,6 +197,7 @@ void NeuralNetwork::train()
 
     iteration++;
   }
+
 
   cout << endl;
   //printMap(graphValues);
@@ -253,6 +258,7 @@ void NeuralNetwork::fromJson(Json params)
   neuronsPerLayer = params["neuronsPerHidden"];
   //learnrate = params["learnRate"];
   //optimizer = params["optimizer"];
+
 }
 
 

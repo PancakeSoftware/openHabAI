@@ -10,7 +10,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "cmake")
 
 # Meta information about the project
 setMetaProject(
-        "openHabAI"  "OPENHAB_AI"               # name, name in headerfile,
+        "OpenHabAI"  "OPENHAB_AI"               # name, name in headerfile,
         "ai for openhab"                        # descrition
         "Joshua Johannson"                      # author
 )
@@ -22,7 +22,7 @@ project(${META_PROJECT_NAME})
 
 # ------------------------------------
 # -- Project options
-option(OPTION_BUILD_TESTS "Build tests." OFF)
+option(OPTION_TESTS "do tests." ON)
 option(OPTION_BUILD_DEPS  "Build dependencies." ON)
 
 
@@ -37,7 +37,11 @@ setOutDir(
         build/pack                          # package / installer / app
 )
 
-
+# ----------------------------
+# c++ options
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-unused-variable")
 
 # -----------------------------
 # -- set INSTALL out dirs
@@ -50,17 +54,25 @@ set(INSTALL_COMPONENTS applications libraries headers)
 # -----------------------------
 # -- default SOURCE dirs for targets
 set(SOURCE_DIR source/)
+set(TEST_DIR_GLOB ${CMAKE_CURRENT_SOURCE_DIR}/test/)
 set(INCLUDE_DIR include/)
 
-# warnings disable:
-# - unused variable
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wunused-variable")
 
 
-# ------------------------------------
+# -------------------------------------------------
 # -- Dependences
 add_subdirectory(dependencies)
 
+# -- BOOST
+hunter_add_package(Boost COMPONENTS filesystem)
+find_package(Boost CONFIG REQUIRED system filesystem)
+
+# -- GTEST
+hunter_add_package(GTest)
+find_package(GTest CONFIG REQUIRED)
+
+
+# ------------------------
 link_directories(
         ${OUTPUT_LIB}
         ${DEPENDENCIES_TENSORFLOW_DIR}
@@ -74,6 +86,7 @@ set(DEFAULT_INCLUDE_DIRECTORIES
         ${DEPENDENCIES_JSON_INCLUDE}
         ${DEPENDENCIES_MXNET_INCLUDE}
         ${OUTPUT_INCLUDE}
+        ${DEPENDENCIES_EXPRTK_INCLUDE}
         )
 
 set(DEFAULT_LIBRARIES
@@ -81,6 +94,8 @@ set(DEFAULT_LIBRARIES
         ${DEPENDENCIES_SEASOCKS_LIB}
         ${DEPENDENCIES_MXNET_LIB}
         pthread
+        Boost::filesystem
+        Boost::system
         )
 
 set(DEFAULT_DEPENDENCIES

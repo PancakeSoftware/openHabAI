@@ -4,6 +4,7 @@
  *
   */
 #include "Controller.h"
+#include <NeuralNetwork.h>
 
 JsonList Controller::dataStructures(DataStructure::create, "dataStructures", "structure.json");
 
@@ -27,6 +28,7 @@ void Controller::onFrontendMessage(Json msg)
     if (what == "startTrain")
     {
       cout << "=>> start train" << endl;
+      ((NeuralNetwork*)((DataStructure*)dataStructures.get(data["datastructure"]))->networks.get(data["networkId"]))->train();
 
       Frontend::send("message", {{"message", "kill old training"}});
 

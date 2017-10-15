@@ -11,6 +11,7 @@
 #include <string>
 #include <JsonList.h>
 #include <DataStructure.h>
+#include <Frontend.h>
 using namespace std;
 using namespace mxnet::cpp;
 
@@ -53,6 +54,10 @@ class NeuralNetwork : public JsonListItem
     bool trainEnable;
 
     void printSymbolShapes(map<string, NDArray> map1);
+
+    // Charts
+    Frontend::Chart chartProgress;
+    Frontend::Chart chartShape;
 
 };
 

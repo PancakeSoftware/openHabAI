@@ -1,4 +1,5 @@
 include(ExternalProject)
+include("../cmake/HunterGate.cmake")
 
 # compile dependencies
 
@@ -26,7 +27,8 @@ endif ()
 
 set(DEPENDENCIES_MXNET_LIB mxnet PARENT_SCOPE)
 set(DEPENDENCIES_MXNET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/ PARENT_SCOPE)
-set(DEPENDENCIES_MXNET_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/cpp-package/include
+set(DEPENDENCIES_MXNET_INCLUDE
+        ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/cpp-package/include
         ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/nnvm/include
         ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/include PARENT_SCOPE)
 
@@ -50,3 +52,17 @@ set(DEPENDENCIES_SEASOCKS_LIB seasocks PARENT_SCOPE)
 
 # -- JSON -------------------------------------------------
 set(DEPENDENCIES_JSON_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/json PARENT_SCOPE)
+
+
+# -- EXPRTK -----------------------------------------------
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/exprtk/exprtk.hpp")
+    file(DOWNLOAD "https://raw.githubusercontent.com/ArashPartow/exprtk/master/exprtk.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/exprtk/exprtk.hpp")
+endif()
+set(DEPENDENCIES_EXPRTK_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/exprtk PARENT_SCOPE)
+
+#ExternalProject_Add(exprtk_external
+#        GIT_REPOSITORY https://github.com/ArashPartow/exprtk.git
+
+#        PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/exprtk"
+#        BUILD_IN_SOURCE 1
+#        )
