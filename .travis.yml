@@ -1,0 +1,17 @@
+language: cpp
+
+sudo: required
+dist: trusty
+
+compiler:
+    - gcc
+
+install:
+  - sudo apt-get install -qq zlib1g-dev libopenblas-dev liblapack-dev cmake npm nodejs
+
+before_script:
+    - cmake .
+
+script:
+    - make
+    - ./build/bin/OpenHabAI-test
