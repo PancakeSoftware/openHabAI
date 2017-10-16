@@ -29,6 +29,7 @@ install:
     else
       if ! brew ls --version cmake &>/dev/null; then brew install cmake; fi
     fi
+  - cd "${TRAVIS_BUILD_DIR}"
 
 before_script:
   - cmake --version
