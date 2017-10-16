@@ -1,11 +1,11 @@
 
-# OpenHabAI[![Build Status](https://travis-ci.org/JeyRunner/openHabAI.svg?branch=master)](https://travis-ci.org/JeyRunner/openHabAI)<br>![](frontend/img/frontend.png)
+# OpenHabAI<br>![](frontend/img/frontend.png)
 Automate your home using Neuronal networks. <br>
 OpenHabAI provides a fast c++ backend 
 ([mxnet is used for computation](http://mxnet.io)) and frontend that run in browser.
 
 
-## Build
+## Build [![](https://travis-ci.org/JeyRunner/openHabAI.svg?branch=master)](https://travis-ci.org/JeyRunner/openHabAI)
 First **install** these packages:
 * For **frontend**
     * nodejs
