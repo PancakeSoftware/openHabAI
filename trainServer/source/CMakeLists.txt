@@ -18,9 +18,8 @@ add_executable(
         ${SRC_FILES})
 
 # c++11
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#setCpp11()
 
 # no json exceptions
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-variable -DJSON_NOEXCEPTION ")
