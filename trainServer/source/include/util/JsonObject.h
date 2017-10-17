@@ -6,6 +6,7 @@
 #ifndef OPENHABAI_JSONOBJECT_H
 #define OPENHABAI_JSONOBJECT_H
 
+#include <util/Log.h>
 #include <json.hpp>
 #include <string>
 #include <list>
@@ -18,9 +19,10 @@ using namespace std;
  * bind variables to json keys
  * supported data types: int, float, double, bool
  */
-class JsonObject
+class JsonObject : protected Log
 {
   public:
+    JsonObject();
     virtual Json toJson();
     virtual void fromJson(Json params);
 

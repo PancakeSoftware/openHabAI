@@ -1,9 +1,17 @@
-/* 
+/*
  * File:   JsonObject.h
  * Author: Joshua Johannson
  *
   */
 #include "util/JsonObject.h"
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
+
+
+JsonObject::JsonObject()
+{
+  setLogName("JSOBJ", "jsonObject");
+}
 
 
 // -- TO FROM JSON --------------------------------------------------------
@@ -54,12 +62,47 @@ void JsonObject::fromJson(Json params)
 // -- SAVE LOAD --------------------------------------------------------
 bool JsonObject::save(string path, string fileName)
 {
-  return false;
+  string full = path + "/" + fileName;
+
+  try {
+    fs::create_directories(path);
+  }
+  catch(exception &e) {
+    err("save to " + full, "can not create directory: " + string(e.what()));
+    return false;
+  }
+
+  ofstream stream;
+  stream.open(full);
+  if (!stream.is_open()) {
+    stream.close();
+    err("save to " + full);
+    return false;
+  }
+  stream << toJson().dump(2);
+  stream.close();
+  ok("save to " + full);
+  return true;
 }
 
 bool JsonObject::load(string path, string fileName)
 {
-  return false;
+  ifstream stream;
+  string full = path + "/" + fileName;
+
+  stream.open(full);
+  if (!stream.is_open()) {
+    stream.close();
+    err("load from " + full);
+    return false;
+  }
+
+  Json json(stream);
+  fromJson(json);
+
+  stream.close();
+  ok("load from " + full);
+  return true;
 }
 
 void JsonObject::loadChilds()
