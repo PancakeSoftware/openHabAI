@@ -1,14 +1,16 @@
+# Api between backend and frontend
 ## Basic packet structure
 There are two main types of packages:
+
 1.  ##### Request
     ```json
     {
       "type": "request",
       "route": [
         {"Component-A":   "entityID-A"},
-        {"Sub-Component": "entityID-B"},
+        {"Sub-Component": "entityID-B"}
       ],
-      "what": "add|remove|get|getAll",
+      "what": "add|update|remove|get|getAll|do|...",
       "data": {
         
       },
@@ -26,7 +28,7 @@ There are two main types of packages:
     ```json
     {
       "type": "respond",
-      "what": "ok|error|add|remove|get|getAll",
+      "what": "ok|error|...",
       "data": {
         
       },
@@ -38,17 +40,198 @@ There are two main types of packages:
 If type key not exists, package is treated as request.
 
 
-
-# Backend ~> Frontend
-## Update Charts
+## Commands
+## DataStructure
+#### Get
+ * type:"getAll" - get all elements<br>
+ * type:"get" - get one element
 ```json
 {
-  "type": "updateChart",
-  "what": "",
+  "type": "request",
+  "route": [
+    {"datastructure": ""}
+  ],
+  "what": "getAll",
+  "respondId": 12 
+}
+```
+respond:
+```json
+{
+  "type": "respond",
+  "what": "ok",
+  "data": [
+    {
+        "name": "first",
+        "type": "function",
+        "id": 1
+    }
+  ],
+  "respondId": 12,
+}
+```
+#### Create
+```json
+{
+  "type": "request",
+  "route": [
+    {"datastructure":   ""}
+  ],
+  "what": "add",
   "data": {
-      "chart": "progress",
-      "type": "change",
-      "graphs": [
+    "name": "Test",
+    "type": "function",
+    "function": "x^2 + sin(x)",
+    "range": {
+        "from": -10,
+        "to": 10
+    }
+  },
+  "respondId": 12 
+}
+```
+respond:
+```json
+{
+  "type": "respond",
+  "what": "ok",
+  "data": {
+    "id": 2,
+    "name": "Test",
+    "type": "function"
+  },
+  "respondId": 12
+}
+```
+
+
+
+## Network
+#### Get all
+```json
+{
+  "type": "request",
+  "route": [
+    {"datastructure": "2"},
+    {"network": ""}
+  ],
+  "what": "getAll",
+  "respondId": 12 
+}
+```
+respond:
+```json
+{
+  "type": "respond",
+  "what": "ok",
+  "data":[
+    {
+        "name": "first",
+        "id": 1
+    }
+  ],
+  "respondId": 12
+}
+```
+#### Create
+```json
+{
+  "type": "request",
+  "route": [
+    {"datastructure": "2"},
+    {"network": ""}
+  ],
+  "what": "add",
+  "data": {
+    "name": "Test Net",
+    "hidden": 2,
+    "neuronsPerHidden": 2
+  },
+  "respondId": 12 
+}
+```
+respond:
+```json
+{
+  "type": "respond",
+  "what": "ok",
+  "data": {
+    "id": 2,
+    "name": "Test Net"
+  },
+  "respondId": 12
+}
+```
+
+#### Get one
+```json
+{
+  "type": "request",
+  "route": [
+    {"datastructure": "2"},
+    {"network": "4"}
+  ],
+  "what": "get",
+  "respondId": 12 
+}
+```
+respond:
+```json
+{
+  "type": "respond",
+  "what": "ok",
+  "data": {
+    "name": "Test Net",
+    "learnRate": 0.001,
+    "optimizer": "sgd"
+  },
+  "respondId": 12
+}
+```
+
+
+
+## Do
+#### Start train
+```json
+{
+  "type": "request",
+  "route": [
+    {"datastructure": "2"},
+    {"network":       "4"}
+  ],
+  "what": "do",
+  "data": {
+    "do": "startTrain|stopTrain",
+    "optimizer": "sgd",
+    "learnRate": 0.01
+  },
+  "respondId": 12 
+}
+```
+respond:
+```json
+{
+  "type": "respond",
+  "what": "ok",
+  "respondId": 12
+}
+```
+
+
+## Chart
+#### Update
+```json
+{
+  "type": "request",
+  "route": [
+    {"datastructure": "2"},
+    {"network":       "4"},
+    {"chart":         "progress"}
+  ],
+  "what": "update",
+  "data": {
+    "graphs": [
         {
           "graph": "error",
           "data": [
@@ -58,187 +241,22 @@ If type key not exists, package is treated as request.
             }
           ]
         }
-      ]
-    }
+    ]
+  },
+  "respondId": 12 
 }
 ```
+#### Register
 Register chart updates for network (for unsubscribe:  ```"type": "unsubscribe"```)
 ```json
 {
-  "type": "subscribe",
-  "what": "updateChart",
-  "data": {
-    "datastructure": 2,
-    "network": 2
-  }
-}
-```
-
-
-# Frontend ~> Backend
-## Do
-#### Start train
-```json
-{
-  "type": "do",
-  "what": "startTrain",
-  "data": {
-    "datastructure": 2,
-    "network": 2,
-    "optimizer": "sgd",
-    "learnRate": 0.01
-  },
-  "respondId": 12
-}
-```
-respond:
-```json
-{
-  "type": "respond",
-  "what": "ok",
-  "respondId": 12
-}
-```
-
-
-## DataStructs
-#### Get
-type:"getAll" - get all elements<br>
-type:"get" - get one element (define id in "data")
-```json
-{
-  "type": "getAll",
-  "what": "datastructure",
-  "respondId": 12
-}
-```
-respond:
-```json
-{
-  "type": "respond",
-  "respondId": 12,
-  "what": "ok",
-  "data": [
-    {
-        "name": "first",
-        "type": "function",
-        "id": 1
-    }
-  ]
-}
-```
-#### Create
-```json
-{
-  "type": "create",
-  "what": "datastructure",
-  "respondId": 12,
-  "data": {
-    "name": "Test",
-    "type": "function",
-    "function": "x^2 + sin(x)",
-    "range": {
-        "from": -10,
-        "to": 10
-    }
-  }
-}
-```
-respond:
-```json
-{
-  "type": "respond",
-  "respondId": 12,
-  "what": "ok",
-  "data": {
-    "dataStructureId": 2,
-    "name": "Test",
-    "type": "function"
-  }
-}
-```
-
-
-
-## Networks
-#### Get
-type:"getAll" - get all elements<br>
-type:"get" - get one element (define id in "data")
-```json
-{
-  "type": "getAll",
-  "what": "networks",
-  "data": {
-    "datastructure": 2
-  },
-  "respondId": 12
-}
-```
-respond:
-```json
-{
-  "type": "respond",
-  "respondId": 12,
-  "what": "ok",
-  "data":[
-    {
-        "name": "first",
-        "id": 1
-    }
-  ]
-}
-```
-#### Create
-```json
-{
-  "type": "create",
-  "what": "network",
-  "respondId": 12,
-  "data": {
-    "datastructure": 2,
-    "name": "Test Net",
-    "hidden": 2,
-    "neuronsPerHidden": 2
-  }
-}
-```
-respond:
-```json
-{
-  "type": "respond",
-  "respondId": 12,
-  "what": "ok",
-  "data": {
-    "networkId": 2,
-    "name": "Test Net"
-  }
-}
-```
-
-
-## Network
-#### Get
-```json
-{
-  "type": "get",
-  "what": "network",
-  "respondId": 12,
-  "data": {
-     "datastructure": 2,
-     "networkId": 2
-  }
-}
-```
-respond:
-```json
-{
-  "type": "respond",
-  "respondId": 12,
-  "what": "ok",
-  "data": {
-    "name": "Test Net",
-    "learnRate": 0.001,
-    "optimizer": "sgd"
-  }
+  "type": "request",
+  "route": [
+    {"datastructure": "2"},
+    {"network":       "4"},
+    {"chart":         ""}
+  ],
+  "what": "subscribe|unsubscribe",
+  "respondId": 12 
 }
 ```

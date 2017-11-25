@@ -1,5 +1,5 @@
 
-# OpenHabAI<br>![](frontend/img/frontend.png)
+# OpenHabAI<br>![](doc/img/frontend.png)
 Automate your home using Neuronal networks. <br>
 OpenHabAI provides a fast c++ backend 
 ([mxnet is used for computation](http://mxnet.io)) and frontend that run in browser.
@@ -30,4 +30,4 @@ To run frontend: ```make frontendRun``` or see in [README of frontend](frontend/
 
  
 #### Protocol
-See backend-frontend [protocol definition](./frontend/jsonProtocol/README.md).
+See backend-frontend [protocol definition](./doc/README.md).
