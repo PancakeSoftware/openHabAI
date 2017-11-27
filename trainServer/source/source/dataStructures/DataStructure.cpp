@@ -5,7 +5,7 @@
   */
 
 #include <json.hpp>
-#include <DataStructure.h>
+#include <dataStructures/DataStructure.h>
 #include <NeuralNetwork.h>
 #include <exprtk.hpp>
 

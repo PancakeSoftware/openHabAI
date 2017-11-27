@@ -9,7 +9,7 @@
 #include <json.hpp>
 #include <list>
 #include "Frontend.h"
-#include "DataStructure.h"
+#include "dataStructures/DataStructure.h"
 
 using namespace std;
 using Json = nlohmann::json;

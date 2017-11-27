@@ -10,7 +10,7 @@
 #include <json.hpp>
 #include <string>
 #include <JsonList.h>
-#include <DataStructure.h>
+#include <dataStructures/DataStructure.h>
 #include <Frontend.h>
 using namespace std;
 using namespace mxnet::cpp;

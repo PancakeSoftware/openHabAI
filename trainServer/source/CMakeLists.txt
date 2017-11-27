@@ -58,7 +58,11 @@ if (OPTION_TESTS)
 
     # files
     file(GLOB SRC_FILES_TEST
-            ${TEST_DIR_GLOB}*.cpp)
+            ${TEST_DIR_GLOB}*cpp)
+
+    file(GLOB SRC_FILES
+            ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_DIR}json/*.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_DIR}util/*.cpp)
 
     #
     # extrutable / Lib
@@ -67,7 +71,6 @@ if (OPTION_TESTS)
             ${TARGET}-test
             ${SRC_FILES}
             ${SRC_FILES_TEST})
-
 
 
     #
@@ -91,7 +94,7 @@ if (OPTION_TESTS)
             ${DEFAULT_LIBRARIES}
             GTest::main
             )
-endif()
+endif ()
 
 
 # ########################################

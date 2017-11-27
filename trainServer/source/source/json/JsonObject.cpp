@@ -3,7 +3,7 @@
  * Author: Joshua Johannson
  *
   */
-#include "util/JsonObject.h"
+#include "json/JsonObject.h"
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
@@ -11,6 +11,12 @@ namespace fs = boost::filesystem;
 JsonObject::JsonObject()
 {
   setLogName("JSOBJ", "jsonObject");
+}
+
+JsonObject::JsonObject(Json params)
+:JsonObject()
+{
+  fromJson(params);
 }
 
 

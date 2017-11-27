@@ -50,13 +50,13 @@ void Log::setUseColor(bool use)
 void Log::fatal(string text)
 {
   print("[fatal ] ", text, LOG_LEVEL_ERROR);
-  Frontend::send("fatal", {{"message",  text + "''"}});
+//  Frontend::send("fatal", {{"message",  text + "''"}});
 }
 
 void Log::fatal(string text, string error)
 {
   print("[fatal ] ", text + ": '" + error + "'", LOG_LEVEL_ERROR);
-  Frontend::send("fatal", {{"message",  text + "'" + error + "'"}});
+  //Frontend::send("fatal", {{"message",  text + "'" + error + "'"}});
 }
 
 void Log::err(string text)

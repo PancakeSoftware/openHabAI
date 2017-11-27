@@ -2,10 +2,11 @@
  * File:   Test
  * Author: Joshua Johannson
  *
-  */
+ */
 
 #include <gtest/gtest.h>
-#include <util/JsonObject.h>
+#include "TestHelper.hpp"
+#include <json/JsonObject.h>
 
 
 class  MyObject : public JsonObject
@@ -61,5 +62,5 @@ TEST(JsonObjectTest, saveLoad)
   EXPECT_EQ(20, myObjectNew.i);
   EXPECT_EQ("string", myObjectNew.s);
   EXPECT_EQ(true, myObjectNew.b);
-  EXPECT_EQ(val, myObjectNew.toJson());
+  EXPECT_TRUE(testCompareJson(val, myObjectNew.toJson()));
 }
