@@ -36,11 +36,11 @@ var DStructure = new function () {
          </div>`);
 
         n.click(DStructure.onNetworkEntryClick);
-        $('#tab-dataStructure').append(n)
+        $('#tab-dataStructures').append(n)
     };
 
     this.clear = function () {
-        $('#tab-dataStructure').empty();
+        $('#tab-dataStructures').empty();
     };
 
 
@@ -56,7 +56,7 @@ var DStructure = new function () {
     // init all
     $(function () {
 
-        // modal -- new dataStructure
+        // modal -- new dataStructures
         $('.modal').modal();
         var chartFunction = new Chart($("#chart-function"), {
             type: 'scatter',

@@ -8,8 +8,8 @@ let Navi = new function () {
         this.viewState = "datastructures";
         $('.nav-network').addClass("no-display");
         $('#view-network').addClass("no-display");
-        $('.nav-dataStructure').removeClass("no-display");
-        $('#view-dataStructure').removeClass("no-display");
+        $('.nav-dataStructures').removeClass("no-display");
+        $('#view-dataStructures').removeClass("no-display");
 
         $('#nav-at').find('.nav-at-structure, .nav-at-network, .nav-at-checkpoint').remove();
 
@@ -28,8 +28,8 @@ let Navi = new function () {
         this.viewState = "networks";
         $('.nav-network').removeClass("no-display");
         $('#view-network').removeClass("no-display");
-        $('.nav-dataStructure').addClass("no-display");
-        $('#view-dataStructure').addClass("no-display");
+        $('.nav-dataStructures').addClass("no-display");
+        $('#view-dataStructures').addClass("no-display");
 
         if (NoTab == false || (typeof NoTab === 'undefined')) {
             $('.nav-network .tabs').tabs('select_tab', 'tab-networks');
@@ -111,7 +111,7 @@ let Navi = new function () {
         console.log(urlParts);
 
         if (urlParts.length == 1 || (urlParts[1] == "")) {
-            // show networks of dataStructure
+            // show networks of dataStructures
             console.info("show dataS " + urlParts[0]);
             Navi.showNetworksView(urlParts[0]);
             return;
