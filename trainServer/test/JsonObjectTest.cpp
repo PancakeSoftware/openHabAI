@@ -27,19 +27,26 @@ class  MyObject : public JsonObject
 
 TEST(JsonObjectTest, fromToJson)
 {
-  Json val{
+  Json valIn{
       {"value1", 20},
       {"value2", "string"},
-      {"value3", true}
+      {"value3", true},
+      {"dontHave", "error"}
+  };
+
+  Json valOut{
+      {"value1", 20},
+      {"value2", "string"},
+      {"value3", true},
   };
 
   MyObject myObject;
-  myObject.fromJson(val);
+  myObject.fromJson(valIn);
 
   EXPECT_EQ(20, myObject.i);
   EXPECT_EQ("string", myObject.s);
   EXPECT_EQ(true, myObject.b);
-  EXPECT_EQ(val, myObject.toJson());
+  EXPECT_EQ(valOut, myObject.toJson());
 }
 
 

@@ -60,6 +60,10 @@ class Log
     static int  maxNameLongLen;
 
     void print(string tag, string text, char tagMask);
+
+  protected:
+    Log();
+    Log(string nameShort);
 };
 
 

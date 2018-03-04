@@ -5,26 +5,45 @@
   */
 #include <json/JsonObject.h>
 #include "json/ApiRoute.h"
+#include <json/JsonList.h>
 
 
-ApiRoute::ApiRoute()
+ApiRoute::ApiRoute() : Log("APIR")
 {}
 
-ApiRoute::ApiRoute(vector<ApiRoute *> subRoutes)
+ApiRoute::ApiRoute(map<string, ApiProcessible*> subRoutes) : ApiRoute()
 {
   setSubRoutes(subRoutes);
 }
 
-void ApiRoute::progressApi(Json route, string what, Json data)
+ApiRespond* ApiRoute::processApi(ApiRequest request)
 {
-  string component = route.begin().key();
-  string entityId  = route.begin().value();
+  // if route == empty, this is target
+  if (request.route.begin()->size() == 0)
+    return new ApiRespondError("what: '"+ request.what +"' can not be processed by ApiRoute", request);
 
-  // pop top route-element
-  route.erase(route.begin());
+  string component = (*request.route.begin()).begin().key();
+  string entityId  = (*request.route.begin()).begin().value();
+
+  // get route
+  if (routes.find(component) == routes.end())
+    return new ApiRespondError("subRoute: '"+ component +"' dose not exist", request);
+  else
+  {
+    ApiProcessible *subRoute = routes.find(component)->second;
+    // pop top route-element if not needed by subRoute (JsonList deletes it itself)
+    if (!dynamic_cast<__JsonList*>(subRoute))
+    {
+      info("remove route");
+      request.route.begin()->erase(request.route.begin()->begin());
+    }
+
+    return subRoute->processApi(request);;
+  }
+
 }
 
-void ApiRoute::setSubRoutes(vector<ApiRoute *>& routes)
+void ApiRoute::setSubRoutes(map<string, ApiProcessible*> routes)
 {
-  this->routes = &routes;
+  this->routes = routes;
 }

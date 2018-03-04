@@ -14,7 +14,15 @@ bool Log::useColors       = false;
 int  Log::maxNameLongLen  = 0;
 
 
+Log::Log()
+{}
+
 // -- SET LOG NAME ----------------------
+Log::Log(string nameShort)
+{
+  setLogName(nameShort);
+}
+
 void Log::setLogName(string nameShort)
 {
   this->logNameShort = nameShort;

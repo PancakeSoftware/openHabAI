@@ -12,9 +12,11 @@
 #include <json/JsonObject.h>
 #include <json/ApiMessage.h>
 #include <boost/static_assert.hpp>
+#include "ApiRoute.h"
 using Json = nlohmann::json;
 using namespace std;
 
+class __JsonList {};
 
 template<class T>
 /**
@@ -22,7 +24,7 @@ template<class T>
  * elements updatable via json (get, getAll, create)
  * @param T extends JsonObject 
  */
-class JsonList : private Log
+class JsonList : public ApiProcessible, public __JsonList, protected Log
 {
     BOOST_STATIC_ASSERT((is_base_of<JsonObject, T>::value));
 
@@ -41,7 +43,7 @@ class JsonList : private Log
      * @param what  defines action to perform, allowed values depend on route
      * @param data  contains data that is necessary to perform action
      */
-    virtual Json progressApi(ApiRequest &request);
+    virtual ApiRespond* processApi(ApiRequest request);
 
     /**
      * loads all list elements from saved .json files

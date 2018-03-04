@@ -56,8 +56,8 @@ TEST(JsonListTest, add)
   cout << "len: " << list.list.length() << endl;
 
   // add two
-  list.list.progressApi(request);
-  list.list.progressApi(request2);
+  list.list.processApi(request);
+  list.list.processApi(request2);
 
   EXPECT_EQ(2, list.list.length());
   EXPECT_TRUE(testCompareJson(request.data.merge(Json{{"id", 0}}), (*list.list.items.begin()).second->toJson()));

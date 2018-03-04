@@ -7,7 +7,7 @@ include("../cmake/HunterGate.cmake")
 if (OPTION_BUILD_DEPS)
     ExternalProject_Add(mxnet_external
             GIT_REPOSITORY https://github.com/dmlc/mxnet
-            GIT_TAG 0.11.0.rc1
+            GIT_TAG 1.0.0.rc1
 
             PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/mxnet"
             BUILD_IN_SOURCE 1

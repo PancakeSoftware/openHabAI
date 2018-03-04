@@ -13,13 +13,14 @@ JsonList<T>::JsonList(int &idAutoIncrement, string folder, string entryFileName)
   setLogName("JSLI");
 }
 template<class T>
-Json JsonList<T>::progressApi(ApiRequest &request)
+ApiRespond* JsonList<T>::processApi(ApiRequest request)
 {
+
   string component = (*request.route.begin()).begin().key(); // already progressed by parent
   string entityIdString = (*request.route.begin()).begin().value().get<string>();
   int entityId = -1;
 
-  info("at " + component + "/" + entityIdString);
+  //info("at " + component + "/" + entityIdString);
 
   // check if destination is entity
   bool destEntity = (entityIdString.length() > 0);
@@ -36,6 +37,30 @@ Json JsonList<T>::progressApi(ApiRequest &request)
   }
 
 
+  // call process api of subRoute
+  function<ApiRespond*()> callProcessApiOfItem = [&](){
+    auto el = items.find(entityId);
+    if (el == items.end())
+      return (ApiRespond*) new ApiRespondError("entity '" + entityIdString + "' of '"+ component +"' not found", request);
+
+    ApiProcessible *processible = dynamic_cast<ApiProcessible*>((*el).second);
+    if (!processible)
+      return (ApiRespond*) new ApiRespondError("entity '" + entityIdString + "' cant process any api command", request);
+
+    return processible->processApi(request);
+  };
+
+
+  // JsonList has to remove top route itself, not done by parent ApiRoute
+  request.route.begin()->erase(request.route.begin()->begin());
+
+  // we ar not target if there are still route parts left
+  if (request.route.begin()->size() > 0) {
+    return callProcessApiOfItem();
+  }
+
+
+
   if (!destEntity)
   {
     /*
@@ -48,23 +73,19 @@ Json JsonList<T>::progressApi(ApiRequest &request)
       for (auto el : items)
         res.push_back(el.second->toJson());
 
-      return Json {
-          {"type", "respond"},
-          {"what", "ok"},
-          {"data", res},
-          {"respondId", request.resondId}
-      };
+      return new ApiRespondOk(res, request);
     }
 
     // add
     if (request.what == "add")
     {
-
+      T* n = createItemFunc(request.data.merge(Json {{"id", idAutoIncrement}}));
       items.insert({
                        idAutoIncrement,
-                       createItemFunc(request.data.merge(Json {{"id", idAutoIncrement}}))
+                       n
                    });
       idAutoIncrement++;
+      return new ApiRespondOk(n->toJson(), request);
     }
   }
 
@@ -80,28 +101,16 @@ Json JsonList<T>::progressApi(ApiRequest &request)
       auto el = items.find(entityId);
       if (el == items.end())
       {
-        return Json {
-            {"type", "respond"},
-            {"what", "error"},
-            {"data",
-             {"message", "entity '" + entityIdString + "' not found"}
-            },
-            {"respondId", request.resondId}
-        };
+        return new ApiRespondError("entity '" + entityIdString + "' not found", request);
       }
 
-      return Json {
-          {"type", "respond"},
-          {"what", "ok"},
-          {"data", (*el).second->toJson()},
-          {"respondId", request.resondId}
-      };
+      return new ApiRespondOk((*el).second->toJson(), request);
     }
   }
 
 
-  // pop top route-element
-  request.route.erase(request.route.begin());
+  // the what commands goal is item
+  return callProcessApiOfItem();
 }
 
 template<class T>
@@ -113,7 +122,7 @@ bool JsonList<T>::loadAll()
 template<class T>
 T &JsonList<T>::get(int id)
 {
-
+  return *(*items.find(id)).second;
 }
 
 template<class T>

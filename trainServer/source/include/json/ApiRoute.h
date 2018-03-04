@@ -9,11 +9,21 @@
 #include <json.hpp>
 #include <string>
 #include <list>
-#include <json/JsonList.h>
+#include <json/ApiMessage.h>
+#include <util/Log.h>
 using Json = nlohmann::json;
 using namespace std;
 
-
+/*
+ * Apiprocessible class
+ * object than is able to process api requests
+ * -> via processApi
+ */
+class ApiProcessible
+{
+  public:
+    virtual ApiRespond* processApi(ApiRequest request) = 0;
+};
 
 /*
  * ApiRoute class
@@ -24,7 +34,7 @@ using namespace std;
  *   {"Sub-Component": "entityID-B"},
  * ]
  */
-class ApiRoute
+class ApiRoute : public ApiProcessible, protected Log
 {
   public:
 
@@ -34,7 +44,7 @@ class ApiRoute
      * @param subRoutes set 'static' sub routes
      * @see setSubRoutes(vector<ApiRoute*>& routes)
      */
-    ApiRoute(vector<ApiRoute*> subRoutes);
+    ApiRoute(map<string, ApiProcessible*> subRoutes);
 
 
     /**
@@ -43,51 +53,17 @@ class ApiRoute
      * @param what  defines action to perform, allowed values depend on route
      * @param data  contains data that is necessary to perform action
      */
-    virtual void progressApi(Json route, string what, Json data);
+    virtual ApiRespond* processApi(ApiRequest request);
 
     /**
      * set 'static' sub routes
-     * @param routes
+     * @param routes pair.first = the ApiRoute object,
+     *               pair.second = name of route
      */
-    void setSubRoutes(vector<ApiRoute*>& routes);
+    void setSubRoutes(map<string, ApiProcessible*> routes);
 
   private:
-    vector<ApiRoute*>* routes;
-};
-
-
-/*
- * ApiRouteWithEntitys class
- * represents one route object in route list
- * expl.: here {"Component-A":   "entityID-A"}
- * "route": [
- *   {"Component-A":   "entityID-A"},
- *   {"Sub-Component": "entityID-B"},
- * ]
- * also contains JsonList as entity representation
- */
-template <class T>
-class ApiRouteWithEntities : public ApiRoute
-{
-  public:
-
-    /**
-     * @param jsonList set responsible object to progess add, set,... actions
-     */
-    ApiRouteWithEntities(JsonList<T>& jsonList)
-    {
-        this->jsonList = &jsonList;
-    }
-
-    /**
-     * @param jsonList set responsible object to progess add, set,... actions
-     * @param subRoutes set 'static' sub routes
-     */
-    ApiRouteWithEntities(JsonList<T>& jsonList, vector<ApiRoute*>& subRoutes) :
-        ApiRouteWithEntities(jsonList)  {}
-
-  private:
-    JsonList<T>* jsonList;
+    map<string, ApiProcessible*> routes;
 };
 
 #endif //OPENHABAI_APIROUTE_H
