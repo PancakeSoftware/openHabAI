@@ -44,6 +44,9 @@ Json JsonObject::toJson()
 
 void JsonObject::fromJson(Json params)
 {
+  if (params == nullptr)
+    return;
+
   for (Json::iterator it = params.begin(); it != params.end(); ++it) {
     auto i = paramPointers.find(it.key());
     if (i == paramPointers.end())
@@ -111,14 +114,33 @@ bool JsonObject::load(string path, string fileName)
   return true;
 }
 
-void JsonObject::loadChilds()
-{
-
-}
 
 
 
 void JsonObject::setJsonParams(map<string, boost::any>  params)
 {
   this->paramPointers = params;
+}
+
+ApiRespond *JsonObject::processApi(ApiRequest request)
+{
+  return nullptr;
+}
+
+void JsonObject::restore()
+{
+  ApiProcessible::restore();
+  if (storePath.is_initialized())
+    load(storePath.get(), "item.json");
+}
+
+void JsonObject::setStorePath(string path)
+{
+  ApiProcessible::setStorePath(path);
+}
+void JsonObject::store()
+{
+  ApiProcessible::store();
+  if (storePath.is_initialized())
+    save(storePath.get(), "item.json");
 }

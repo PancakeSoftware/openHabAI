@@ -47,3 +47,23 @@ void ApiRoute::setSubRoutes(map<string, ApiProcessible*> routes)
 {
   this->routes = routes;
 }
+
+void ApiRoute::restore()
+{
+  for (auto route : routes)
+    route.second->restore();
+}
+
+void ApiRoute::setStorePath(string path)
+{
+  ApiProcessible::setStorePath(path);
+  for (auto route : routes)
+    route.second->setStorePath(this->storePath.get() + "/" + route.first);
+}
+
+void ApiRoute::store()
+{
+  ApiProcessible::store();
+  for (auto route : routes)
+    route.second->store();
+}

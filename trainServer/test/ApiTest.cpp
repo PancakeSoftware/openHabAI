@@ -22,7 +22,7 @@ class Person: public JsonObject
   public:
     string name;
     int age;
-    int id;
+    int id; // <studentId>
     Person()
     {setJsonParams({{"id", &id},
                     {"age", &age},
@@ -32,17 +32,17 @@ class Person: public JsonObject
 /*
  * UniversityCourse, contains list of students
  */
-class UniversityCourse : public JsonObject, public ApiRoute
+class UniversityCourse : public ApiRouteJson
 {
   public:
     JsonList<Person> students;
     int studentsIdAutoIncrement = 0;
 
     string courseName;
-    int id;
+    int id; // <courseId>
 
     UniversityCourse(): students(studentsIdAutoIncrement, "", ""), // @TODO set path
-                        ApiRoute({{"students", &students}})
+                        ApiRouteJson({{"students", &students}})
     {
       setJsonParams({{"courseName", &courseName},
                      {"id", &id} });
@@ -74,6 +74,7 @@ class RootRoute : public ApiRoute
 TEST(ApiRouteTest, progressListAddGet)
 {
   RootRoute root;
+  root.setStorePath("../test/apiTest");
 
   /*
    * Add tow courses: SystemParallelProgramming, and Math1
@@ -106,12 +107,25 @@ TEST(ApiRouteTest, progressListAddGet)
       ))->toJson() << endl;
 
 
+
   /*
    * check length of lists
    */
     EXPECT_EQ(2, root.courses.length());
     EXPECT_EQ(3, root.courses.get(0).students.length());
     EXPECT_EQ(3, root.courses.get(1).students.length());
+
+
+  /* restored
+   * check length of lists
+   */
+  root.store();
+  RootRoute rootRestored;
+  rootRestored.setStorePath("../test/apiTest");
+  rootRestored.restore();
+  EXPECT_EQ(2, rootRestored.courses.length());
+  EXPECT_EQ(3, rootRestored.courses.get(0).students.length());
+  EXPECT_EQ(3, rootRestored.courses.get(1).students.length());
 
 
   /*

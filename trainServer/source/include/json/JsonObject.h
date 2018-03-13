@@ -11,6 +11,7 @@
 #include <string>
 #include <list>
 #include <boost/any.hpp>
+#include "ApiProcessible.h"
 using Json = nlohmann::json;
 using namespace std;
 
@@ -19,7 +20,7 @@ using namespace std;
  * bind variables to json keys
  * supported data types: int, float, double, bool
  */
-class JsonObject : protected Log
+class JsonObject : protected Log, public virtual ApiProcessible
 {
   public:
     JsonObject();
@@ -52,11 +53,6 @@ class JsonObject : protected Log
      */
     virtual bool load(string path, string fileName);
 
-    /**
-     * reserved
-     * @TODO add doc
-     */
-    virtual void loadChilds();
 
     /**
      * link class attributes to json keys
@@ -65,6 +61,11 @@ class JsonObject : protected Log
      * @param params expl.: {{"value1", &i},{"value2", &s}}
      */
     void setJsonParams(map<string, boost::any>  params);
+
+    ApiRespond *processApi(ApiRequest request) override;
+    void restore() override;
+    void store() override;
+    void setStorePath(string path) override;
 
   private:
     map<string, boost::any> paramPointers;

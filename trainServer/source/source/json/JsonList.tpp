@@ -5,6 +5,9 @@
   */
 #include <json/JsonObject.h>
 #include "json/JsonList.h"
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
+
 
 template<class T>
 JsonList<T>::JsonList(int &idAutoIncrement, string folder, string entryFileName)
@@ -43,7 +46,7 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
     if (el == items.end())
       return (ApiRespond*) new ApiRespondError("entity '" + entityIdString + "' of '"+ component +"' not found", request);
 
-    ApiProcessible *processible = dynamic_cast<ApiProcessible*>((*el).second);
+    ApiProcessible *processible = dynamic_cast<ApiProcessible*>(el->second);
     if (!processible)
       return (ApiRespond*) new ApiRespondError("entity '" + entityIdString + "' cant process any api command", request);
 
@@ -80,10 +83,11 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
     if (request.what == "add")
     {
       T* n = createItemFunc(request.data.merge(Json {{"id", idAutoIncrement}}));
-      items.insert({
-                       idAutoIncrement,
-                       n
-                   });
+      items.insert({idAutoIncrement, n});
+      if (storePath.is_initialized()) {
+        n->setStorePath(this->storePath.get() + "/" + to_string(idAutoIncrement));
+        n->store();
+      }
       idAutoIncrement++;
       return new ApiRespondOk(n->toJson(), request);
     }
@@ -131,14 +135,60 @@ int JsonList<T>::length()
   return items.size();
 }
 
-template<class T>
-void JsonList<T>::progressCommand(Json command)
-{
-
-}
 
 template<class T>
 void JsonList<T>::setCreateItemFunction(function<T *(Json params)> createItemFunc)
 {
   this->createItemFunc = createItemFunc;
+}
+
+template<class T>
+void JsonList<T>::restore()
+{
+  ApiProcessible::restore();
+  if (!storePath.is_initialized())
+    return;
+
+  // foreach dir
+  fs::directory_iterator directory_iterator(fs::path(storePath.get()));
+  while(directory_iterator != fs::directory_iterator{})
+  {
+    string id =  directory_iterator->path().filename().string();
+    int idNum;
+    try {
+      idNum = stoi(id);
+    } catch (invalid_argument e) {
+      err("entity's id (in directoryName '"+directory_iterator->path().string()+"') is not a number", e.what());
+      continue;
+    }
+    info("restore: " + storePath.get() + "/" + id);
+
+    // add item
+    T* n = createItemFunc(nullptr);
+    n->setStorePath(storePath.get() + "/" + id);
+    items.insert({idNum, n});
+    n->restore();
+
+    // next
+    idAutoIncrement++;
+    directory_iterator++;
+  }
+}
+
+template<class T>
+void JsonList<T>::setStorePath(string path)
+{
+  ApiProcessible::setStorePath(path);
+  for (auto i: items) {
+    i.second->setStorePath(this->storePath.get() + "/" + to_string(i.first));
+  }
+}
+
+template<class T>
+void JsonList<T>::store()
+{
+  ApiProcessible::store();
+  for (auto i: items) {
+    i.second->store();
+  }
 }

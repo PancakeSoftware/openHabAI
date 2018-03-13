@@ -60,10 +60,10 @@ TEST(JsonObjectTest, saveLoad)
 
   MyObject myObject;
   myObject.fromJson(val);
-  myObject.save("build/test", "testJsonObject.json");
+  myObject.save("../test", "testJsonObject.json");
 
   MyObject myObjectNew;
-  myObjectNew.load("build/test", "testJsonObject.json");
+  myObjectNew.load("../test", "testJsonObject.json");
 
 
   EXPECT_EQ(20, myObjectNew.i);

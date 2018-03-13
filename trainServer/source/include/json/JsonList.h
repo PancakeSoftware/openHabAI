@@ -9,10 +9,10 @@
 #include <json.hpp>
 #include <string>
 #include <list>
-#include <json/JsonObject.h>
-#include <json/ApiMessage.h>
 #include <boost/static_assert.hpp>
-#include "ApiRoute.h"
+#include "json/JsonObject.h"
+#include "json/ApiMessage.h"
+#include "json/ApiProcessible.h"
 using Json = nlohmann::json;
 using namespace std;
 
@@ -76,6 +76,9 @@ class JsonList : public ApiProcessible, public __JsonList, protected Log
      */
     void setCreateItemFunction(function<T *(Json params)> createItemFunc);
 
+    void restore() override;
+    void store() override;
+    void setStorePath(string path) override;
 
   private:
     int &idAutoIncrement;
@@ -86,7 +89,6 @@ class JsonList : public ApiProcessible, public __JsonList, protected Log
       return t;
     };
 
-    void progressCommand(Json command); // progress command -> send request
 };
 
 

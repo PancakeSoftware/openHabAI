@@ -11,19 +11,12 @@
 #include <list>
 #include <json/ApiMessage.h>
 #include <util/Log.h>
+#include <boost/optional.hpp>
+#include "json/JsonList.h"
+#include "json/JsonObject.h"
+#include "ApiProcessible.h"
 using Json = nlohmann::json;
 using namespace std;
-
-/*
- * Apiprocessible class
- * object than is able to process api requests
- * -> via processApi
- */
-class ApiProcessible
-{
-  public:
-    virtual ApiRespond* processApi(ApiRequest request) = 0;
-};
 
 /*
  * ApiRoute class
@@ -34,7 +27,7 @@ class ApiProcessible
  *   {"Sub-Component": "entityID-B"},
  * ]
  */
-class ApiRoute : public ApiProcessible, protected Log
+class ApiRoute : public virtual ApiProcessible, protected Log
 {
   public:
 
@@ -62,8 +55,54 @@ class ApiRoute : public ApiProcessible, protected Log
      */
     void setSubRoutes(map<string, ApiProcessible*> routes);
 
+    void restore() override;
+    void store() override;
+    void setStorePath(string path) override;
+
   private:
     map<string, ApiProcessible*> routes;
+};
+
+
+class JsonObject;
+class ApiRouteJson: public ApiRoute, public JsonObject
+{
+  public:
+
+    ApiRouteJson() : ApiRoute(){}
+
+    /**
+     * @param subRoutes set 'static' sub routes
+     * @see setSubRoutes(vector<ApiRoute*>& routes)
+     */
+    ApiRouteJson(map<string, ApiProcessible*> subRoutes) : ApiRoute(subRoutes){}
+
+    ApiRespond *processApi(ApiRequest request) override
+    {
+      auto resp =  ApiRoute::processApi(request);
+      if (resp == nullptr)
+        return JsonObject::processApi(request);
+      else
+        return resp;
+    }
+
+    void restore() override
+    {
+      JsonObject::restore();
+      ApiRoute::restore();
+    }
+
+    void store() override
+    {
+      JsonObject::store();
+      ApiRoute::store();
+    }
+
+    void setStorePath(string path) override
+    {
+      JsonObject::setStorePath(path);
+      ApiRoute::setStorePath(path);
+    }
 };
 
 #endif //OPENHABAI_APIROUTE_H
