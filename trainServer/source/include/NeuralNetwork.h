@@ -9,23 +9,26 @@
 #include <thread>
 #include <json.hpp>
 #include <string>
-#include <JsonList.h>
-#include <dataStructures/DataStructure.h>
 #include <Frontend.h>
+#include <json/ApiRoute.h>
 using namespace std;
 using namespace mxnet::cpp;
+class DataStructure;
+class Frontend;
 
 
-class NeuralNetwork : public JsonListItem
+class NeuralNetwork : public ApiRouteJson
 {
   public:
     DataStructure &structure;
+    int id;
 
-    string name, optimizer;
-    float learnrate;
+    string name, optimizer = "sgd";
+    float learnrate = 0;
     int hiddenLayers, neuronsPerLayer;
 
     static void init(Context *mxContext);
+    NeuralNetwork();
     NeuralNetwork(DataStructure *structure);
     NeuralNetwork(DataStructure *structure, Json params);
     ~NeuralNetwork();
@@ -37,8 +40,8 @@ class NeuralNetwork : public JsonListItem
     static void shutdown();
 
     void stopTrain();
-    Json toJson() override;
-    void fromJson(Json params) override;
+
+    ApiRespond *processApi(ApiRequest request) override;
 
   private:
     map<std::string, NDArray> graphValues;

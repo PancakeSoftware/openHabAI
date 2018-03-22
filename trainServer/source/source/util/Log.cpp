@@ -141,7 +141,7 @@ void Log::print(string tag, string text, char tagMask)
 {
   // output
   if (!useLongLogNames)
-    cout << "[ " << logNameShort.substr(0, 4) << " ] " << tag << "" << text << endl;
+    cout << "[ " << logNameShort/*.substr(0, 14)*/ << " ] " << tag << "" << text << endl;
   else
   {
     if (logNameLong != "")

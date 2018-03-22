@@ -24,9 +24,10 @@ class Person: public JsonObject
     int age;
     int id; // <studentId>
     Person()
-    {setJsonParams({{"id", &id},
-                    {"age", &age},
-                    {"name", &name} });}
+    {
+      addJsonParams({{"id", &id},
+                     {"age", &age},
+                     {"name", &name}});}
 };
 
 /*
@@ -41,11 +42,11 @@ class UniversityCourse : public ApiRouteJson
     string courseName;
     int id; // <courseId>
 
-    UniversityCourse(): students(studentsIdAutoIncrement, "", ""), // @TODO set path
+    UniversityCourse(): students(studentsIdAutoIncrement), // @TODO set path
                         ApiRouteJson({{"students", &students}})
     {
-      setJsonParams({{"courseName", &courseName},
-                     {"id", &id} });
+      addJsonParams({{"courseName", &courseName},
+                     {"id", &id}});
     }
 };
 
@@ -62,7 +63,7 @@ class RootRoute : public ApiRoute
     int coursesIdAutoIncrement = 0;
 
     RootRoute() :
-        courses(coursesIdAutoIncrement, "build/test", "ApiRouteTest_MyList.json"),
+        courses(coursesIdAutoIncrement),
         ApiRoute({  // set sub routes
                      {"courses", &courses}
                  }) {}
@@ -80,9 +81,9 @@ TEST(ApiRouteTest, progressListAddGet)
    * Add tow courses: SystemParallelProgramming, and Math1
    */
   ApiRequest *request = new ApiRequest(
-      Json {{
-          {"courses", ""}
-      }},
+      Json {
+          {{"courses", ""}}
+      },
       "add",
       Json {
           {"courseName", "SystemParallelProgramming"}
@@ -98,10 +99,10 @@ TEST(ApiRouteTest, progressListAddGet)
   for (int course : {0, 1})
     for (string name : {"hans", "peter", "max"})
       cout << "ADD:  " << root.processApi(ApiRequest(
-          Json{{
-                   {"courses", to_string(course)},
-                   {"students", ""}
-               }},
+          Json{
+              {{"courses", to_string(course)}},
+              {{"students", ""}}
+          },
           "add",
           Json{{"name", name}, {"age", 19}}
       ))->toJson() << endl;
@@ -137,9 +138,9 @@ TEST(ApiRouteTest, progressListAddGet)
           {{"courseName", "Math1"}, {"id", 1}}
       },
       root.processApi(ApiRequest(
-        Json {{
-          {"courses", ""}
-        }},
+        Json {
+            {{"courses", ""}}
+        },
         "getAll",
         nullptr,
         0))->data
@@ -153,12 +154,25 @@ TEST(ApiRouteTest, progressListAddGet)
           {{"name", "max"}, {"id", 2}, {"age", 19}}
       },
       root.processApi(ApiRequest(
-          Json {{
-                    {"courses", course},
-                    {"students", ""}
-                }},
+          Json {
+              {{"courses", course}},
+              {{"students", ""}}
+          },
           "getAll",
           nullptr,
           0))->data
     ));
+}
+
+TEST(JsonArrayTest, removeFromArray)
+{
+  Json test{
+                {{"courses", "a"}},
+                {{"students", ""}}
+            };
+  cout << "Before: " << test.dump(2) << endl;
+
+  test.erase(test.begin());
+  cout << test.dump(2) << endl;
+  EXPECT_EQ(1, test.size());
 }

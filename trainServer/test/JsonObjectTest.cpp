@@ -18,7 +18,7 @@ class  MyObject : public JsonObject
 
     MyObject()
     {
-      setJsonParams({{"value1", &i},
+      addJsonParams({{"value1", &i},
                      {"value2", &s},
                      {"value3", &b}});
     };

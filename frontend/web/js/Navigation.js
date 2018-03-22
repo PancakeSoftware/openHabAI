@@ -2,14 +2,14 @@ let Navi = new function () {
 
     this.datastructureName = "";
     this.networkName ="";
-    this.viewState = "datastructures";
+    this.viewState = "datastructure";
 
     this.showDataStructureView = function () {
-        this.viewState = "datastructures";
+        this.viewState = "datastructure";
         $('.nav-network').addClass("no-display");
         $('#view-network').addClass("no-display");
-        $('.nav-dataStructures').removeClass("no-display");
-        $('#view-dataStructures').removeClass("no-display");
+        $('.nav-dataStructure').removeClass("no-display");
+        $('#view-dataStructure').removeClass("no-display");
 
         $('#nav-at').find('.nav-at-structure, .nav-at-network, .nav-at-checkpoint').remove();
 
@@ -28,8 +28,8 @@ let Navi = new function () {
         this.viewState = "networks";
         $('.nav-network').removeClass("no-display");
         $('#view-network').removeClass("no-display");
-        $('.nav-dataStructures').addClass("no-display");
-        $('#view-dataStructures').addClass("no-display");
+        $('.nav-dataStructure').addClass("no-display");
+        $('#view-dataStructure').addClass("no-display");
 
         if (NoTab == false || (typeof NoTab === 'undefined')) {
             $('.nav-network .tabs').tabs('select_tab', 'tab-networks');

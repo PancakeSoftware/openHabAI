@@ -21,6 +21,9 @@ using namespace std;
 class Log
 {
   public:
+    Log();
+    Log(string nameShort);
+
     static void setLogLevel(char log_level_mask);
     static void setUseLongLogNames(bool use);
     static void setUseColor(bool use);
@@ -60,10 +63,6 @@ class Log
     static int  maxNameLongLen;
 
     void print(string tag, string text, char tagMask);
-
-  protected:
-    Log();
-    Log(string nameShort);
 };
 
 

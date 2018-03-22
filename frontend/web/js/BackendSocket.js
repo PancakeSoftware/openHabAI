@@ -59,11 +59,18 @@ var Sock = new function () {
         networkDebugAppend("GET --------------", data);
 
         switch (data.type) {
+            /*
             case "updateChart":
                 Charts.pushToChartGraph(data.data);
                 break;
+                */
 
             case "respond":
+                if (data.what == "error") {
+                    //toastErr("<p>" + data.data.message + "</p><br> <pre>" + Prism.highlight(JSON.stringify(data.data.request, null, 2), Prism.languages.json) + "</pre>");
+                    toastErr("<p>" + data.data.message + "</p><br>");
+                    return;
+                }
                 if (data.data !== undefined)
                     Sock.respondCallbacks[data.respondId](data.what, data.data);
                 else
@@ -71,12 +78,8 @@ var Sock = new function () {
                 delete Sock.respondCallbacks[data.respondId];
                 break;
 
-            case "error":
-                toastErr(data.what.message)
-                break;
-
-            case "message":
-                toast(data.what.message);
+            case "request":
+                toastErr("progress request not implemented yet");
                 break;
 
             default:
@@ -85,9 +88,10 @@ var Sock = new function () {
     };
 
 
-    this.send = function sockSend(type, what, callback, data) {
+    this.send = function sockSendRequest(route, what, callback, data) {
         var dataS = {
-            "type": type,
+            "type": "request",
+            "route": route,
             "what": what
         };
 

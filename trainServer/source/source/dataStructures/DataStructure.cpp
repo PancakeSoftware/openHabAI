@@ -9,90 +9,36 @@
 #include <NeuralNetwork.h>
 #include <exprtk.hpp>
 
-int DataStructure::idIncrement = 0;
 
 DataStructure::DataStructure()
-: JsonListItem::JsonListItem(idIncrement),
-  networks([&](Json params){
-             return new NeuralNetwork(this, params);
-           },
-           "dataStructures/" + to_string(id) + "/networks", "network.json")
-{}
-
-DataStructure::DataStructure(string path, string filename) : DataStructure()
+: ApiRouteJson({{"networks", &networks}})
 {
-  load(path, filename);
+  setLogName("DATASTRUC");
+  // link network when created with this datastructure
+  networks.setCreateItemFunction([this](Json params) ->  NeuralNetwork* {
+        NeuralNetwork *t = new NeuralNetwork(this);
+        t->fromJson(params);
+        return t;
+  });
+  addJsonParams({{"name", &name},
+                 {"type", &type},
+                 {"id", &id}});
 }
-
-
-DataStructure::DataStructure(Json params)
-    : DataStructure()
-{
-  fromJson(params);
-}
-
 
 DataStructure *DataStructure::create(Json params)
 {
+  DataStructure *n;
   if (params == NULL)
-  {
     return NULL;
-  }
 
   if (params["type"] == "function")
-  {
-    return new FunctionStructure(params);
-  }
-}
+    n = new FunctionDataStructure();
 
-// -- GET / SET ----------------------
-Json DataStructure::toJson()
-{
-  Json json = {
-      {"name", name},
-      {"type", type()}
-  };
-  return json.merge(JsonListItem::toJson());
-}
-
-void DataStructure::fromJson(Json params)
-{
-  // cout << "DataStructure::fromJson(Json params)" << endl;
-  JsonListItem::fromJson(params);
-  name = params["name"];
-  type(params["type"]);
-}
-
-void DataStructure::loadChilds()
-{
-  // load networks
-  networks.folder = "dataStructures/" + to_string(id) + "/networks";
-  networks.loadAll();
+  n->fromJson(params);
+  return n;
 }
 
 
-string DataStructure::type()
-{
-  switch (type_)
-  {
-    case TYPE_FUNCTION:
-      return "function";
-    case TYPE_OPENHAB:
-      return "openhab";
-  }
-}
-
-void DataStructure::type(string type)
-{
-  if (type == "function")
-  {
-    this->type_ = TYPE_FUNCTION;
-  }
-  if (type == "openhab")
-  {
-    this->type_ = TYPE_OPENHAB;
-  }
-}
 bool DataStructure::operator==(int other) const
 {
   return this->id == other;
@@ -105,20 +51,13 @@ bool DataStructure::operator==(const DataStructure &other) const
 
 
 // -- FUCTION -------------------------------
-Json FunctionStructure::toJson()
+
+FunctionDataStructure::FunctionDataStructure()
 {
-  return DataStructure::toJson().merge(Json {
-      {"function", function}
-  });
-}
-void FunctionStructure::fromJson(Json params)
-{
-  //cout << "FunctionStructure::fromJson(Json params)" << endl;
-  DataStructure::fromJson(params);
-  function = params["function"];
+  addJsonParams({{"function", &function}});
 }
 
-vector<float> FunctionStructure::getDataBatch(vector<float> input)
+vector<float> FunctionDataStructure::getDataBatch(vector<float> input)
 {
   cout << "get Batch: " << this->function << endl;
 
@@ -154,7 +93,3 @@ vector<float> FunctionStructure::getDataBatch(vector<float> input)
   return result;
 }
 
-FunctionStructure::FunctionStructure(Json params)
-{
-  fromJson(params);
-}

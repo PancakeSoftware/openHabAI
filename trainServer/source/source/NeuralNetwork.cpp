@@ -11,6 +11,10 @@ void NeuralNetwork::init(Context *mxContext)
 
 
 // constructor
+NeuralNetwork::NeuralNetwork()
+    : NeuralNetwork(nullptr)
+{}
+
 NeuralNetwork::NeuralNetwork(DataStructure *structure, Json params)
     : NeuralNetwork(structure)
 {
@@ -18,10 +22,19 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure, Json params)
 }
 
 NeuralNetwork::NeuralNetwork(DataStructure *structure)
-    : JsonListItem(structure->networkIdIncrement), structure(*structure),
+    : ApiRouteJson(),
+      structure(*structure),
       chartProgress(Frontend::getChart("progress")),
       chartShape(Frontend::getChart("outputShape"))
 {
+  setLogName("NETWORK");
+  addJsonParams({{"name", &name},
+                 {"id", &id},
+                 {"hidden", &hiddenLayers},
+                 {"neuronsPerHidden", &neuronsPerLayer},
+                 {"learnRate", &learnrate},
+                 {"optimizer", &optimizer}});
+
   // clear display
   chartProgress.setGraphData("error",  {}, {}).changeApply();
 
@@ -101,7 +114,7 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
   }
 
   printSymbolShapes(graphValues);
-  cout << "new net created" << endl;
+  ok("new net created");
 }
 
 
@@ -224,42 +237,19 @@ void NeuralNetwork::stopTrain()
 // -- HELPER ---------------------------------------------
 void NeuralNetwork::printSymbolShapes(map<string, NDArray> map1)
 {
+  stringstream out;
   for (auto& t : map1)
   {
-    std::cout << t.first << ": (";
+    out << t.first << ": (";
 
     for (auto s : t.second.GetShape())
-      cout << s << ",";
+      out << s << ",";
 
-    cout << ")   "; //<< t.second << "";
-
-    cout << endl;
+    out << ")   "; //<< t.second << "";
   }
+  info("symbol shapes: " + out.str());
 };
 
-
-
-// -- JSON -------------------------------------------------
-Json NeuralNetwork::toJson()
-{
-  return JsonListItem::toJson().merge(Json {
-      {"name", name},
-      {"hidden", hiddenLayers},
-      {"neuronsPerHidden", neuronsPerLayer}
-      //{"learnRate", learnrate},
-      //{"optimizer", optimizer},
-  });
-}
-void NeuralNetwork::fromJson(Json params)
-{
-  JsonListItem::fromJson(params);
-  name = params["name"];
-  hiddenLayers = params["hidden"];
-  neuronsPerLayer = params["neuronsPerHidden"];
-  //learnrate = params["learnRate"];
-  //optimizer = params["optimizer"];
-
-}
 
 
 NeuralNetwork::~NeuralNetwork()
@@ -270,4 +260,21 @@ void NeuralNetwork::shutdown()
 {
   // exit
   MXNotifyShutdown();
+}
+ApiRespond *NeuralNetwork::processApi(ApiRequest request)
+{
+  ApiRespond* respond = ApiRouteJson::processApi(request);
+  if (respond != nullptr)
+    return respond;
+
+  /*
+   * Networks Api */
+  if (request.what == "do") {
+    if (request.data["do"] == "startTrain") {
+      return new ApiRespondError("not supported", request);
+    }
+    else if (request.data["do"] == "stopTrain") {
+      return new ApiRespondError("not supported", request);
+    }
+  }
 }

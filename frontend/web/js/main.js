@@ -16,7 +16,7 @@ function toastInfo(msg) {
 }
 
 function toastErr(msg) {
-    Materialize.toast('<i class="material-icons left circle red">error_outline</i>' + msg, 2500);
+    Materialize.toast('<i class="material-icons left circle red">error_outline</i>' + msg, 2000);
 }
 
 function networkDebugAppend(msg, json) {

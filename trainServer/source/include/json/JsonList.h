@@ -31,11 +31,10 @@ class JsonList : public ApiProcessible, public __JsonList, protected Log
   public:
     string folder;
     string entryFileName;
+    int defaultIdAutoIncrement = 0;
 
-    JsonList(
-        int &idAutoIncrement,
-        string folder,
-        string entryFileName);
+    JsonList();
+    JsonList(int &idAutoIncrement);
 
     /**
      * progress first route-object in route list
@@ -44,11 +43,6 @@ class JsonList : public ApiProcessible, public __JsonList, protected Log
      * @param data  contains data that is necessary to perform action
      */
     virtual ApiRespond* processApi(ApiRequest request);
-
-    /**
-     * loads all list elements from saved .json files
-     */
-    bool loadAll();
 
 
     /**

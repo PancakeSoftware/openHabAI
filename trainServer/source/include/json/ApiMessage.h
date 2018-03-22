@@ -11,20 +11,31 @@
 using Json = nlohmann::json;
 using namespace std;
 
+class ApiMessage
+{
+  public:
+    virtual Json toJson() { return Json(); };
+};
+
 /**
  * @param route route list, defines something similar to rest url
  * @param what  defines action to perform, allowed values depend on route
  * @param data  contains data that is necessary to perform action
  */
-struct ApiRequest
+class ApiRequest: public ApiMessage
 {
+  public:
     Json route;
     string what;
     Json data;
     int  respondId = -1;
-    bool respondWanted = false;
 
     ApiRequest(){}
+    ApiRequest(Json route, string what)
+    {
+      this->route = route;
+      this->what = what;
+    }
     ApiRequest(Json route, string what, Json data)
     {
       this->route = route;
@@ -37,43 +48,70 @@ struct ApiRequest
       this->what = what;
       this->data = data;
       this->respondId = respondId;
-      this->respondWanted = true;
+    }
+
+    virtual Json toJson() override
+    {
+      return Json {
+          {"type", "request"},
+          {"what", what},
+          {"data", data},
+          {"respondId", respondId}
+      };
     }
 };
 
-struct ApiRespond
+class ApiRespond: public ApiMessage
 {
+  public:
     string what;
     Json data;
-    int resondId = -1;
+    int respondId = -1;
+    ApiRequest *request = nullptr;
 
+    ApiRespond() {}
     ApiRespond(ApiRequest request)
     {
-      this->resondId = request.respondId;
+      this->request = &request;
+      this->respondId = request.respondId;
     }
 
-    virtual Json toJson()
+    virtual Json toJson() override
     {
       return Json {
           {"type", "respond"},
           {"what", what},
           {"data", data},
-          {"respondId", resondId}
+          {"respondId", respondId}
       };
     }
 };
 
-struct ApiRespondError : ApiRespond
+class ApiRespondError : public ApiRespond
 {
-    ApiRespondError(string error, ApiRequest request) : ApiRespond(request)
+  public:
+    ApiRespondError(string error)
     {
       this->data = Json{{"message", error}};
       this->what = "error";
     }
+
+    ApiRespondError(string error, ApiRequest request) : ApiRespond(request)
+    {
+      this->data = Json{{"message", error},{"request", request.toJson()}};
+      this->what = "error";
+    }
+
+    ApiRespondError(string error, Json request)
+    {
+      this->data = Json{{"message", error},{"request", request}};
+      this->what = "error";
+    }
 };
 
-struct ApiRespondOk : ApiRespond
+class ApiRespondOk : public ApiRespond
 {
+  public:
     ApiRespondOk(Json data, ApiRequest request) : ApiRespond(request)
     {
       this->data = data;

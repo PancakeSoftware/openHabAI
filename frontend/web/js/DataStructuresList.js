@@ -12,7 +12,7 @@ var DStructure = new function () {
         this.clear();
 
         // load list
-        Sock.send("getAll", "datastructure", function (what, data) {
+        Sock.send([{"dataStructures": ""}] ,"getAll", function (what, data) {
             $.each(data, function (key, item) {
                 DStructure.addStructure(
                     item.name,
@@ -36,11 +36,11 @@ var DStructure = new function () {
          </div>`);
 
         n.click(DStructure.onNetworkEntryClick);
-        $('#tab-dataStructures').append(n)
+        $('#tab-dataStructure').append(n)
     };
 
     this.clear = function () {
-        $('#tab-dataStructures').empty();
+        $('#tab-dataStructure').empty();
     };
 
 
@@ -115,13 +115,11 @@ var DStructure = new function () {
                 name: $('#txt-name').val(),
                 type: $('.dStructure-type .active').attr('type'),
                 function: $('#txt-func').val(),
-                range: {
-                    from: $('#num-from').val(),
-                    to:   $('#num-to').val()
-                }
+                range_from: $('#num-from').val(),
+                range_to:   $('#num-to').val()
             };
 
-            Sock.send("create", "datastructure", function (what, data) {
+            Sock.send([{"dataStructures": ""}], "add", function (what, data) {
                 if (what !== "ok") {
                     toastErr("cant create datastructure");
                     return;

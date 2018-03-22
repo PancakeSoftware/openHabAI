@@ -32,7 +32,9 @@ class ApiProcessible
     {
       auto el = processWhats.find(request.what);
       if (el != processWhats.end())
-        el->second(request);
+        return el->second(request);
+      else
+        return nullptr;
     };
 
     /**
@@ -44,6 +46,11 @@ class ApiProcessible
      * store state of self and subObjects
      */
     virtual void store() {};
+
+    /**
+     * store state of self and subObjects
+     */
+    virtual void storeMe() {};
 
     /*
      * set full path to store this

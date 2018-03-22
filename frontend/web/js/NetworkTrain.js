@@ -3,10 +3,11 @@ var Network = new function () {
     this.networkId = -1;
     this.datastructure = -1;
 
-    this.jsonMe = function () {
-        return {
-            datastructure: Number(this.datastructure),
-            networkId: Number(this.networkId) }
+    this.myRoute = function () {
+        return [
+            {dataStructures: String(this.datastructure)},
+            {networks: String(this.networkId)}
+        ];
     };
 
     this.show = function (dataStructure, networkId) {
@@ -17,7 +18,7 @@ var Network = new function () {
         }
 
         // unSubscribe old updates
-        Sock.send("unsubscribe", "updateChart",null, this.jsonMe());
+        //Sock.send("unsubscribe", "updateChart",null, this.jsonMe());
 
         // clear
         this.clear();
@@ -26,19 +27,20 @@ var Network = new function () {
         this.datastructure = dataStructure;
 
         // load contend
-        Sock.send("get", "network", function (what, data) {
+        Sock.send(this.myRoute(), "get", function (what, data) {
             // set all fields
             $('#train-learnRate').val(data.learnRate);
             $('#train-optimizer').val(data.optimizer).material_select();
+            $('#train-optimizer').material_select();
+            toastInfo("optimizer '" + data.optimizer +"'");
             // reinit select
 
-
             toastOk("load network " + data.name);
-        }, this.jsonMe());
+        });
 
 
         // register chart updates
-        Sock.send("subscribe", "updateChart", null, this.jsonMe());
+        //Sock.send("subscribe", "updateChart", null, this.jsonMe());
 
     };
 
@@ -124,22 +126,27 @@ var Network = new function () {
         // ----------------------------
         // buttons -- train
         $('#bt-startTrain').click(function () {
-            Sock.send("do", "startTrain",
+            // update values
+            Sock.send(Network.myRoute(), "update", null, {
+                optimizer: $('#train-optimizer').val(),
+                learnRate: Number($('#train-learnRate').val())
+            });
+
+            // start train
+            Sock.send(Network.myRoute(), "do",
                 function (status) {
                     if (status == "ok")
                         toastOk('start train');
-                }, $.extend(Network.jsonMe(), {
-                    optimizer: $('#train-optimizer').val(),
-                    learnRate: $('#train-learnRate').val()
-                }));
+                }, {"do": "startTrain"});
         });
 
         $('#bt-stopTrain').click(function () {
-            Sock.send("do", "stopTrain",
+            // stop train
+            Sock.send(Network.myRoute(), "do",
                 function (status) {
                     if (status == "ok")
-                        toastOk('training stopped');
-            }, Network.jsonMe());
+                        toastOk('stop train');
+                }, {"do": "stopTrain"});
         });
     });
 };

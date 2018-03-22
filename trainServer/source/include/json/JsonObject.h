@@ -20,7 +20,7 @@ using namespace std;
  * bind variables to json keys
  * supported data types: int, float, double, bool
  */
-class JsonObject : protected Log, public virtual ApiProcessible
+class JsonObject : private virtual Log, public virtual ApiProcessible
 {
   public:
     JsonObject();
@@ -59,12 +59,14 @@ class JsonObject : protected Log, public virtual ApiProcessible
      * format: map of {"JSON_KEY", POINTER_TO_ATTRIBUTE}
      * @attention supported data types: int, float, double, bool
      * @param params expl.: {{"value1", &i},{"value2", &s}}
+     * @note if attribute is not a pointer it will be ignored
      */
-    void setJsonParams(map<string, boost::any>  params);
+    void addJsonParams(map<string, boost::any> params);
 
     ApiRespond *processApi(ApiRequest request) override;
     void restore() override;
     void store() override;
+    void storeMe() override;
     void setStorePath(string path) override;
 
   private:

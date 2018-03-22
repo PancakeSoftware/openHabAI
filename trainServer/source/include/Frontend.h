@@ -9,7 +9,8 @@
 #include <seasocks/Server.h>
 #include <seasocks/PrintfLogger.h>
 #include <json.hpp>
-#include "Controller.h"
+#include <util/Log.h>
+#include <json/ApiMessage.h>
 
 using namespace std;
 using namespace seasocks;
@@ -21,10 +22,9 @@ class Frontend
     static void start(int port);
 
     static void sendData(Json data);
-    static void send(string type, Json what);
+    static void send(ApiRespond message);
+    static void send(ApiRequest message);
 
-    static void respond(string what, Json originalMsg);
-    static void respond(string what, Json data, Json originalMsg);
 
 
     // chart
@@ -45,8 +45,9 @@ class Frontend
 
 
     static Chart &getChart(string name);
-  private:
 
+  private:
+    static Log l;
     struct WebSocketHandler : WebSocket::Handler
     {
         void onConnect(WebSocket *socket) override;

@@ -5,6 +5,7 @@
 
 #include "NeuralNetwork.h"
 #include "Frontend.h"
+#include <ApiRoot.h>
 
 using namespace std;
 
@@ -31,7 +32,8 @@ int main(int argc, char *argv[])
   // start frontend, load saved
   NeuralNetwork::init(new Context(DeviceType::kCPU, 0));
   Frontend::start(5555);
-  Controller::loadAll();
+  apiRoot.setStorePath(".");
+  apiRoot.restore();
 
 
 

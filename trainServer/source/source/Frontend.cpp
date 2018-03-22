@@ -2,12 +2,13 @@
 // Created by joshua on 14.07.17.
 //
 
-#include <Controller.h>
+#include <ApiRoot.h>
 #include "Frontend.h"
 
 using namespace seasocks;
 
 // static
+Log Frontend::l("FRONTEND");
 set<WebSocket *> Frontend::webSockConnections;
 int Frontend::port;
 Server Frontend::server(make_shared<PrintfLogger>
@@ -18,38 +19,15 @@ Server Frontend::server(make_shared<PrintfLogger>
 /*
  * -- Communication
  */
-void Frontend::respond(string what, Json originalMsg)
+
+void Frontend::send(ApiRequest message)
 {
-  Frontend::respond(what, NULL, originalMsg);
+  sendData(message.toJson());
 }
 
-void Frontend::respond(string what, Json data, Json originalMsg)
+void Frontend::send(ApiRespond message)
 {
-  if (originalMsg.find("respondId") == originalMsg.end())
-  {
-    return;
-  }
-
-  Json json = {
-      {"type", "respond"},
-      {"respondId", originalMsg["respondId"]},
-      {"what", what}
-  };
-
-  if (data != NULL)
-    json["data"] = data;
-
-  sendData(json);
-}
-
-void Frontend::send(string type, Json what)
-{
-  sendData(
-      {
-          {"type", type},
-          {"what", what},
-      }
-  );
+  sendData(message.toJson());
 }
 
 
@@ -131,6 +109,8 @@ Frontend::Chart &Frontend::getChart(string name)
 }
 
 
+
+
 // -- start
 void Frontend::start(int port)
 {
@@ -139,13 +119,16 @@ void Frontend::start(int port)
   // start server thread
   thread serverThread(serverThreadFunction);
   serverThread.detach();
+  l.ok("create socket thread");
 }
 
 
 void Frontend::serverThreadFunction()
 {
   server.addWebSocketHandler("/", make_shared<WebSocketHandler>());
+  l.ok("listen for connection on port " + to_string(port));
   server.serve("", port);
+  l.ok("stop listening to port" + to_string(port));
 }
 
 
@@ -153,8 +136,7 @@ void Frontend::serverThreadFunction()
 void Frontend::WebSocketHandler::onConnect(WebSocket *socket)
 {
   webSockConnections.insert(socket);
-
-  cout << "NEW" << endl;
+  l.info("new connection from '" + socket->getRequestUri() + "'");
 }
 
 
@@ -166,25 +148,42 @@ void Frontend::sendData(Json data)
                      s->send(data.dump());
                  });
 
-  // cout << "SEND: " << data.dump() << endl;
 }
 
 void Frontend::WebSocketHandler::onData(WebSocket *sock, const char *data)
 {
-  auto j = Json::parse(data);
+  /*
+   * parse Json */
+  Json j;
+  try {
+    j = Json::parse(data);
+  } catch (exception &e) {
+    l.err("can't progress api request: can't parse Json ("+  string(e.what()) +"): '"+ data +"'");
+  }
 
   // check if msg has necessary fields
   if (j["type"] != "" and j["what"] != "")
   {
     try
     {
-      Controller::onFrontendMessage(j);
-    }
-    catch (domain_error ex)
-    {
+      ApiRequest request(j["route"], j["what"]);
+      if (j.find("data") != j.end())
+        request.data = j["data"];
+      if (j.find("respondId") != j.end())
+        request.respondId = j["respondId"];
+
+      ApiRespond* response = apiRoot.processApi(request);
+      if (response != nullptr) {
+        Frontend::send(*response);
+        free(response);
+      }
+    } catch (logic_error &ex) {
       // error
-      Frontend::send("error", {{"message", "cant't progress api request ("+ string(ex.what()) +"): '"+ j.dump(2) +"'"}});
-      cout << "[ERR] [FRONTEND] cant't progress api request ("<< string(ex.what()) <<"): '"<< j.dump(2) <<"'" << endl;
+      Frontend::send(ApiRespondError("can't progress api request ("+ string(ex.what()) +")", j));
+      l.err("can't progress api request ("+  string(ex.what()) +"): '"+ j.dump(2) +"'");
+    }
+    catch (exception &e) {
+      l.err("can't progress api request general error ("+  string(e.what()) +"): '"+ j.dump(2) +"'");
     }
   }
 }

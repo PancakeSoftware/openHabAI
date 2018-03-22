@@ -65,6 +65,9 @@ void JsonObject::fromJson(Json params)
     else if (el.second.type() == typeid(bool *))
       *boost::any_cast<bool *>(el.second) = it.value();
   }
+
+  // store all
+  storeMe();
 }
 
 
@@ -117,13 +120,17 @@ bool JsonObject::load(string path, string fileName)
 
 
 
-void JsonObject::setJsonParams(map<string, boost::any>  params)
+void JsonObject::addJsonParams(map<string, boost::any> params)
 {
-  this->paramPointers = params;
+  this->paramPointers.insert(params.begin(), params.end());
 }
 
 ApiRespond *JsonObject::processApi(ApiRequest request)
 {
+  if (request.what == "update")
+    this->fromJson(request.data);
+  if (request.what == "get")
+    return new ApiRespondOk(this->toJson(), request);
   return nullptr;
 }
 
@@ -141,6 +148,11 @@ void JsonObject::setStorePath(string path)
 void JsonObject::store()
 {
   ApiProcessible::store();
+  storeMe();
+}
+void JsonObject::storeMe()
+{
+  ApiProcessible::storeMe();
   if (storePath.is_initialized())
     save(storePath.get(), "item.json");
 }

@@ -19,8 +19,12 @@ ApiRoute::ApiRoute(map<string, ApiProcessible*> subRoutes) : ApiRoute()
 ApiRespond* ApiRoute::processApi(ApiRequest request)
 {
   // if route == empty, this is target
-  if (request.route.begin()->size() == 0)
-    return new ApiRespondError("what: '"+ request.what +"' can not be processed by ApiRoute", request);
+  if (request.route.size() == 0) {
+    //warn("what: '"+ request.what +"' can not be processed by ApiRoute, route: " + request.route.dump(2));
+    return nullptr;//new ApiRespondError("what: '"+ request.what +"' can not be processed by ApiRoute", request);
+  }
+
+  //info("route "+ to_string(request.route.size()) +": " + request.route.dump(2));
 
   string component = (*request.route.begin()).begin().key();
   string entityId  = (*request.route.begin()).begin().value();
@@ -34,11 +38,11 @@ ApiRespond* ApiRoute::processApi(ApiRequest request)
     // pop top route-element if not needed by subRoute (JsonList deletes it itself)
     if (!dynamic_cast<__JsonList*>(subRoute))
     {
-      info("remove route");
-      request.route.begin()->erase(request.route.begin()->begin());
+      //info("remove route");
+      request.route.erase(request.route.begin());
     }
 
-    return subRoute->processApi(request);;
+    return subRoute->processApi(request);
   }
 
 }

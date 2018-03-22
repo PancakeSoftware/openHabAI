@@ -13,20 +13,18 @@ var Networks = new function ()
         this.clear();
 
         // load list
-        Sock.send("getAll", "network", function (what, data) {
+        Sock.send([{"dataStructures": dataStructure}, {"networks": ""}], "getAll", function (what, data) {
             $.each(data, function (key, item) {
                 Networks.addNetwork(
                     item.name,
                     item.id);
             });
-        }, {datastructure: dataStructure});
+        });
     };
 
     this.addNetwork = function (name, id) {
         if (name === "")
             name = "?";
-
-        toast("new net: " + name);
 
         let n = $(`        
         <div class="card" network=`+id+`>
@@ -63,7 +61,7 @@ var Networks = new function ()
                 neuronsPerHidden: Number($('#num-neronsPerHidden').val())
             };
 
-            Sock.send("create", "network", function (what, data) {
+            Sock.send([{"dataStructures": Networks.dataStructure}, {"networks": ""}], "add", function (what, data) {
                 if (what !== "ok") {
                     toastErr("cant create network");
                     return;

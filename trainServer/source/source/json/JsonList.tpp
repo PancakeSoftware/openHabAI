@@ -8,9 +8,11 @@
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
-
 template<class T>
-JsonList<T>::JsonList(int &idAutoIncrement, string folder, string entryFileName)
+JsonList<T>::JsonList(): JsonList(defaultIdAutoIncrement)
+{}
+template<class T>
+JsonList<T>::JsonList(int &idAutoIncrement)
     : idAutoIncrement(idAutoIncrement)
 {
   setLogName("JSLI");
@@ -55,10 +57,10 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
 
 
   // JsonList has to remove top route itself, not done by parent ApiRoute
-  request.route.begin()->erase(request.route.begin()->begin());
+  request.route.erase(request.route.begin());
 
   // we ar not target if there are still route parts left
-  if (request.route.begin()->size() > 0) {
+  if (request.route.size() > 0) {
     return callProcessApiOfItem();
   }
 
@@ -117,11 +119,6 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
   return callProcessApiOfItem();
 }
 
-template<class T>
-bool JsonList<T>::loadAll()
-{
-
-}
 
 template<class T>
 T &JsonList<T>::get(int id)
@@ -150,28 +147,54 @@ void JsonList<T>::restore()
     return;
 
   // foreach dir
-  fs::directory_iterator directory_iterator(fs::path(storePath.get()));
-  while(directory_iterator != fs::directory_iterator{})
+  try
   {
-    string id =  directory_iterator->path().filename().string();
-    int idNum;
-    try {
-      idNum = stoi(id);
-    } catch (invalid_argument e) {
-      err("entity's id (in directoryName '"+directory_iterator->path().string()+"') is not a number", e.what());
-      continue;
+    fs::directory_iterator directory_iterator(fs::path(storePath.get()));
+    while (directory_iterator != fs::directory_iterator{})
+    {
+      /*
+       * get id by directory name */
+      string id = directory_iterator->path().filename().string();
+      int idNum;
+      try
+      {
+        idNum = stoi(id);
+      } catch (invalid_argument& e)
+      {
+        err("entity's id (in directoryName '" + directory_iterator->path().string() + "') is not a number", e.what());
+        continue;
+      }
+      //info("... restore: " + storePath.get() + "/" + id);
+
+      /*
+       * read item.json */
+      Json params;
+      try {
+        ifstream item{storePath.get() + "/" + id + "/item.json"};
+        stringstream sItem;
+        sItem << item.rdbuf();
+        //info("file contend: " + sItem.str());
+        params = Json::parse(sItem.str());
+      } catch (exception& e) {
+        err("read item '"+ storePath.get() + "/" + id + "/item.json" +"' : " + string(e.what()));
+        directory_iterator++;
+        continue;
+      }
+
+      /*
+       * add item */
+      T *n = createItemFunc(params);
+      n->setStorePath(storePath.get() + "/" + id);
+      items.insert({idNum, n});
+      n->restore();
+
+      // next
+      idAutoIncrement++;
+      directory_iterator++;
     }
-    info("restore: " + storePath.get() + "/" + id);
-
-    // add item
-    T* n = createItemFunc(nullptr);
-    n->setStorePath(storePath.get() + "/" + id);
-    items.insert({idNum, n});
-    n->restore();
-
-    // next
-    idAutoIncrement++;
-    directory_iterator++;
+  }
+  catch (exception &e){
+    err("restore: " + string(e.what()));
   }
 }
 

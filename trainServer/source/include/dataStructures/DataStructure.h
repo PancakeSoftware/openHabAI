@@ -8,7 +8,10 @@
 
 #include <json.hpp>
 #include <string>
-#include <JsonList.h>
+#include <json/JsonObject.h>
+#include <json/JsonList.h>
+#include <json/ApiRoute.h>
+#include "NeuralNetwork.h"
 using namespace std;
 
 
@@ -16,53 +19,38 @@ using namespace std;
  * DataStructure class
  * provides/generates training data
  */
-class DataStructure : public JsonListItem
+class DataStructure : public ApiRouteJson
 {
   public:
-    enum TYPE {
-        TYPE_FUNCTION,
-        TYPE_OPENHAB
-    } type_;
     string name;
+    string type;
+    int id;
 
-    static int idIncrement;
-    int networkIdIncrement = 0;
-    JsonList networks;
+    JsonList<NeuralNetwork> networks;
 
     DataStructure();
-    DataStructure(Json params);
-    DataStructure(string path, string filename);
     static DataStructure * create(Json params); // create right structure type by param 'type'
-
-    string type();
-    void type(string type);
-
-    virtual Json toJson();
-    virtual void fromJson(Json params);
 
     inline bool operator == (int other) const;
     inline bool operator == (const DataStructure &other) const;
 
-    virtual void loadChilds() override;
 
     // create label data from input
-    virtual vector<float> getDataBatch(vector<float> input) = 0;
+    virtual vector<float> getDataBatch(vector<float> input) {return vector<float>();};
 };
 
 
 /*
  * Function DataStructure class
  */
-class FunctionStructure : public DataStructure
+class FunctionDataStructure : public DataStructure
 {
   public:
     string function;
 
-    FunctionStructure(Json params);
+    FunctionDataStructure();
 
     virtual vector<float> getDataBatch(vector<float> input) override;
-    virtual Json toJson() override;
-    virtual void fromJson(Json params) override;
 };
 
 

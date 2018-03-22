@@ -27,7 +27,7 @@ using namespace std;
  *   {"Sub-Component": "entityID-B"},
  * ]
  */
-class ApiRoute : public virtual ApiProcessible, protected Log
+class ApiRoute : public virtual ApiProcessible, protected virtual Log
 {
   public:
 
@@ -75,12 +75,12 @@ class ApiRouteJson: public ApiRoute, public JsonObject
      * @param subRoutes set 'static' sub routes
      * @see setSubRoutes(vector<ApiRoute*>& routes)
      */
-    ApiRouteJson(map<string, ApiProcessible*> subRoutes) : ApiRoute(subRoutes){}
+    ApiRouteJson(map<string, ApiProcessible*> subRoutes) : ApiRoute(subRoutes)  {}
 
     ApiRespond *processApi(ApiRequest request) override
     {
       auto resp =  ApiRoute::processApi(request);
-      if (resp == nullptr)
+      if (resp == nullptr && request.route.size() <= 0)
         return JsonObject::processApi(request);
       else
         return resp;
@@ -96,6 +96,11 @@ class ApiRouteJson: public ApiRoute, public JsonObject
     {
       JsonObject::store();
       ApiRoute::store();
+    }
+
+    void storeMe() override
+    {
+      JsonObject::storeMe();
     }
 
     void setStorePath(string path) override

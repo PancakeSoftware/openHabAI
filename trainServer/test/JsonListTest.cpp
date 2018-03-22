@@ -19,10 +19,10 @@ class EntityList : public JsonObject
 
     EntityList()
     {
-      setJsonParams({
-              {"param", &param},
-              {"id", &id}
-      });
+      addJsonParams({
+                        {"param", &param},
+                        {"id", &id}
+                    });
     }
 };
 
@@ -33,7 +33,7 @@ class MyListL
     int entitysIdMax =0;
 
     MyListL() :
-        list(entitysIdMax, "build/test", "JsonListTest_MyList.json")
+        list(entitysIdMax)
     {}
 };
 
