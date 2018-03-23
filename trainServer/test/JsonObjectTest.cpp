@@ -6,7 +6,7 @@
 
 #include <gtest/gtest.h>
 #include "TestHelper.hpp"
-#include <json/JsonObject.h>
+#include <api/JsonObject.h>
 
 
 class  MyObject : public JsonObject

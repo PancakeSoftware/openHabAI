@@ -2,9 +2,9 @@
  * File:   JsonList.h
  * Author: Joshua Johannson
  *
-  */
-#include <json/JsonObject.h>
-#include "json/JsonList.h"
+ */
+#include "api/JsonObject.h"
+#include "api/JsonList.h"
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
@@ -87,7 +87,9 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
       T* n = createItemFunc(request.data.merge(Json {{"id", idAutoIncrement}}));
       items.insert({idAutoIncrement, n});
       if (storePath.is_initialized()) {
-        n->setStorePath(this->storePath.get() + "/" + to_string(idAutoIncrement));
+        RoutePath nPath = (this->storePath.get());
+        (nPath.end()-1)->second = to_string(idAutoIncrement); // set entity id
+        n->setStorePath(nPath);
         n->store();
       }
       idAutoIncrement++;
@@ -149,7 +151,7 @@ void JsonList<T>::restore()
   // foreach dir
   try
   {
-    fs::directory_iterator directory_iterator(fs::path(storePath.get()));
+    fs::directory_iterator directory_iterator(fs::path(this->storePathString));
     while (directory_iterator != fs::directory_iterator{})
     {
       /*
@@ -170,13 +172,13 @@ void JsonList<T>::restore()
        * read item.json */
       Json params;
       try {
-        ifstream item{storePath.get() + "/" + id + "/item.json"};
+        ifstream item{storePathString + id + "/item.json"};
         stringstream sItem;
         sItem << item.rdbuf();
         //info("file contend: " + sItem.str());
         params = Json::parse(sItem.str());
       } catch (exception& e) {
-        err("read item '"+ storePath.get() + "/" + id + "/item.json" +"' : " + string(e.what()));
+        err("read item '"+ storePathString + id + "/item.json" +"' : " + string(e.what()));
         directory_iterator++;
         continue;
       }
@@ -184,7 +186,9 @@ void JsonList<T>::restore()
       /*
        * add item */
       T *n = createItemFunc(params);
-      n->setStorePath(storePath.get() + "/" + id);
+      RoutePath nPath = storePath.get();
+      (nPath.end()-1)->second = id; // set entity id
+      n->setStorePath(nPath);
       items.insert({idNum, n});
       n->restore();
 
@@ -199,11 +203,17 @@ void JsonList<T>::restore()
 }
 
 template<class T>
-void JsonList<T>::setStorePath(string path)
+void JsonList<T>::setStorePath(RoutePath path)
 {
+  info("setStorePath");
   ApiProcessible::setStorePath(path);
+  info("myPath: " + storePathString);
   for (auto i: items) {
-    i.second->setStorePath(this->storePath.get() + "/" + to_string(i.first));
+    RoutePath n = path;
+    //if (n.at(n.size()-1))
+    info("path size " + to_string(n.size()));
+    (n.end()-1)->second = to_string(i.first); // set entity id
+    i.second->setStorePath(n);
   }
 }
 

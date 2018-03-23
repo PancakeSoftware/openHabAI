@@ -5,10 +5,10 @@
   */
 #include "TestHelper.hpp"
 #include <gtest/gtest.h>
-#include <json/ApiRoute.h>
+#include <api/ApiRoute.h>
 #include <string>
-#include <json/JsonList.h>
-#include <json/JsonObject.h>
+#include <api/JsonList.h>
+#include <api/JsonObject.h>
 
 
 class EntityList : public JsonObject

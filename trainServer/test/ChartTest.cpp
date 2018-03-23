@@ -5,9 +5,9 @@
   */
 
 #include <gtest/gtest.h>
-#include <json/ApiRoute.h>
-#include <json/JsonList.h>
-#include <json/JsonObject.h>
+#include <api/ApiRoute.h>
+#include <api/JsonList.h>
+#include <api/JsonObject.h>
 #include "TestHelper.hpp"
 
 

@@ -10,7 +10,7 @@
 #include <seasocks/PrintfLogger.h>
 #include <json.hpp>
 #include <util/Log.h>
-#include <json/ApiMessage.h>
+#include <api/ApiMessage.h>
 
 using namespace std;
 using namespace seasocks;

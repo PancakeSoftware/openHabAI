@@ -8,9 +8,9 @@
 
 #include <json.hpp>
 #include <string>
-#include <json/JsonObject.h>
-#include <json/JsonList.h>
-#include <json/ApiRoute.h>
+#include <api/JsonObject.h>
+#include <api/JsonList.h>
+#include <api/ApiRoute.h>
 #include "NeuralNetwork.h"
 using namespace std;
 

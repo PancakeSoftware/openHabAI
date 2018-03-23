@@ -9,10 +9,12 @@
 #include <json.hpp>
 #include <string>
 #include <list>
-#include <json/ApiMessage.h>
+#include <api/ApiMessage.h>
 #include <boost/optional.hpp>
 using Json = nlohmann::json;
 using namespace std;
+
+typedef vector<pair<string, string>> RoutePath;
 
 /*
  * Apiprocessible class
@@ -55,12 +57,35 @@ class ApiProcessible
     /*
      * set full path to store this
      * this calls setStorePath of subObject recursively
+     * example: {
+     *   {"Component-A":   "entityID-A"},
+     *   {"Sub-Component": "entityID-B"},
+     * }
      */
-    virtual void setStorePath(string path)
-    {storePath = path;}
+    virtual void setStorePath(RoutePath path)
+    {
+      storePath = path;
+      storePathString = getPath();
+    }
 
   protected:
-    boost::optional<string> storePath;
+    boost::optional<RoutePath> storePath;
+    string storePathString;
+
+    string getPath() {
+      if (!storePath.is_initialized())
+        return "";
+
+      string path = "";
+      for (auto r : storePath.get()) {
+        path += r.first + "/";
+        if (r.second != "")
+          path +=  r.second + "/";
+      }
+
+      storePathString = path;
+      return path;
+    }
 
     void addWhat(string what, function<ApiRespond*(ApiRequest request)> action)
     {processWhats.insert({what, action});};
@@ -68,5 +93,26 @@ class ApiProcessible
   private:
     map<string, function<ApiRespond*(ApiRequest request)>> processWhats;
 };
+
+
+
+/*
+ * from and to json for RoutePath
+ */
+/*
+using nlohmann::json;
+void to_json(json& j, const RoutePath& p) {
+  j = Json{};
+  for (auto item : p)
+    j.push_back({{item.first, item.second}});
+}*/
+
+/*
+  void from_json(const Json& j, RoutePath& p) {
+    for (auto item : j)
+      p.push_back({item.begin().key(), item.begin().value()});
+  }
+  */
+
 
 #endif //OPENHABAI_APIPROCESSIBLE_H

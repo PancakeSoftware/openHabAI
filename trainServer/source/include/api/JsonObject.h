@@ -67,7 +67,7 @@ class JsonObject : private virtual Log, public virtual ApiProcessible
     void restore() override;
     void store() override;
     void storeMe() override;
-    void setStorePath(string path) override;
+    void setStorePath(RoutePath path) override;
 
   private:
     map<string, boost::any> paramPointers;

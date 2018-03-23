@@ -3,9 +3,8 @@
  * Author: Joshua Johannson
  *
   */
-#include <json/JsonObject.h>
-#include "json/ApiRoute.h"
-#include <json/JsonList.h>
+#include "api/JsonObject.h"
+#include "api/ApiRoute.h"
 
 
 ApiRoute::ApiRoute() : Log("APIR")
@@ -58,11 +57,15 @@ void ApiRoute::restore()
     route.second->restore();
 }
 
-void ApiRoute::setStorePath(string path)
+void ApiRoute::setStorePath(RoutePath path)
 {
   ApiProcessible::setStorePath(path);
-  for (auto route : routes)
-    route.second->setStorePath(this->storePath.get() + "/" + route.first);
+  //info("my path: " + storePathString.get_value_or("??"));
+  for (auto route : routes) {
+    RoutePath n(path);
+    n.push_back({route.first, ""});
+    route.second->setStorePath(n);
+  }
 }
 
 void ApiRoute::store()

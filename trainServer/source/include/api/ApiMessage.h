@@ -10,6 +10,7 @@
 #include <string>
 using Json = nlohmann::json;
 using namespace std;
+typedef vector<pair<string, string>> RoutePath;
 
 class ApiMessage
 {
@@ -49,15 +50,35 @@ class ApiRequest: public ApiMessage
       this->data = data;
       this->respondId = respondId;
     }
+    ApiRequest(RoutePath route, string what){
+      Json j{};
+      for (auto item : route)
+        j.push_back({{item.first, item.second}});
+      this->route = j;
+      this->what = what;
+    }
+    ApiRequest(RoutePath route, string what, Json data) : ApiRequest(route, what) {
+      this->data = data;
+    }
+
 
     virtual Json toJson() override
     {
-      return Json {
-          {"type", "request"},
-          {"what", what},
-          {"data", data},
-          {"respondId", respondId}
-      };
+      if (respondId >= 0)
+        return Json {
+            {"type", "request"},
+            {"route", route},
+            {"what", what},
+            {"data", data},
+            {"respondId", respondId}
+        };
+      else
+        return Json {
+            {"type", "request"},
+            {"route", route},
+            {"what", what},
+            {"data", data}
+        };
     }
 };
 

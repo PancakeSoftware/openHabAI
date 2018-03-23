@@ -5,9 +5,9 @@
   */
 
 #include <gtest/gtest.h>
-#include <json/ApiRoute.h>
-#include <json/JsonList.h>
-#include <json/JsonObject.h>
+#include <api/ApiRoute.h>
+#include <api/JsonList.h>
+#include <api/JsonObject.h>
 #include "TestHelper.hpp"
 
 
@@ -75,8 +75,8 @@ class RootRoute : public ApiRoute
 TEST(ApiRouteTest, progressListAddGet)
 {
   RootRoute root;
-  root.setStorePath("../test/apiTest");
-
+  root.setStorePath(RoutePath{});
+  //return;
   /*
    * Add tow courses: SystemParallelProgramming, and Math1
    */
@@ -122,7 +122,7 @@ TEST(ApiRouteTest, progressListAddGet)
    */
   root.store();
   RootRoute rootRestored;
-  rootRestored.setStorePath("../test/apiTest");
+  rootRestored.setStorePath({});
   rootRestored.restore();
   EXPECT_EQ(2, rootRestored.courses.length());
   EXPECT_EQ(3, rootRestored.courses.get(0).students.length());
@@ -175,4 +175,48 @@ TEST(JsonArrayTest, removeFromArray)
   test.erase(test.begin());
   cout << test.dump(2) << endl;
   EXPECT_EQ(1, test.size());
+}
+
+
+void printRoute(RoutePath routePath)
+{
+  string path = "";
+  for (auto r : routePath) {
+    path += r.first + "/";
+    if (r.second != "")
+      path +=  r.second + "/";
+    //cout << "next: " +  r.first + "/" + r.second;
+  }
+  cout << "path: " << path << endl;
+}
+
+
+template<class T>
+void to_json(Json & j, const pair<T, T>& p) {
+  j = Json{p.first, p.second};
+}
+
+void to_json(Json & j, const vector<pair<string, string>>& p) {
+
+}
+
+TEST(VectorTest, copy)
+{
+  RoutePath routePath{};
+  boost::optional<RoutePath> anOptional;
+  anOptional = routePath;
+  anOptional.get().push_back({"test", ""});
+
+  RoutePath routePath2 = anOptional.get();
+  (routePath2.end()-1)->second = to_string(10); // set entity id
+  routePath2.push_back({"inner", ""});
+
+  printRoute(anOptional.get());
+  printRoute(routePath2);
+
+  /*
+  vector<pair<string, string>> vector1{{"hey", "du"}};
+  Json json1 = vector1;
+  cout << json1.dump(2) << endl;
+   */
 }

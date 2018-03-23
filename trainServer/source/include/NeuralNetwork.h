@@ -7,10 +7,10 @@
 
 #include <mxnet-cpp/MxNetCpp.h>
 #include <thread>
-#include <json.hpp>
 #include <string>
 #include <Frontend.h>
-#include <json/ApiRoute.h>
+#include <api/ApiRoute.h>
+#include <api/Chart.h>
 using namespace std;
 using namespace mxnet::cpp;
 class DataStructure;
@@ -27,6 +27,8 @@ class NeuralNetwork : public ApiRouteJson
     float learnrate = 0;
     int hiddenLayers, neuronsPerLayer;
 
+
+
     static void init(Context *mxContext);
     NeuralNetwork();
     NeuralNetwork(DataStructure *structure);
@@ -42,6 +44,11 @@ class NeuralNetwork : public ApiRouteJson
     void stopTrain();
 
     ApiRespond *processApi(ApiRequest request) override;
+
+    /*
+     * charts */
+    ApiRoute charts;
+    ParameterChart    chartProgressT;
 
   private:
     map<std::string, NDArray> graphValues;

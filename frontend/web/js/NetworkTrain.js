@@ -40,6 +40,10 @@ var Network = new function () {
 
 
         // register chart updates
+        Sock.send(this.myRoute().concat([ {"charts": ""}, {"progress": ""}]), "subscribe");
+        Sock.send(this.myRoute().concat([ {"charts": ""}, {"progress": ""}]), "update", null, {
+            range_from: 10
+        });
         //Sock.send("subscribe", "updateChart", null, this.jsonMe());
 
     };

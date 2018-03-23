@@ -1,4 +1,5 @@
 #include <Frontend.h>
+#include <util/TaskManager.h>
 #include "NeuralNetwork.h"
 
 Context *NeuralNetwork::ctx;
@@ -23,17 +24,28 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure, Json params)
 
 NeuralNetwork::NeuralNetwork(DataStructure *structure)
     : ApiRouteJson(),
+      chartProgressT(),
+      charts(),
       structure(*structure),
       chartProgress(Frontend::getChart("progress")),
       chartShape(Frontend::getChart("outputShape"))
 {
   setLogName("NETWORK");
+
+  /*
+   * Network json params */
   addJsonParams({{"name", &name},
                  {"id", &id},
                  {"hidden", &hiddenLayers},
                  {"neuronsPerHidden", &neuronsPerLayer},
                  {"learnRate", &learnrate},
                  {"optimizer", &optimizer}});
+
+  /*
+   * mount charts */
+  setSubRoutes({{"charts", &charts}});
+  charts.setSubRoutes({{"progress", &chartProgressT}});
+
 
   // clear display
   chartProgress.setGraphData("error",  {}, {}).changeApply();
@@ -261,16 +273,18 @@ void NeuralNetwork::shutdown()
   // exit
   MXNotifyShutdown();
 }
+
 ApiRespond *NeuralNetwork::processApi(ApiRequest request)
 {
   ApiRespond* respond = ApiRouteJson::processApi(request);
-  if (respond != nullptr)
+  if (respond != nullptr || request.route.size() > 0)
     return respond;
 
   /*
    * Networks Api */
   if (request.what == "do") {
     if (request.data["do"] == "startTrain") {
+      TaskManager::addTaskOnceOnly([this]{ info("train from task ..."); });
       return new ApiRespondError("not supported", request);
     }
     else if (request.data["do"] == "stopTrain") {

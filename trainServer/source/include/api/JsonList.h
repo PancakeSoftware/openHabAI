@@ -10,9 +10,9 @@
 #include <string>
 #include <list>
 #include <boost/static_assert.hpp>
-#include "json/JsonObject.h"
-#include "json/ApiMessage.h"
-#include "json/ApiProcessible.h"
+#include "api/JsonObject.h"
+#include "api/ApiMessage.h"
+#include "api/ApiProcessible.h"
 using Json = nlohmann::json;
 using namespace std;
 
@@ -72,7 +72,7 @@ class JsonList : public ApiProcessible, public __JsonList, protected Log
 
     void restore() override;
     void store() override;
-    void setStorePath(string path) override;
+    void setStorePath(RoutePath path) override;
 
   private:
     int &idAutoIncrement;
@@ -86,5 +86,5 @@ class JsonList : public ApiProcessible, public __JsonList, protected Log
 };
 
 
-#include "../../source/json/JsonList.tpp"
+#include "../../source/api/JsonList.tpp"
 #endif //OPENHABAI_JSONLIST_H

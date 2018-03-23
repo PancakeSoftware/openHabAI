@@ -3,7 +3,7 @@
  * Author: Joshua Johannson
  *
   */
-#include "json/JsonObject.h"
+#include "api/JsonObject.h"
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
@@ -74,7 +74,7 @@ void JsonObject::fromJson(Json params)
 // -- SAVE LOAD --------------------------------------------------------
 bool JsonObject::save(string path, string fileName)
 {
-  string full = path + "/" + fileName;
+  string full = path + fileName;
 
   try {
     fs::create_directories(path);
@@ -100,7 +100,7 @@ bool JsonObject::save(string path, string fileName)
 bool JsonObject::load(string path, string fileName)
 {
   ifstream stream;
-  string full = path + "/" + fileName;
+  string full = path  + fileName;
 
   stream.open(full);
   if (!stream.is_open()) {
@@ -138,10 +138,10 @@ void JsonObject::restore()
 {
   ApiProcessible::restore();
   if (storePath.is_initialized())
-    load(storePath.get(), "item.json");
+    load(getPath(), "item.json");
 }
 
-void JsonObject::setStorePath(string path)
+void JsonObject::setStorePath(RoutePath path)
 {
   ApiProcessible::setStorePath(path);
 }
@@ -154,5 +154,5 @@ void JsonObject::storeMe()
 {
   ApiProcessible::storeMe();
   if (storePath.is_initialized())
-    save(storePath.get(), "item.json");
+    save(storePathString, "item.json");
 }

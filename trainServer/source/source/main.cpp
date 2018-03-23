@@ -6,6 +6,7 @@
 #include "NeuralNetwork.h"
 #include "Frontend.h"
 #include <ApiRoot.h>
+#include <util/TaskManager.h>
 
 using namespace std;
 
@@ -19,7 +20,7 @@ void testData();
 void atExit(int code)
 {
   cout << "will stop main thread" << endl;
-  mainLockCondition.notify_one();
+  TaskManager::stop();
 }
 
 /* -- MAIN PROGRAM ------------------------------------------- */
@@ -32,17 +33,17 @@ int main(int argc, char *argv[])
   // start frontend, load saved
   NeuralNetwork::init(new Context(DeviceType::kCPU, 0));
   Frontend::start(5555);
-  apiRoot.setStorePath(".");
+  apiRoot.setStorePath({});
   apiRoot.restore();
 
 
+  // start blocking taskManager
+  TaskManager::start();
 
-  // wait until terminate signal
-  unique_lock<std::mutex> lock(mainLockMutex);
-  mainLockCondition.wait(lock);
 
+  /*
+   * shutdown all */
   NeuralNetwork::shutdown();
-
   return 0;
 }
 
