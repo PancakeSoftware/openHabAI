@@ -60,9 +60,9 @@ if (OPTION_TESTS)
     file(GLOB SRC_FILES_TEST
             ${TEST_DIR_GLOB}*cpp)
 
-    file(GLOB SRC_FILES
-            ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_DIR}api/*.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_DIR}util/*.cpp)
+    #file(GLOB SRC_FILES
+    #        ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_DIR}api/*.cpp
+    #        ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_DIR}util/*.cpp)
 
     #
     # extrutable / Lib
