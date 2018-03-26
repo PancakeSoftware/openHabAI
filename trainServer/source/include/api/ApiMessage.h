@@ -8,8 +8,11 @@
 
 #include <json.hpp>
 #include <string>
+#include <seasocks/WebSocket.h>
+#include <arpa/inet.h>
 using Json = nlohmann::json;
 using namespace std;
+using namespace seasocks;
 typedef vector<pair<string, string>> RoutePath;
 
 class ApiMessage
@@ -30,6 +33,7 @@ class ApiRequest: public ApiMessage
     string what;
     Json data;
     int  respondId = -1;
+    WebSocket *websocket = nullptr;
 
     ApiRequest(){}
     ApiRequest(Json route, string what)
@@ -88,12 +92,15 @@ class ApiRespond: public ApiMessage
     string what;
     Json data;
     int respondId = -1;
-    ApiRequest *request = nullptr;
+
+    ApiRequest request;
+    bool requestValid = false;
 
     ApiRespond() {}
     ApiRespond(ApiRequest request)
     {
-      this->request = &request;
+      requestValid = true;
+      this->request = request;
       this->respondId = request.respondId;
     }
 
@@ -105,6 +112,11 @@ class ApiRespond: public ApiMessage
           {"data", data},
           {"respondId", respondId}
       };
+    }
+
+    ~ApiRespond() {
+      //if (request != nullptr)
+      //  delete request;
     }
 };
 
@@ -139,5 +151,9 @@ class ApiRespondOk : public ApiRespond
       this->what = "ok";
     }
 };
+
+inline string to_string(WebSocket *socket) {
+  return string(inet_ntoa(socket->getRemoteAddress().sin_addr)) + ":" + to_string(socket->getRemoteAddress().sin_port);
+}
 
 #endif //OPENHABAI_APIMESSAGE_H

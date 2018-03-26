@@ -7,7 +7,7 @@
 #include <gtest/gtest.h>
 #include <api/ApiRoute.h>
 #include <api/JsonList.h>
-#include <api/JsonObject.h>
+#include <api/ApiJsonObject.h>
 #include "TestHelper.hpp"
 
 
@@ -17,17 +17,18 @@
 /*
  * students in course
  */
-class Person: public JsonObject
+class Person: public ApiJsonObject
 {
   public:
     string name;
     int age;
     int id; // <studentId>
-    Person()
-    {
-      addJsonParams({{"id", &id},
-                     {"age", &age},
-                     {"name", &name}});}
+
+    void params() override { JsonObject::params();
+      param("id", id);
+      param("age", age);
+      param("name", name);
+    }
 };
 
 /*
@@ -43,10 +44,11 @@ class UniversityCourse : public ApiRouteJson
     int id; // <courseId>
 
     UniversityCourse(): students(studentsIdAutoIncrement), // @TODO set path
-                        ApiRouteJson({{"students", &students}})
-    {
-      addJsonParams({{"courseName", &courseName},
-                     {"id", &id}});
+                        ApiRouteJson({{"students", &students}}) {}
+
+    void params() override {JsonObject::params();
+      param("courseName", courseName);
+      param("id", id);
     }
 };
 
@@ -190,14 +192,18 @@ void printRoute(RoutePath routePath)
   cout << "path: " << path << endl;
 }
 
+struct Abc {
+    int a;
+    string b;
+};
 
-template<class T>
-void to_json(Json & j, const pair<T, T>& p) {
-  j = Json{p.first, p.second};
+void to_json(Json & j, const Abc& p) {
+  j = Json{p.b, p.a};
 }
 
-void to_json(Json & j, const vector<pair<string, string>>& p) {
-
+void from_json(const Json & j, Abc& p) {
+  p.b = j.begin().key();
+  p.a = j.begin().value();
 }
 
 TEST(VectorTest, copy)
@@ -214,9 +220,9 @@ TEST(VectorTest, copy)
   printRoute(anOptional.get());
   printRoute(routePath2);
 
-  /*
-  vector<pair<string, string>> vector1{{"hey", "du"}};
+
+  vector<Abc> vector1{{0, "du"}};
   Json json1 = vector1;
   cout << json1.dump(2) << endl;
-   */
+
 }

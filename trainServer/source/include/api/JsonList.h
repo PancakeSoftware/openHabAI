@@ -10,7 +10,7 @@
 #include <string>
 #include <list>
 #include <boost/static_assert.hpp>
-#include "api/JsonObject.h"
+#include "api/ApiJsonObject.h"
 #include "api/ApiMessage.h"
 #include "api/ApiProcessible.h"
 using Json = nlohmann::json;
@@ -26,7 +26,7 @@ template<class T>
  */
 class JsonList : public ApiProcessible, public __JsonList, protected Log
 {
-    BOOST_STATIC_ASSERT((is_base_of<JsonObject, T>::value));
+    BOOST_STATIC_ASSERT((is_base_of<ApiJsonObject, T>::value));
 
   public:
     string folder;

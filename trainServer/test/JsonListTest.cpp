@@ -8,21 +8,18 @@
 #include <api/ApiRoute.h>
 #include <string>
 #include <api/JsonList.h>
-#include <api/JsonObject.h>
+#include <api/ApiJsonObject.h>
 
 
-class EntityList : public JsonObject
+class EntityList : public ApiJsonObject
 {
   public:
-    string param;
+    string paramS;
     int id;
 
-    EntityList()
-    {
-      addJsonParams({
-                        {"param", &param},
-                        {"id", &id}
-                    });
+    void params() override {JsonObject::params();
+      param("param", paramS);
+      param("id", id);
     }
 };
 

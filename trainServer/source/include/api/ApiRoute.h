@@ -13,7 +13,7 @@
 #include <util/Log.h>
 #include <boost/optional.hpp>
 #include "api/JsonList.h"
-#include "api/JsonObject.h"
+#include "api/ApiJsonObject.h"
 #include "ApiProcessible.h"
 using Json = nlohmann::json;
 using namespace std;
@@ -64,8 +64,8 @@ class ApiRoute : public virtual ApiProcessible, protected virtual Log
 };
 
 
-class JsonObject;
-class ApiRouteJson: public ApiRoute, public JsonObject
+class ApiJsonObject;
+class ApiRouteJson: public ApiRoute, public ApiJsonObject
 {
   public:
 
@@ -81,31 +81,31 @@ class ApiRouteJson: public ApiRoute, public JsonObject
     {
       auto resp =  ApiRoute::processApi(request);
       if (resp == nullptr && request.route.size() <= 0)
-        return JsonObject::processApi(request);
+        return ApiJsonObject::processApi(request);
       else
         return resp;
     }
 
     void restore() override
     {
-      JsonObject::restore();
+      ApiJsonObject::restore();
       ApiRoute::restore();
     }
 
     void store() override
     {
-      JsonObject::store();
+      ApiJsonObject::store();
       ApiRoute::store();
     }
 
     void storeMe() override
     {
-      JsonObject::storeMe();
+      ApiJsonObject::storeMe();
     }
 
     void setStorePath(RoutePath path) override
     {
-      JsonObject::setStorePath(path);
+      ApiJsonObject::setStorePath(path);
       ApiRoute::setStorePath(path);
     }
 };

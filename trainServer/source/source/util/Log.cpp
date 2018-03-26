@@ -97,7 +97,7 @@ void Log::debug(string text)
     print("[debug ] ", text, LOG_LEVEL_DEBUG);
 }
 
-void Log::info(string text)
+void Log::info(string text) const
 {
   if ((logLevelMask & LOG_LEVEL_INFORMATION) > 0)
     print("[ info ] ", text, LOG_LEVEL_INFORMATION);
@@ -137,7 +137,7 @@ void Log::outFat(string text, bool error)
 
 
 
-void Log::print(string tag, string text, char tagMask)
+void Log::print(string tag, string text, char tagMask) const
 {
   // output
   if (!useLongLogNames)

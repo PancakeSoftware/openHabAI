@@ -8,7 +8,7 @@
 
 #include <json.hpp>
 #include <string>
-#include <api/JsonObject.h>
+#include <api/ApiJsonObject.h>
 #include <api/JsonList.h>
 #include <api/ApiRoute.h>
 #include "NeuralNetwork.h"
@@ -25,6 +25,13 @@ class DataStructure : public ApiRouteJson
     string name;
     string type;
     int id;
+
+    /* Json keys */
+    void params() override { ApiRouteJson::params();
+        param("name", name);
+        param("type", type);
+        param("id", id);
+    }
 
     JsonList<NeuralNetwork> networks;
 
@@ -47,6 +54,11 @@ class FunctionDataStructure : public DataStructure
 {
   public:
     string function;
+
+    /* Json keys */
+    void params() override { DataStructure::params();
+        param("function", function);
+    }
 
     FunctionDataStructure();
 

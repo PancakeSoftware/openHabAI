@@ -51,6 +51,9 @@ set(DEPENDENCIES_SEASOCKS_LIB seasocks PARENT_SCOPE)
 
 
 # -- JSON -------------------------------------------------
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/json/json.hpp")
+    file(DOWNLOAD "https://github.com/nlohmann/json/releases/download/v3.1.2/json.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/json/json.hpp")
+endif()
 set(DEPENDENCIES_JSON_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/json PARENT_SCOPE)
 
 
@@ -59,6 +62,7 @@ if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/exprtk/exprtk.hpp")
     file(DOWNLOAD "https://raw.githubusercontent.com/ArashPartow/exprtk/master/exprtk.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/exprtk/exprtk.hpp")
 endif()
 set(DEPENDENCIES_EXPRTK_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/exprtk PARENT_SCOPE)
+
 
 #ExternalProject_Add(exprtk_external
 #        GIT_REPOSITORY https://github.com/ArashPartow/exprtk.git

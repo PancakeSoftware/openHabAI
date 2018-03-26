@@ -27,7 +27,15 @@ class NeuralNetwork : public ApiRouteJson
     float learnrate = 0;
     int hiddenLayers, neuronsPerLayer;
 
-
+    /* Json keys */
+    void params() override { JsonObject::params();
+        param("name", name);
+        param("id", id);
+        param("hidden", hiddenLayers);
+        param("neuronsPerHidden", neuronsPerLayer);
+        param("learnRate", learnrate);
+        param("optimizer", optimizer);
+    }
 
     static void init(Context *mxContext);
     NeuralNetwork();
@@ -47,8 +55,8 @@ class NeuralNetwork : public ApiRouteJson
 
     /*
      * charts */
-    ApiRoute charts;
-    ParameterChart    chartProgressT;
+    ApiRoute        charts;
+    ParameterChart  chartProgressT;
 
   private:
     map<std::string, NDArray> graphValues;

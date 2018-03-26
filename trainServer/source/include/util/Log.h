@@ -38,7 +38,7 @@ class Log
     void warn(string text); // warning message
     void ok(string text);   // ok message
     void debug(string text);// debug message
-    void info(string text); // information message
+    void info(string text) const; // information message
     void trace(string text);// trace info message
 
     void outErr(string text, bool error, string errorText); // ok/err - print error if error=true
@@ -62,7 +62,7 @@ class Log
     static bool useLongLogNames, useColors;
     static int  maxNameLongLen;
 
-    void print(string tag, string text, char tagMask);
+    void print(string tag, string text, char tagMask) const;
 };
 
 

@@ -20,9 +20,6 @@ DataStructure::DataStructure()
         t->fromJson(params);
         return t;
   });
-  addJsonParams({{"name", &name},
-                 {"type", &type},
-                 {"id", &id}});
 }
 
 DataStructure *DataStructure::create(Json params)
@@ -54,7 +51,6 @@ bool DataStructure::operator==(const DataStructure &other) const
 
 FunctionDataStructure::FunctionDataStructure()
 {
-  addJsonParams({{"function", &function}});
 }
 
 vector<float> FunctionDataStructure::getDataBatch(vector<float> input)

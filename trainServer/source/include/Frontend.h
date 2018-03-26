@@ -24,8 +24,14 @@ class Frontend
     static void sendData(Json data);
     static void send(ApiRespond message);
     static void send(ApiRequest message);
+    static void send(ApiRespond message, WebSocket *destination);
+    static void send(ApiRequest message, WebSocket *destination);
 
-
+    /**
+     * @param list always is subset of connected websockets
+     */
+    static void registerWebsocketList(set<WebSocket*> &list);
+    static void unRegisterWebsocketList(set<WebSocket*> &list);
 
     // chart
     class Chart
@@ -57,6 +63,7 @@ class Frontend
 
     static Server server;
     static set<WebSocket *> webSockConnections;
+    static set<set<WebSocket *>*> linkedWebSockConnections;
     static void serverThreadFunction();
     static int port;
 };

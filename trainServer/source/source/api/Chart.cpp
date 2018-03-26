@@ -11,20 +11,30 @@
 
 Chart::Chart()
 {
-  addJsonParams({{}
-                });
+  // subscribers always has to be subset of connections
+  Frontend::registerWebsocketList(subscribers);
 }
 
 ApiRespond *Chart::processApi(ApiRequest request)
 {
-  ApiRespond *respond = JsonObject::processApi(request);
+  ApiRespond *respond = ApiJsonObject::processApi(request);
+
   // subscribe
   if (request.what == "subscribe") {
-    TaskManager::addTaskOnceOnly([this]{
-      Frontend::send(ApiRequest(this->storePath.get(), "add"));
-    });
+    subscribers.insert(request.websocket);
+    info("new subscriber " + to_string(request.websocket));
   }
+  if (request.what == "unsubscribe")
+    subscribers.erase(request.websocket);
+
   return respond;
+}
+
+void Chart::pushUpdate()
+{
+  for (auto sub = subscribers.begin(); sub != subscribers.end(); sub++) {
+    Frontend::send(ApiRequest(storePath.get(), "update", Json{}), *sub);
+  }
 }
 
 
@@ -33,12 +43,10 @@ ApiRespond *Chart::processApi(ApiRequest request)
  */
 ParameterChart::ParameterChart()
 {
-  addJsonParams({{"range_from", &range_from}
-                });
 }
 ApiRespond *ParameterChart::processApi(ApiRequest request)
 {
-  ApiRespond *respond = JsonObject::processApi(request);
+  ApiRespond *respond = Chart::processApi(request);
   // when chart params change
   if (request.what == "update") {
 

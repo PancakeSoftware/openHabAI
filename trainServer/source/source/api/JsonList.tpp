@@ -3,7 +3,7 @@
  * Author: Joshua Johannson
  *
  */
-#include "api/JsonObject.h"
+#include "api/ApiJsonObject.h"
 #include "api/JsonList.h"
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
@@ -84,7 +84,9 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
     // add
     if (request.what == "add")
     {
-      T* n = createItemFunc(request.data.merge(Json {{"id", idAutoIncrement}}));
+      Json j = request.data;
+      j.update(Json{{"id", idAutoIncrement}});
+      T* n = createItemFunc(j);
       items.insert({idAutoIncrement, n});
       if (storePath.is_initialized()) {
         RoutePath nPath = (this->storePath.get());

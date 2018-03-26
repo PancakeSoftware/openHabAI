@@ -3,6 +3,7 @@
 //
 
 #include <ApiRoot.h>
+#include <arpa/inet.h>
 #include "Frontend.h"
 
 using namespace seasocks;
@@ -10,6 +11,7 @@ using namespace seasocks;
 // static
 Log Frontend::l("FRONTEND");
 set<WebSocket *> Frontend::webSockConnections;
+set<set<WebSocket *>*> Frontend::linkedWebSockConnections;
 int Frontend::port;
 Server Frontend::server(make_shared<PrintfLogger>
                             (Logger::Level::INFO)
@@ -22,14 +24,35 @@ Server Frontend::server(make_shared<PrintfLogger>
 
 void Frontend::send(ApiRequest message)
 {
-  sendData(message.toJson());
+  if (message.websocket == nullptr)
+    sendData(message.toJson());
+  else
+    send(message, message.websocket);
 }
 
 void Frontend::send(ApiRespond message)
 {
-  sendData(message.toJson());
+  if (!message.requestValid || message.request.websocket == nullptr)
+    sendData(message.toJson());
+  else
+    send(message, message.request.websocket);
 }
 
+void Frontend::send(ApiRespond message, WebSocket *destination)
+{
+  server.execute([=]() mutable {
+    l.info("send ApiRespond to " + string(inet_ntoa(destination->getRemoteAddress().sin_addr)) + ":" + to_string(destination->getRemoteAddress().sin_port));
+    destination->send(message.toJson().dump());
+  });
+}
+
+void Frontend::send(ApiRequest message, WebSocket *destination)
+{
+  server.execute([=]() mutable {
+    l.info("send ApiRequest to " + string(inet_ntoa(destination->getRemoteAddress().sin_addr)) + ":" + to_string(destination->getRemoteAddress().sin_port));
+    destination->send(message.toJson().dump());
+  });
+}
 
 /* --------------------------------------------------------------------------
  * -- Chart
@@ -142,13 +165,13 @@ void Frontend::WebSocketHandler::onConnect(WebSocket *socket)
 
 void Frontend::sendData(Json data)
 {
-  server.execute([=]()
-                 {
-                   for (auto s : webSockConnections)
-                     s->send(data.dump());
-                 });
-
+  server.execute([=]() {
+    for (auto s : webSockConnections)
+      s->send(data.dump());
+  });
 }
+
+
 
 void Frontend::WebSocketHandler::onData(WebSocket *sock, const char *data)
 {
@@ -167,6 +190,7 @@ void Frontend::WebSocketHandler::onData(WebSocket *sock, const char *data)
     try
     {
       ApiRequest request(j["route"], j["what"]);
+      request.websocket = sock;
       if (j.find("data") != j.end())
         request.data = j["data"];
       if (j.find("respondId") != j.end())
@@ -175,7 +199,7 @@ void Frontend::WebSocketHandler::onData(WebSocket *sock, const char *data)
       ApiRespond* response = apiRoot.processApi(request);
       if (response != nullptr) {
         Frontend::send(*response);
-        free(response);
+        delete response;
       }
     } catch (logic_error &ex) {
       // error
@@ -191,4 +215,13 @@ void Frontend::WebSocketHandler::onData(WebSocket *sock, const char *data)
 void Frontend::WebSocketHandler::onDisconnect(WebSocket *socket)
 {
   webSockConnections.erase(socket);
+  for (auto el: linkedWebSockConnections)
+    el->erase(socket);
+}
+
+void Frontend::registerWebsocketList(set<WebSocket *> &list) {
+  linkedWebSockConnections.insert(&list);
+}
+void Frontend::unRegisterWebsocketList(set<WebSocket *> &list) {
+  linkedWebSockConnections.erase(&list);
 }

@@ -7,7 +7,7 @@
 #include <gtest/gtest.h>
 #include <api/ApiRoute.h>
 #include <api/JsonList.h>
-#include <api/JsonObject.h>
+#include <api/ApiJsonObject.h>
 #include "TestHelper.hpp"
 
 

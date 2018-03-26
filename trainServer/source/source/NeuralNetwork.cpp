@@ -33,15 +33,6 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
   setLogName("NETWORK");
 
   /*
-   * Network json params */
-  addJsonParams({{"name", &name},
-                 {"id", &id},
-                 {"hidden", &hiddenLayers},
-                 {"neuronsPerHidden", &neuronsPerLayer},
-                 {"learnRate", &learnrate},
-                 {"optimizer", &optimizer}});
-
-  /*
    * mount charts */
   setSubRoutes({{"charts", &charts}});
   charts.setSubRoutes({{"progress", &chartProgressT}});
@@ -285,7 +276,8 @@ ApiRespond *NeuralNetwork::processApi(ApiRequest request)
   if (request.what == "do") {
     if (request.data["do"] == "startTrain") {
       TaskManager::addTaskOnceOnly([this]{ info("train from task ..."); });
-      return new ApiRespondError("not supported", request);
+      chartProgressT.pushUpdate();
+      //return new ApiRespondError("not supported", request);
     }
     else if (request.data["do"] == "stopTrain") {
       return new ApiRespondError("not supported", request);
