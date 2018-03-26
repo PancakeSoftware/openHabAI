@@ -8,7 +8,9 @@
 
 #include "ApiJsonObject.h"
 #include "Frontend.h"
-struct RangeParam;
+class RangeParam;
+class ValueParam;
+class ChartDataPoint;
 
 
 /*
@@ -56,12 +58,23 @@ class ParameterChart: public Chart
       param("outputs", outputs);
     }
 
+    /**
+     * set the function for generating chart data
+     * @param func generates for given inputValue( map<inputID, value> ) outputValue( map<outputID, value> )
+     */
+    void setUpdateFunction(function<map<int, float> (map<int, float> &inputValues, vector<int> &outputIds)> func) {
+      this->updateFunc = func;
+    }
+
     ApiRespond *processApi(ApiRequest request) override;
 
   private:
-    vector<int> fixedInputs;
+    vector<ValueParam> fixedInputs;
     vector<RangeParam> rangeInputs;
     vector<int> outputs;
+    map<int, vector<ChartDataPoint>> data;
+
+    function<map<int, float> (map<int, float> &inputValue, vector<int> &outputIds)> updateFunc;
 };
 
 
@@ -78,19 +91,42 @@ class TimeChart: public Chart
 
 class RangeParam: public JsonObject{
   public:
-    float from;
-    float to;
+    float from = 0;
+    float to = 0;
+    int steps = 1;
     int id;
 
-    RangeParam() {
-
-    }
-
-    void params() override { JsonObject::params();
+    void params() override {
+      param("id", id);
       param("from", from);
       param("to", to);
-      param("id", id);
+      param("steps", steps);
     }
 };
+
+class ValueParam: public JsonObject{
+  public:
+    int id;
+    float value;
+
+    void params() override {
+      param("id", id);
+      param("value", value);
+    }
+};
+
+class ChartDataPoint: public JsonObject{
+  public:
+    float value;
+    map<int, float> inputs;
+
+    ChartDataPoint(float value, map<int, float> inputs) : value(value), inputs(inputs) {}
+
+    void params() override {
+      param("value", value);
+      paramReadOnly("inputs", inputs);
+    }
+};
+
 
 #endif //OPENHABAI_CHART_H

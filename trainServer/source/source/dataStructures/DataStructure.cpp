@@ -11,7 +11,8 @@
 
 
 DataStructure::DataStructure()
-: ApiRouteJson({{"networks", &networks}})
+: ApiRouteJson({{"networks", &networks},
+                {"dataChart", &dataChart}})
 {
   setLogName("DATASTRUC");
   // link network when created with this datastructure
@@ -19,6 +20,21 @@ DataStructure::DataStructure()
         NeuralNetwork *t = new NeuralNetwork(this);
         t->fromJson(params);
         return t;
+  });
+
+  // setup chart
+  dataChart.setUpdateFunction([this] (map<int, float> &inputValues, vector<int> &outputIds) {
+    // @TODO ineffective
+    vector<float> in;
+    for (auto i: inputValues)
+      in[i.first] = i.second;
+    vector<float> out = getDataBatch(in);
+    map<int, float> outPut;
+    for (auto id: outputIds) {
+      if (out.size() < id)
+      outPut.emplace(id, out[id]);
+    }
+    return outPut;
   });
 }
 

@@ -55,6 +55,21 @@ class JsonParam: public AJsonParam{
     }
 };
 
+template <class T>
+class JsonParamReadOnly: public AJsonParam{
+  public:
+    T* valuePtr;
+    JsonParamReadOnly(T &value, string key)
+    {this->valuePtr = &value;}
+
+    Json toJson() const override {
+      return Json(*valuePtr);
+    }
+
+    void fromJson(Json j) const override
+    {}
+};
+
 }
 
 class JsonObject
@@ -114,6 +129,17 @@ class JsonObject
     template <class T>
     void param(string key, T &value) {
         paramPointers.emplace(key, make_shared<internal::JsonParam<T>>(value, key)); // unique_ptr -> deletes JsonParam when JsonObject is deleted
+    }
+
+    /**
+     * links json key with class member's value
+     * @note this param is only readable
+     * @warning use this function only inside your implementation of defineParams() !
+     * @see defineParams()
+     */
+    template <class T>
+    void paramReadOnly(string key, T &value) {
+      paramPointers.emplace(key, make_shared<internal::JsonParamReadOnly<T>>(value, key)); // unique_ptr -> deletes JsonParam when JsonObject is deleted
     }
 
     /**

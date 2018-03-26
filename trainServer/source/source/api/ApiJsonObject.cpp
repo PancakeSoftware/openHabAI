@@ -103,7 +103,7 @@ ApiRespond *ApiJsonObject::processApi(ApiRequest request)
 void ApiJsonObject::restore()
 {
   ApiProcessible::restore();
-  if (storePath.is_initialized())
+  if (route.is_initialized())
     load(getPath(), "item.json");
 }
 
@@ -119,6 +119,6 @@ void ApiJsonObject::store()
 void ApiJsonObject::storeMe()
 {
   ApiProcessible::storeMe();
-  if (storePath.is_initialized())
+  if (route.is_initialized())
     save(storePathString, "item.json");
 }

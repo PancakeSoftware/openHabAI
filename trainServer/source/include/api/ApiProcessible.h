@@ -64,20 +64,20 @@ class ApiProcessible
      */
     virtual void setStorePath(RoutePath path)
     {
-      storePath = path;
+      route = path;
       storePathString = getPath();
     }
 
   protected:
-    boost::optional<RoutePath> storePath;
+    boost::optional<RoutePath> route;
     string storePathString;
 
     string getPath() {
-      if (!storePath.is_initialized())
+      if (!route.is_initialized())
         return "";
 
       string path = "";
-      for (auto r : storePath.get()) {
+      for (auto r : route.get()) {
         path += r.first + "/";
         if (r.second != "")
           path +=  r.second + "/";

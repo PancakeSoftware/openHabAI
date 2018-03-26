@@ -88,8 +88,8 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
       j.update(Json{{"id", idAutoIncrement}});
       T* n = createItemFunc(j);
       items.insert({idAutoIncrement, n});
-      if (storePath.is_initialized()) {
-        RoutePath nPath = (this->storePath.get());
+      if (route.is_initialized()) {
+        RoutePath nPath = (this->route.get());
         (nPath.end()-1)->second = to_string(idAutoIncrement); // set entity id
         n->setStorePath(nPath);
         n->store();
@@ -147,7 +147,7 @@ template<class T>
 void JsonList<T>::restore()
 {
   ApiProcessible::restore();
-  if (!storePath.is_initialized())
+  if (!route.is_initialized())
     return;
 
   // foreach dir
@@ -188,7 +188,7 @@ void JsonList<T>::restore()
       /*
        * add item */
       T *n = createItemFunc(params);
-      RoutePath nPath = storePath.get();
+      RoutePath nPath = route.get();
       (nPath.end()-1)->second = id; // set entity id
       n->setStorePath(nPath);
       items.insert({idNum, n});

@@ -22,9 +22,10 @@ using namespace std;
 class DataStructure : public ApiRouteJson
 {
   public:
+    int id;
     string name;
     string type;
-    int id;
+    ParameterChart dataChart;
 
     /* Json keys */
     void params() override { ApiRouteJson::params();

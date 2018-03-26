@@ -42,12 +42,15 @@ var Network = new function () {
         // register chart updates
         Sock.send(this.myRoute().concat([ {"charts": ""}, {"progress": ""}]), "subscribe");
         Sock.send(this.myRoute().concat([ {"charts": ""}, {"progress": ""}]), "update", null, {
-            fixedInputs: [1,2,4],
-            rangeInputs: [
-                {from: 10, to: 22, id: 0},
-                {from: 99, to: 99, id: 1}
+            fixedInputs: [
+                {id: 0, value: 10},
+                {id: 1, value: 5}
             ],
-            outputs: [5,2,40]
+            rangeInputs: [
+                {id: 2, from: 10, to: 30,   steps: 2},
+                {id: 3, from: 110, to: 130, steps: 2}
+            ],
+            outputs: [1, 2]
         });
         //Sock.send("subscribe", "updateChart", null, this.jsonMe());
 

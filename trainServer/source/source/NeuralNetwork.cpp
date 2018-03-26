@@ -37,6 +37,15 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
   setSubRoutes({{"charts", &charts}});
   charts.setSubRoutes({{"progress", &chartProgressT}});
 
+  /*
+   * charts update functions */
+  chartProgressT.setUpdateFunction([this] (map<int, float> &inputValues, vector<int> &outputIds) {
+    map<int, float> out;
+    for (int id: outputIds)
+      out[id] = inputValues[0]+inputValues[1]+inputValues[2]+inputValues[3] * id;
+    return out;
+  });
+
 
   // clear display
   chartProgress.setGraphData("error",  {}, {}).changeApply();
