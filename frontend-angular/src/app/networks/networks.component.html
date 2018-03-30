@@ -1,0 +1,45 @@
+
+<!-- Button New -->
+<div class="fixed-action-btn">
+  <a href="#modal-new-network" class="btn-floating btn-large waves-effect waves-light tooltipped modal-trigger"
+     data-position="left" data-tooltip="new network"><i class="material-icons">add</i></a>
+</div>
+
+<!-- Networks List -->
+<div class="col s12 networks no-select list" >
+  <div class="card" *ngFor="let net of networks" routerLink="network/{{net.id}}">
+    <div class="card-content">
+      <i class="material-icons left medium">timeline</i>
+      <div class="card-title">{{net.name}}</div>
+      <p>ID: {{net.id}}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal new Network -->
+<div id="modal-new-network" class="modal" materialize="modal">
+  <div class="modal-content">
+    <h4 style="margin-bottom: 20px">New neural network</h4>
+
+    <div class="input-field col s12">
+      <input id="txt-name-net" type="text">
+      <label for="txt-name-net">network name</label>
+    </div>
+
+    <div class="row">
+      <div class="input-field col s6">
+        <input value="2" min="0" step="1" id="num-hidden" type="number">
+        <label for="num-hidden">hidden layers</label>
+      </div>
+      <div class="input-field col s6">
+        <input value="10" min="0" step="1" id="num-neronsPerHidden" type="number">
+        <label for="num-neronsPerHidden">neurons per layer</label>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <a class="modal-action modal-close waves-effect  btn-flat red white-text">Cancel</a>
+      <a id="bt-new-network" class="modal-action modal-close waves-effect waves-green btn-flat green white-text">Create</a>
+    </div>
+  </div>
+</div>

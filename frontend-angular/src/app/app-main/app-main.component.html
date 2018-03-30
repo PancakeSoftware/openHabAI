@@ -1,0 +1,31 @@
+<!-- Navigation ------------------------------------ -->
+<nav class="nav-extended">
+    <div class="nav-wrapper">
+        <!-- <a href="#" class="brand-logo right">Logo</a> -->
+        <div class="col s12" id="nav-at" style="margin-left: 20px">
+            <a class="breadcrumb no-select" id="home"><i routerLink="/" class="material-icons">home</i></a>
+        </div>
+    </div>
+
+    <!-- Tabs Network -->
+    <div class="nav-network"  *ngIf="routedComponent == 'NetworksAndTrainComponent'">
+        <ul class="tabs tabs-transparent" materialize="tabs">
+            <li class="tab"><a href="#tab-train">Train</a></li>
+            <li class="tab"><a class="active" href="#tab-networks">Networks</a></li>
+            <li class="tab disabled"><a href="#tab-run">Run</a></li>
+            <!--<li class="tab disabled"><a href="#tab-settings"><i class="material-icons">settings</i></a></li>-->
+        </ul>
+    </div>
+
+    <!-- Tabs DataStructure -->
+    <div class="nav-dataStructure" *ngIf="routedComponent == 'DatastructureAndSettingsComponent'" >
+        <ul class="tabs tabs-transparent " materialize="tabs">
+            <li class="tab"><a href="#tab-dataStructure">Data structures</a></li>
+            <li class="tab disabled"><a href="#tab-generalSettings">Settings</a></li>
+        </ul>
+    </div>
+</nav>
+
+<router-outlet (activate)="routedComponent = $event.constructor.name; onRouteChange()"></router-outlet>
+
+<app-backend-console></app-backend-console>

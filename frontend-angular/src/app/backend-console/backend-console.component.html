@@ -1,0 +1,27 @@
+<div class="fixedbutton row card">
+  <div class="card-content">
+    <div class="card-title">Debug console</div>
+    <div class="col s12 card-content">
+      <div class="col s6">
+        <div class="debug-network"  ngx-auto-scroll>
+
+          <div *ngFor="let l of log" >
+            <div>
+              <i class="material-icons left text-darken-1">{{l.direction === 'got' ? 'file_download' : 'file_upload'}}</i>
+              {{l.direction === 'got' ? 'got message' : 'send message'}}
+            </div>
+            <ngx-prism [language] = "'json'"> {{l.message}} </ngx-prism>
+            <br>
+          </div>
+
+        </div>
+      </div>
+      <div class="col s6">
+        <p [class.red]="connected === CONNECTION_STATUS.NOT_CONNECTED" [class.green]="connected === CONNECTION_STATUS.CONNECTED">{{connected === CONNECTION_STATUS.CONNECTED ? 'connected' : 'not connected'}}</p>
+        <textarea class="materialize-textarea" type="text" rows="25" [(ngModel)]="sendText"></textarea>
+        <a id="bt-sendTxtTest" class="btn waves-effect waves-light tooltipped disabled" (click)="onSendButton()"
+           data-tooltip="send json to this side">Send</a>
+      </div>
+    </div>
+  </div>
+</div>
