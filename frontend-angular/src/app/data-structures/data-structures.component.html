@@ -1,6 +1,6 @@
 <!-- Tab DataStructures -->
 <div>
-  <div class="card" *ngFor="let struc of dataStructures" routerLink="dataStructure/{{struc.id}}">
+  <div class="card" *ngFor="let struc of dataStructures | async" routerLink="dataStructure/{{struc.id}}">
     <div class="card-content">
       <i class="material-icons left medium">memory</i>
       <a app-click-stop-propagation="" class="waves-effect waves-light btn-flat red lighten-1 right white-text" (click)="$event.stopPropagation(); removeStruc(struc); "> <i class="material-icons small" >delete</i> </a>

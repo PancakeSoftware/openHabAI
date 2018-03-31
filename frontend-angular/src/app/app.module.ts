@@ -18,6 +18,7 @@ import { NetworksComponent } from './networks/networks.component';
 import {CustomReuseStrategy} from "./util/ReuseStrategy";
 import {RouteReuseStrategy} from "@angular/router";
 import { NetworkTrainComponent } from './network-train/network-train.component';
+import {Api} from "./util/Api/Api";
 
 
 
@@ -41,6 +42,7 @@ import { NetworkTrainComponent } from './network-train/network-train.component';
     ReactiveFormsModule
   ],
   providers: [
+    Api
     /*{provide: RouteReuseStrategy, useClass: CustomReuseStrategy}*/
   ],
   bootstrap: [AppMainComponent]

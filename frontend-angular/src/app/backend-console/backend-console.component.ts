@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {Backend, CONNECTION_STATUS} from "../util/backendSocket";
+import {ApiConnection, CONNECTION_STATUS} from "../util/Api/ApiConnection";
 import {toastInfo} from "../util/Log";
 import {delay} from "q";
 
@@ -17,15 +17,15 @@ export class BackendConsoleComponent implements OnInit {
 
 
   constructor() {
-    Backend.onReceive.subscribe(data => {
+    ApiConnection.onReceive.subscribe(data => {
       this.log.push({direction: 'got', message: data});
     });
-    Backend.onSend.subscribe(data => {
+    ApiConnection.onSend.subscribe(data => {
       this.log.push({direction: 'send', message: data});
     });
 
     // get status updates
-    Backend.connectionStatus.subscribe(status => this.connected = status);
+    ApiConnection.connectionStatus.subscribe(status => this.connected = status);
   }
 
   ngOnInit() {
@@ -33,7 +33,7 @@ export class BackendConsoleComponent implements OnInit {
 
   onSendButton() {
     /*
-    Backend.send(this.sendText);
+    ApiConnection.send(this.sendText);
     toastInfo(this.sendText);*/
   }
 }

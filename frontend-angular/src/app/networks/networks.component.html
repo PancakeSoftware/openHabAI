@@ -7,7 +7,7 @@
 
 <!-- Networks List -->
 <div class="col s12 networks no-select list" >
-  <div class="card" *ngFor="let net of networks" routerLink="network/{{net.id}}">
+  <div class="card" *ngFor="let net of networks | async" routerLink="network/{{net.id}}">
     <div class="card-content">
       <i class="material-icons left medium">timeline</i>
       <div class="card-title">{{net.name}}</div>

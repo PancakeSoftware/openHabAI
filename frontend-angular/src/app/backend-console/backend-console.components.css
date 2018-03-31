@@ -1,8 +1,8 @@
 .debug-network {
   overflow: auto;
-
+  top: 150px;
   position: absolute;
-  height:80%;
+  height:75%;
 }
 
 .fixedbutton {

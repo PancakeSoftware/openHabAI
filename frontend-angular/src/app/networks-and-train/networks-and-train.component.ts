@@ -1,7 +1,6 @@
 import {Component, EventEmitter, OnInit} from '@angular/core';
 import {ActivatedRoute, Params} from "@angular/router";
 import {toastInfo} from "../util/Log";
-import {Observable} from "rxjs/Observable";
 
 @Component({
   selector: 'app-networks-and-train',
@@ -10,13 +9,20 @@ import {Observable} from "rxjs/Observable";
 })
 export class NetworksAndTrainComponent implements OnInit {
 
+  networkID: number;
+  structureID: number;
 
-  constructor(private router: ActivatedRoute) {
-    router.params.subscribe(params => {
+  constructor(private route: ActivatedRoute) {
+    route.params.subscribe(params => {
+      this.networkID = params['networkID'];
+      this.structureID = params['structureID'];
+      //toastInfo('params:  ', params);
     });
   }
 
   ngOnInit() {
+    // reload the tabs of materializz
+    $('ul.tabs').tabs();
   }
 
 }

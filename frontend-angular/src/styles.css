@@ -24,11 +24,6 @@
 
     z-index: 100;
 }
-.debug-network {
-    overflow: auto;
-    position: absolute;
-    height:80%;
-}
 
 .list {
     padding-left: 10px;

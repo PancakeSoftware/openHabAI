@@ -2,7 +2,8 @@ import {Component, Input, OnInit} from '@angular/core';
 import {ActivatedRoute, Params} from "@angular/router";
 import {Observable} from "rxjs/Observable";
 import {toastInfo, toastOk} from "../util/Log";
-import {Backend} from "../util/backendSocket";
+import {ApiConnection} from "../util/Api/ApiConnection";
+import {Api} from "../util/Api/Api";
 
 @Component({
   selector: 'app-networks',
@@ -11,15 +12,17 @@ import {Backend} from "../util/backendSocket";
 })
 export class NetworksComponent implements OnInit {
 
-  ID_DataStructure: number = -1;
-  networks:
-    {name: string, id: number}[] = [];
+  structureID: number = -1;
+  networks: Observable<Network[]>;
 
-  constructor(private router: ActivatedRoute) {
+  constructor(
+    private router: ActivatedRoute,
+    private api: Api)
+  {
     toastInfo('networks constructor');
     router.params.subscribe(params => {
-      if (this.ID_DataStructure !== params.ID_DataStructure) {
-        this.ID_DataStructure = params.ID_DataStructure;
+      if (this.structureID !== params.structureID) {
+        this.structureID = params.structureID;
         this.updateSelf();
       }
     });
@@ -32,9 +35,8 @@ export class NetworksComponent implements OnInit {
    */
   updateSelf() {
     // get data
-    Backend.sendRequest([{"dataStructures": ""+this.ID_DataStructure}, {"networks": ""}], "getAll", (what, data) => {
-      if (what == 'ok')
-        this.networks = data;
-    });
+    this.networks = this.api.list([{"dataStructures": ""+this.structureID}, {"networks": ""}]).items();
   }
 }
+
+type Network = {name: string, id: number};

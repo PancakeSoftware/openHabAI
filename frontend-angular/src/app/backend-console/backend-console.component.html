@@ -3,8 +3,9 @@
     <div class="card-title">Debug console</div>
     <div class="col s12 card-content">
       <div class="col s6">
-        <div class="debug-network"  ngx-auto-scroll>
 
+        <div>
+        <div class="debug-network"  ngx-auto-scroll>
           <div *ngFor="let l of log" >
             <div>
               <i class="material-icons left text-darken-1">{{l.direction === 'got' ? 'file_download' : 'file_upload'}}</i>
@@ -13,8 +14,10 @@
             <ngx-prism [language] = "'json'"> {{l.message}} </ngx-prism>
             <br>
           </div>
-
         </div>
+        </div>
+
+        <a class="btn waves-effect" (click)="log = []">Clear console</a>
       </div>
       <div class="col s6">
         <p [class.red]="connected === CONNECTION_STATUS.NOT_CONNECTED" [class.green]="connected === CONNECTION_STATUS.CONNECTED">{{connected === CONNECTION_STATUS.CONNECTED ? 'connected' : 'not connected'}}</p>

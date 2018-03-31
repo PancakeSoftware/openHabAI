@@ -1,12 +1,13 @@
 
 // -- socket ------------------------------------------------------------
-import {toastErr, toast, toastInfo, toastOk} from "./Log";
+import {toastErr, toast, toastInfo, toastOk} from "../Log";
 import {ReplaySubject} from "rxjs/ReplaySubject";
 import {$} from "protractor";
 import {EventEmitter} from "@angular/core";
 import {Observable} from "rxjs/Observable";
+import {ApiRoute} from "./Utils";
 
-export class Backend {
+export class ApiConnection {
 
   private static sock: WebSocket;
   private static respondCounter: number;
@@ -72,7 +73,7 @@ export class Backend {
 
   }
 
-  static sendRequest(route, what: string, callback, data = null) {
+  static sendRequest(route: ApiRoute, what: string, callback, data = null) {
     this.sendQueue.push({route, what, callback, data});
     this.progressQueue();
   }
@@ -86,8 +87,10 @@ export class Backend {
   }
 
   private static progressQueue() {
+    if (this.sock == undefined)
+      return;
     if (this.sock.readyState == this.sock.OPEN) {
-      for (let i = 0; i < this.sendQueue.length; i++) {
+      while (this.sendQueue.length > 0) {
         let msg = this.sendQueue.pop();
         this.sendRequestNonWait(msg.route, msg.what, msg.callback, msg.data)
       }
