@@ -16,12 +16,8 @@ set<set<WebSocket *>*> Frontend::linkedWebSockConnections;
 int Frontend::port;
 int Frontend::portHtml;
 
-Server Frontend::serverWebsocket(make_shared<PrintfLogger>
-                            (Logger::Level::INFO)
-);
-Server Frontend::serverHttp(make_shared<PrintfLogger>
-                                     (Logger::Level::INFO)
-);
+Server Frontend::serverWebsocket(make_shared<SeasocksLogger>( "ServerWebsocket", Logger::Level::INFO));
+Server Frontend::serverHttp(make_shared<SeasocksLogger>("ServerHttp", Logger::Level::INFO));
 
 /*
  * -- Communication

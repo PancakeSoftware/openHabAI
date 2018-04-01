@@ -73,5 +73,41 @@ class Frontend
     static int portHtml;
 };
 
+/**
+ * own logger for seaSocks
+ */
+class SeasocksLogger : public seasocks::Logger {
+  public:
+    SeasocksLogger(string name, Level _minLevelToLog = Level::DEBUG)
+        : Logger(),
+          minLevelToLog(_minLevelToLog)
+    {
+      l.setLogName(name);
+    }
+
+    ~SeasocksLogger() = default;
+
+    virtual void log(Level level, const char* message) {
+      if (level >= minLevelToLog)
+      {
+        if (level == Level::DEBUG)
+          l.debug(message);
+        if (level == Level::INFO)
+          l.info(message);
+        if (level == Level::ACCESS)
+          l.info('ACCESS: ' + message);
+        if (level == Level::WARNING)
+          l.warn(message);
+        if (level == Level::ERROR)
+          l.err(message);
+        if (level == Level::SEVERE)
+          l.info('SEVERE: ' + message);
+      }
+    }
+
+    Level minLevelToLog;
+    Log l;
+};
+
 
 #endif //Frontend_H
