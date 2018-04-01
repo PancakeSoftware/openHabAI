@@ -58,6 +58,7 @@ class Log
 
   private:
     string logNameShort, logNameLong;
+    static int logNameShortLongest;
     static char logLevelMask;
     static bool useLongLogNames, useColors;
     static int  maxNameLongLen;

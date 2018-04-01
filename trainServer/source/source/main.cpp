@@ -14,18 +14,23 @@ using namespace std;
 std::mutex mainLockMutex;
 condition_variable mainLockCondition;
 bool condition = false;
+Log mlog;
 
 void testData();
 
 void atExit(int code)
 {
-  cout << "will stop main thread" << endl;
+  mlog.info("ON_EXIT: will stop main thread ...");
   TaskManager::stop();
 }
 
 /* -- MAIN PROGRAM ------------------------------------------- */
 int main(int argc, char *argv[])
 {
+  mlog.setLogLevel(Log::LOG_LEVEL_ALL);
+  mlog.setLogName("main");
+  mlog.info("OpenHabAI v0.0");
+
   // stop main thread at terminate signal
   signal(SIGTERM, atExit);
 
@@ -46,6 +51,7 @@ int main(int argc, char *argv[])
 
   /*
    * shutdown all */
+  mlog.info("will shutdown ...");
   NeuralNetwork::shutdown();
   return 0;
 }
