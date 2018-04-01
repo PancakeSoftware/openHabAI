@@ -19,9 +19,10 @@ export class ApiConnection {
   static onReady: EventEmitter<undefined> = new EventEmitter();
   static connectionStatus: ReplaySubject<CONNECTION_STATUS> = new ReplaySubject<CONNECTION_STATUS>();
 
-  static connect() {
+  static connect(host: string, port: number) {
     // -- connection ------------------------------------------------------------
-    this.sock = new WebSocket('ws://localhost:5555');
+    console.info('will connect to: ' + 'ws://'+host+':'+port);
+    this.sock = new WebSocket('ws://'+host+':'+port);
     this.sock.onerror = (error) => {
       toastErr("can't connect to server");
       this.connectionStatus.next(CONNECTION_STATUS.NOT_CONNECTED);

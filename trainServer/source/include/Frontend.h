@@ -19,7 +19,7 @@ using Json = nlohmann::json;
 class Frontend
 {
   public:
-    static void start(int port);
+    static void start(int portWebsocket, int portHttp);
 
     static void sendData(Json data);
     static void send(ApiRespond message);
@@ -61,11 +61,16 @@ class Frontend
         void onDisconnect(WebSocket *socket) override;
     };
 
-    static Server server;
+    static Server serverWebsocket;
+    static Server serverHttp;
+
     static set<WebSocket *> webSockConnections;
     static set<set<WebSocket *>*> linkedWebSockConnections;
-    static void serverThreadFunction();
+
+    static void serverWebsocketThreadFunction();
+    static void serverHttpThreadFunction();
     static int port;
+    static int portHtml;
 };
 
 

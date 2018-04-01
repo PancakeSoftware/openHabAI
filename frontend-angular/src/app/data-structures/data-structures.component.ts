@@ -73,8 +73,8 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
     toastInfo('New DataStructure: ', this.formNew.value);
 
     ApiConnection.sendRequest([{"dataStructures": ""}], "add", (what, data) => {
-      if (what == 'ok')
-        this.dataStructures.push(data);
+      //if (what == 'ok')
+      //  this.dataStructures.push(data);
     }, this.formNew.value);
 
     this.formNew.reset();
@@ -85,9 +85,9 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
     ApiConnection.sendRequest([{"dataStructures": struc.id.toString()}], "remove", (what) => {
       if (what != 'ok')
         return;
-      let index = this.dataStructures.findIndex(el => el.id == struc.id);
-      if (index > -1)
-        this.dataStructures.splice(index, 1);
+      //let index = this.dataStructures.findIndex(el => el.id == struc.id);
+      //if (index > -1)
+      //  this.dataStructures.splice(index, 1);
     });
   }
 

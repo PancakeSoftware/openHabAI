@@ -32,7 +32,10 @@ int main(int argc, char *argv[])
 
   // start frontend, load saved
   NeuralNetwork::init(new Context(DeviceType::kCPU, 0));
-  Frontend::start(5555);
+  Frontend::start(
+      5555, // webSocket port
+      8050  // http port
+  );
   apiRoot.setStorePath({});
   apiRoot.restore();
 

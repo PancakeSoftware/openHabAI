@@ -3,6 +3,7 @@ import {Injectable} from "@angular/core";
 import {ApiRoute, ApiRouteContainig} from "./Utils";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {ApiConnection} from "./ApiConnection";
+import {reject} from "q";
 
 /*
  * - list
@@ -12,7 +13,7 @@ import {ApiConnection} from "./ApiConnection";
 @Injectable()
 export class ApiList<T> extends ApiRouteContainig
 {
-  private onChange = new BehaviorSubject<T[]>([]);
+  private onChangeItems = new BehaviorSubject<T[]>([]);
 
   constructor(route: ApiRoute) {
     super(route);
@@ -20,7 +21,7 @@ export class ApiList<T> extends ApiRouteContainig
     // get object
     ApiConnection.sendRequest(route, 'getAll', (status, data) => {
       if (status === 'ok')
-        this.onChange.next(data);
+        this.onChangeItems.next(data);
     });
   }
 
@@ -29,8 +30,8 @@ export class ApiList<T> extends ApiRouteContainig
    * @returns {Observable<T[]>} update on list change (add, remove, update of object in list)
    */
   items(): Observable<T[]> {
-    return  new Observable<T>(observable => {
-      this.onChange.subscribe(value => observable.next(value));
+    return  new Observable<T[]>(observable => {
+      this.onChangeItems.subscribe(value => observable.next(value));
     });
   }
 
@@ -53,10 +54,12 @@ export class ApiList<T> extends ApiRouteContainig
   add(item: T): Promise<void>
   {
     return new Promise<void>((resolve, reject ) => {
-      // test
-      setTimeout(() => {
-        resolve();
-      }, 1000);
+      ApiConnection.sendRequest(this.route, "add", (status, data) => {
+        if (status == 'ok')
+          resolve();
+        else if (status == 'error')
+          reject(data.message);
+      }, item);
     });
   }
 
@@ -70,7 +73,7 @@ export class ApiList<T> extends ApiRouteContainig
     return new Promise<void>((resolve, reject ) => {
       // test
       setTimeout(() => {
-        resolve();
+        reject('not implemented');
       }, 1000);
     });
   }

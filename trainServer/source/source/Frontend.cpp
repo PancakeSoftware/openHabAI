@@ -12,11 +12,16 @@ using namespace seasocks;
 Log Frontend::l("FRONTEND");
 set<WebSocket *> Frontend::webSockConnections;
 set<set<WebSocket *>*> Frontend::linkedWebSockConnections;
+
 int Frontend::port;
-Server Frontend::server(make_shared<PrintfLogger>
+int Frontend::portHtml;
+
+Server Frontend::serverWebsocket(make_shared<PrintfLogger>
                             (Logger::Level::INFO)
 );
-
+Server Frontend::serverHttp(make_shared<PrintfLogger>
+                                     (Logger::Level::INFO)
+);
 
 /*
  * -- Communication
@@ -40,7 +45,7 @@ void Frontend::send(ApiRespond message)
 
 void Frontend::send(ApiRespond message, WebSocket *destination)
 {
-  server.execute([=]() mutable {
+  serverWebsocket.execute([=]() mutable {
     l.info("send ApiRespond to " + string(inet_ntoa(destination->getRemoteAddress().sin_addr)) + ":" + to_string(destination->getRemoteAddress().sin_port));
     destination->send(message.toJson().dump());
   });
@@ -48,7 +53,7 @@ void Frontend::send(ApiRespond message, WebSocket *destination)
 
 void Frontend::send(ApiRequest message, WebSocket *destination)
 {
-  server.execute([=]() mutable {
+  serverWebsocket.execute([=]() mutable {
     l.info("send ApiRequest to " + string(inet_ntoa(destination->getRemoteAddress().sin_addr)) + ":" + to_string(destination->getRemoteAddress().sin_port));
     destination->send(message.toJson().dump());
   });
@@ -135,25 +140,36 @@ Frontend::Chart &Frontend::getChart(string name)
 
 
 // -- start
-void Frontend::start(int port)
+void Frontend::start(int portWebsocket, int portHtml)
 {
-  Frontend::port = port;
+  Frontend::portHtml = portHtml;
+  Frontend::port = portWebsocket;
 
-  // start server thread
-  thread serverThread(serverThreadFunction);
-  serverThread.detach();
-  l.ok("create socket thread");
+  // start server threads
+  thread serverWebsocketThread(serverWebsocketThreadFunction);
+  serverWebsocketThread.detach();
+  l.ok("created serverWebsocket thread");
+
+  thread serverHttpThread(serverHttpThreadFunction);
+  serverHttpThread.detach();
+  l.ok("created serverHttp thread");
 }
 
 
-void Frontend::serverThreadFunction()
+void Frontend::serverWebsocketThreadFunction()
 {
-  server.addWebSocketHandler("/", make_shared<WebSocketHandler>());
-  l.ok("listen for connection on port " + to_string(port));
-  server.serve("", port);
-  l.ok("stop listening to port" + to_string(port));
+  serverWebsocket.addWebSocketHandler("/", make_shared<WebSocketHandler>());
+  l.ok("listen for webSocket connection on port " + to_string(port));
+  serverWebsocket.serve("", port);
+  l.info("stop listening to webSocket on port " + to_string(port) + "  [stopped serverWebsocketThread]");
 }
 
+void Frontend::serverHttpThreadFunction()
+{
+  l.info("listen for http connection on port " + to_string(portHtml));
+  serverHttp.serve("../../frontend-angular/dist", portHtml);
+  l.info("stop listening to http on port " + to_string(portHtml) + "  [stopped serverHttpThread]");
+}
 
 /* -- WEBSOCKET -------------------------------------*/
 void Frontend::WebSocketHandler::onConnect(WebSocket *socket)
@@ -165,7 +181,7 @@ void Frontend::WebSocketHandler::onConnect(WebSocket *socket)
 
 void Frontend::sendData(Json data)
 {
-  server.execute([=]() {
+  serverWebsocket.execute([=]() {
     for (auto s : webSockConnections)
       s->send(data.dump());
   });
@@ -175,13 +191,18 @@ void Frontend::sendData(Json data)
 
 void Frontend::WebSocketHandler::onData(WebSocket *sock, const char *data)
 {
+  //l.debug("got" + string(data));
+
   /*
    * parse Json */
   Json j;
   try {
     j = Json::parse(data);
   } catch (exception &e) {
-    l.err("can't progress api request: can't parse Json ("+  string(e.what()) +"): '"+ data +"'");
+    l.err("can't progress api request: can't parse Json ("+  string(e.what()) +"): '"+ string(data) +"'");
+  }
+  catch (...) {
+    l.err("can't progress api request: can't parse Json: '"+ string(data) +"'");
   }
 
   // check if msg has necessary fields

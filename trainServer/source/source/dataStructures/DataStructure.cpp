@@ -12,7 +12,8 @@
 
 DataStructure::DataStructure()
 : ApiRouteJson({{"networks", &networks},
-                {"dataChart", &dataChart}})
+                /*{"dataChart", &dataChart}*/}),
+  dataChart()
 {
   setLogName("DATASTRUC");
   // link network when created with this datastructure

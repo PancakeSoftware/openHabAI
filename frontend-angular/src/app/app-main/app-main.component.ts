@@ -1,4 +1,4 @@
-import {Component, NgModule} from '@angular/core';
+import {Component, Inject, NgModule} from '@angular/core';
 import {ActivatedRoute, Router, RouterModule, Routes} from "@angular/router";
 import {DatastructureAndSettingsComponent} from "../datastructure-and-settings/datastructure-and-settings.component";
 import {toast} from "angular2-materialize";
@@ -8,6 +8,7 @@ import {DataStructuresComponent} from "../data-structures/data-structures.compon
 import {NetworksComponent} from "../networks/networks.component";
 import {NetworkTrainComponent} from "../network-train/network-train.component";
 import {toastInfo} from "../util/Log";
+import {DOCUMENT} from "@angular/common";
 
 /*
  *-- MainComponent ------------------------------------------------------- */
@@ -23,8 +24,11 @@ export class AppMainComponent {
   networkID: number;
   structureID: number;
 
-  constructor(route: ActivatedRoute) {
-    ApiConnection.connect();
+  constructor(
+    route: ActivatedRoute,
+    @Inject(DOCUMENT) private document: Document)
+  {
+    ApiConnection.connect(this.document.location.hostname, 5555);
   }
 
   onRouteChange($event) {
