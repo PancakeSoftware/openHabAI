@@ -16,7 +16,7 @@ Log JsonObject::l("JsonObject");
  */
 ApiJsonObject::ApiJsonObject()
 {
-  setLogName("JSOBJ", "jsonObject");
+  setLogName("ApiJsonObject");
 }
 
 ApiJsonObject::ApiJsonObject(Json params)
@@ -104,12 +104,12 @@ void ApiJsonObject::restore()
 {
   ApiProcessible::restore();
   if (route.is_initialized())
-    load(getPath(), "item.json");
+    load(route.get().toStringStorePath(), "item.json");
 }
 
-void ApiJsonObject::setStorePath(RoutePath path)
+void ApiJsonObject::setRoute(ApiMessageRoute route)
 {
-  ApiProcessible::setStorePath(path);
+  ApiProcessible::setRoute(route);
 }
 void ApiJsonObject::store()
 {
@@ -120,5 +120,5 @@ void ApiJsonObject::storeMe()
 {
   ApiProcessible::storeMe();
   if (route.is_initialized())
-    save(storePathString, "item.json");
+    save(route.get().toStringStorePath(), "item.json");
 }

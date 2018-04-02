@@ -23,26 +23,14 @@ class EntityList : public ApiJsonObject
     }
 };
 
-class MyListL
-{
-  public:
-    JsonList<EntityList> list;
-    int entitysIdMax =0;
-
-    MyListL() :
-        list(entitysIdMax)
-    {}
-};
 
 
 TEST(JsonListTest, add)
 {
-  MyListL list;
+  JsonList<EntityList> list;
   ApiRequest request;
 
-  request.route = Json {
-      {{"compo", ""}}
-  };
+  request.route.fromString("");
   request.what = "add";
   request.data = Json{
       {"param", "hello"}
@@ -50,13 +38,13 @@ TEST(JsonListTest, add)
   ApiRequest request2 = request;
   request2.data["param"] = "you";
 
-  cout << "len: " << list.list.length() << endl;
+  cout << "len: " << list.length() << endl;
 
   // add two
-  list.list.processApi(request);
-  list.list.processApi(request2);
+  list.processApi(request);
+  list.processApi(request2);
 
-  EXPECT_EQ(2, list.list.length());
-  EXPECT_TRUE(testCompareJson(request.data.merge(Json{{"id", 0}}), (*list.list.items.begin()).second->toJson()));
-  EXPECT_TRUE(testCompareJson(request2.data.merge(Json{{"id", 1}}), (*++list.list.items.begin()).second->toJson()));
+  EXPECT_EQ(2, list.length());
+  EXPECT_TRUE(testCompareJson(request.data.merge(Json{{"id", 0}}), (*list.items.begin()).second->toJson()));
+  EXPECT_TRUE(testCompareJson(request2.data.merge(Json{{"id", 1}}), (*++list.items.begin()).second->toJson()));
 }

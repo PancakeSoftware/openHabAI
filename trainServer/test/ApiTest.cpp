@@ -9,6 +9,7 @@
 #include <api/JsonList.h>
 #include <api/ApiJsonObject.h>
 #include "TestHelper.hpp"
+#include <sstream>
 
 
 // == test api =====================================
@@ -77,15 +78,14 @@ class RootRoute : public ApiRoute
 TEST(ApiRouteTest, progressListAddGet)
 {
   RootRoute root;
-  root.setStorePath(RoutePath{});
+  root.setStorePath("../test/apiTest/");
+
   //return;
   /*
    * Add tow courses: SystemParallelProgramming, and Math1
    */
   ApiRequest *request = new ApiRequest(
-      Json {
-          {{"courses", ""}}
-      },
+      "/courses",
       "add",
       Json {
           {"courseName", "SystemParallelProgramming"}
@@ -101,10 +101,7 @@ TEST(ApiRouteTest, progressListAddGet)
   for (int course : {0, 1})
     for (string name : {"hans", "peter", "max"})
       cout << "ADD:  " << root.processApi(ApiRequest(
-          Json{
-              {{"courses", to_string(course)}},
-              {{"students", ""}}
-          },
+          "courses/" +to_string(course)+ "/students",
           "add",
           Json{{"name", name}, {"age", 19}}
       ))->toJson() << endl;
@@ -124,7 +121,7 @@ TEST(ApiRouteTest, progressListAddGet)
    */
   root.store();
   RootRoute rootRestored;
-  rootRestored.setStorePath({});
+  rootRestored.setRoute({});
   rootRestored.restore();
   EXPECT_EQ(2, rootRestored.courses.length());
   EXPECT_EQ(3, rootRestored.courses.get(0).students.length());
@@ -140,9 +137,7 @@ TEST(ApiRouteTest, progressListAddGet)
           {{"courseName", "Math1"}, {"id", 1}}
       },
       root.processApi(ApiRequest(
-        Json {
-            {{"courses", ""}}
-        },
+        "/courses/",
         "getAll",
         nullptr,
         0))->data
@@ -156,10 +151,7 @@ TEST(ApiRouteTest, progressListAddGet)
           {{"name", "max"}, {"id", 2}, {"age", 19}}
       },
       root.processApi(ApiRequest(
-          Json {
-              {{"courses", course}},
-              {{"students", ""}}
-          },
+          "/courses/"+course+"/students/",
           "getAll",
           nullptr,
           0))->data
@@ -180,18 +172,6 @@ TEST(JsonArrayTest, removeFromArray)
 }
 
 
-void printRoute(RoutePath routePath)
-{
-  string path = "";
-  for (auto r : routePath) {
-    path += r.first + "/";
-    if (r.second != "")
-      path +=  r.second + "/";
-    //cout << "next: " +  r.first + "/" + r.second;
-  }
-  cout << "path: " << path << endl;
-}
-
 struct Abc {
     int a;
     string b;
@@ -208,21 +188,31 @@ void from_json(const Json & j, Abc& p) {
 
 TEST(VectorTest, copy)
 {
-  RoutePath routePath{};
-  boost::optional<RoutePath> anOptional;
-  anOptional = routePath;
-  anOptional.get().push_back({"test", ""});
-
-  RoutePath routePath2 = anOptional.get();
-  (routePath2.end()-1)->second = to_string(10); // set entity id
-  routePath2.push_back({"inner", ""});
-
-  printRoute(anOptional.get());
-  printRoute(routePath2);
-
-
   vector<Abc> vector1{{0, "du"}};
   Json json1 = vector1;
   cout << json1.dump(2) << endl;
+
+}
+
+TEST(ApiMessageRoute, parseRoute)
+{
+  ApiMessageRoute route = ApiMessageRoute("/////courses/0//students/1///");
+  EXPECT_EQ("courses/0/students/1/", route.toString());
+  route.push("hey");
+  route.push("you");
+  EXPECT_EQ("courses/0/students/1/hey/you/", route.toString());
+  EXPECT_EQ(false, route.isEmpty());
+
+  EXPECT_EQ("courses", route.pop());
+  EXPECT_EQ("0", route.pop());
+  EXPECT_EQ("students", route.pop());
+  EXPECT_EQ("1/hey/you/", route.toString());
+
+  EXPECT_EQ("1", route.pop());
+  EXPECT_EQ("hey", route.pop());
+  EXPECT_EQ("you", route.pop());
+
+  EXPECT_EQ(true, route.isEmpty());
+  EXPECT_EQ("", route.pop());
 
 }

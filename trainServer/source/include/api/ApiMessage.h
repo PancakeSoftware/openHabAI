@@ -13,7 +13,88 @@
 using Json = nlohmann::json;
 using namespace std;
 using namespace seasocks;
-typedef vector<pair<string, string>> RoutePath;
+
+/**
+ * parses route
+ *  /courses/0/students/1/ becomes to vector [courses, 0, students, 1]
+ */
+class ApiMessageRoute {
+  public:
+    string pathPrefix; // for storing objects, has to end with /
+    vector<string> route;
+    vector<string> routeAbsolute; // not effected by pop and push
+
+    ApiMessageRoute() {
+    }
+
+    ApiMessageRoute(string routeUrl) {
+      fromString(routeUrl);
+    }
+
+    void fromString(string routeUrl) {
+      route.clear();
+      istringstream ss(routeUrl);
+      string token;
+      while (std::getline(ss, token, '/')) {
+        if (token.length() == 0)
+          continue;
+        route.push_back(token);
+      }
+      routeAbsolute = route;
+    }
+
+    string toString() const {
+      string out = "";
+      for (string token: route)
+        out += token + "/";
+      return out;
+    }
+
+    string toStringAbsolute() const {
+      string out = "/";
+      for (string token: routeAbsolute)
+        out += token + "/";
+      return out;
+    }
+
+    /**
+     * @return toSting with pathPrefix before
+     */
+    string toStringStorePath() const {
+      if (pathPrefix.size() == 0)
+        return pathPrefix + toString();
+      else {
+        if (pathPrefix.back() == '/')
+          return pathPrefix + toString();
+        else
+          return pathPrefix + "/" + toString();
+      }
+    }
+
+    /**
+     * pushes element to end route
+     * @param token not allowed to contain '/'
+     */
+    void push(string token) {
+      route.push_back(token);
+    }
+
+    /**
+     * pops first element of route
+     * @return
+     */
+    string pop() {
+      if (route.empty())
+        return "";
+      string token(route.front().c_str());
+      route.erase(route.begin());
+      return token;
+    }
+
+    bool isEmpty() {
+      return route.empty();
+    }
+};
 
 class ApiMessage
 {
@@ -29,41 +110,38 @@ class ApiMessage
 class ApiRequest: public ApiMessage
 {
   public:
-    Json route;
+    ApiMessageRoute route;
     string what;
     Json data;
     int  respondId = -1;
     WebSocket *websocket = nullptr;
 
     ApiRequest(){}
-    ApiRequest(Json route, string what)
+    ApiRequest(ApiMessageRoute route, string what)
     {
       this->route = route;
       this->what = what;
     }
-    ApiRequest(Json route, string what, Json data)
+    ApiRequest(ApiMessageRoute route, string what, Json data)
     {
       this->route = route;
       this->what = what;
       this->data = data;
     }
-    ApiRequest(Json route, string what, Json data, int respondId)
+    ApiRequest(ApiMessageRoute route, string what, Json data, int respondId)
     {
       this->route = route;
       this->what = what;
       this->data = data;
       this->respondId = respondId;
     }
-    ApiRequest(RoutePath route, string what){
-      Json j{};
-      for (auto item : route)
-        j.push_back({{item.first, item.second}});
-      this->route = j;
-      this->what = what;
-    }
-    ApiRequest(RoutePath route, string what, Json data) : ApiRequest(route, what) {
-      this->data = data;
-    }
+
+    ApiRequest(string route, string what)
+        : ApiRequest(ApiMessageRoute(route), what) {}
+    ApiRequest(string route, string what, Json data)
+        : ApiRequest(ApiMessageRoute(route), what, data) {}
+    ApiRequest(string route, string what, Json data, int respondId)
+        : ApiRequest(ApiMessageRoute(route), what, data, respondId) {}
 
 
     virtual Json toJson() override
@@ -71,7 +149,7 @@ class ApiRequest: public ApiMessage
       if (respondId >= 0)
         return Json {
             {"type", "request"},
-            {"route", route},
+            {"route", route.toStringAbsolute()},
             {"what", what},
             {"data", data},
             {"respondId", respondId}
@@ -79,7 +157,7 @@ class ApiRequest: public ApiMessage
       else
         return Json {
             {"type", "request"},
-            {"route", route},
+            {"route", route.toStringAbsolute()},
             {"what", what},
             {"data", data}
         };

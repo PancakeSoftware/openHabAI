@@ -57,7 +57,7 @@ class ApiRoute : public virtual ApiProcessible, protected virtual Log
 
     void restore() override;
     void store() override;
-    void setStorePath(RoutePath path) override;
+    void setRoute(ApiMessageRoute route) override;
 
   private:
     map<string, ApiProcessible*> routes;
@@ -80,7 +80,7 @@ class ApiRouteJson: public ApiRoute, public ApiJsonObject
     ApiRespond *processApi(ApiRequest request) override
     {
       auto resp =  ApiRoute::processApi(request);
-      if (resp == nullptr && request.route.size() <= 0)
+      if (resp == nullptr && request.route.isEmpty()) // for me
         return ApiJsonObject::processApi(request);
       else
         return resp;
@@ -103,10 +103,10 @@ class ApiRouteJson: public ApiRoute, public ApiJsonObject
       ApiJsonObject::storeMe();
     }
 
-    void setStorePath(RoutePath path) override
+    void setRoute(ApiMessageRoute route) override
     {
-      ApiJsonObject::setStorePath(path);
-      ApiRoute::setStorePath(path);
+      ApiJsonObject::setRoute(route);
+      ApiRoute::setRoute(route);
     }
 };
 

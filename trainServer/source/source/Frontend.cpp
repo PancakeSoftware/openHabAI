@@ -202,11 +202,11 @@ void Frontend::WebSocketHandler::onData(WebSocket *sock, const char *data)
   }
 
   // check if msg has necessary fields
-  if (j["type"] != "" and j["what"] != "")
+  if (j["type"] != "" and j["route"] != "" and j["what"] != "")
   {
     try
     {
-      ApiRequest request(j["route"], j["what"]);
+      ApiRequest request(ApiMessageRoute(j["route"].get<string>()), j["what"]);
       request.websocket = sock;
       if (j.find("data") != j.end())
         request.data = j["data"];

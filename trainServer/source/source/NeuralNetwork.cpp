@@ -277,7 +277,7 @@ void NeuralNetwork::shutdown()
 ApiRespond *NeuralNetwork::processApi(ApiRequest request)
 {
   ApiRespond* respond = ApiRouteJson::processApi(request);
-  if (respond != nullptr || request.route.size() > 0)
+  if (respond != nullptr || request.route.isEmpty())
     return respond;
 
   /*

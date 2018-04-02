@@ -19,7 +19,6 @@ export class NetworksComponent implements OnInit {
     private router: ActivatedRoute,
     private api: Api)
   {
-    toastInfo('networks constructor');
     router.params.subscribe(params => {
       if (this.structureID !== params.structureID) {
         this.structureID = params.structureID;
@@ -35,7 +34,7 @@ export class NetworksComponent implements OnInit {
    */
   updateSelf() {
     // get data
-    this.networks = this.api.list([{"dataStructures": ""+this.structureID}, {"networks": ""}]).items();
+    this.networks = this.api.list(`/dataStructures/${this.structureID}/networks`).items();
   }
 }
 

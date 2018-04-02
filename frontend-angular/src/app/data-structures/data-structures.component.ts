@@ -33,11 +33,9 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
     api: Api)
   {
     // get data
-    let list = api.list<DataStructure>([{dataStructures: ''}]);
+    let list = api.list<DataStructure>("/dataStructures");
     this.dataStructures = list.items();
 
-
-    console.log('dataStructures construct');
 
     // control tabs
     this.formNewTypeTabs = new Tabs(hostElement, '.dStructure-type','type');
@@ -72,7 +70,7 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
     this.formNew.value.type = this.formNewTypeTabs.active;
     toastInfo('New DataStructure: ', this.formNew.value);
 
-    ApiConnection.sendRequest([{"dataStructures": ""}], "add", (what, data) => {
+    ApiConnection.sendRequest("/dataStructures", "add", (what, data) => {
       //if (what == 'ok')
       //  this.dataStructures.push(data);
     }, this.formNew.value);
@@ -82,7 +80,7 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
 
   removeStruc(struc) {
     toastInfo('remove is not implemented yet :(');
-    ApiConnection.sendRequest([{"dataStructures": struc.id.toString()}], "remove", (what) => {
+    ApiConnection.sendRequest(`dataStructures/${struc.id.toString()}`, "remove", (what) => {
       if (what != 'ok')
         return;
       //let index = this.dataStructures.findIndex(el => el.id == struc.id);

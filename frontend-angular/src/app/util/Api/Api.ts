@@ -31,33 +31,22 @@ export class Api
 
 
   public list<T = any>(route: ApiRoute): ApiList<T> {
-    if (this.listRoutes.has(routeToString(route)))
-      return this.listRoutes.get(routeToString(route));
+    if (this.listRoutes.has(route))
+      return this.listRoutes.get(route);
 
     let list = new ApiList<T>(route);
-    this.listRoutes.set(routeToString(route), list);
+    this.listRoutes.set(route, list);
     return list;
   }
 
   public object<T = any>(route: ApiRoute): ApiObject<T> {
-    if (this.objectRoutes.has(routeToString(route)))
-      return this.objectRoutes.get(routeToString(route));
+    if (this.objectRoutes.has(route))
+      return this.objectRoutes.get(route);
 
-    console.info(routeToString(route));
+    console.info(route);
 
     let object = new ApiObject<T>(route);
-    this.objectRoutes.set(routeToString(route), object);
+    this.objectRoutes.set(route, object);
     return object;
   }
-}
-
-
-function routeToString(route: ApiRoute): string {
-  let r = '';
-  for (let i in route) {
-    r += Object.keys(route[i])[0].toString() + '/';
-    if (route[i][Object.keys(route[i])[0] ] !== '')
-      r+= route[i][Object.keys(route[i])[0] ] + '/';
-  }
-  return r;
 }

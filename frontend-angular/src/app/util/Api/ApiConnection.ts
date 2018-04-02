@@ -98,7 +98,7 @@ export class ApiConnection {
     }
   }
 
-  private static sendRequestNonWait(route, what: string, callback, data = null) {
+  private static sendRequestNonWait(route: string, what: string, callback, data = null) {
     if (this.sock.readyState == this.sock.CLOSED || this.sock.readyState == this.sock.CONNECTING)
       return;
 

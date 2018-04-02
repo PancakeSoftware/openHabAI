@@ -26,7 +26,7 @@ template<class T>
  */
 class JsonList : public ApiProcessible, public __JsonList, protected Log
 {
-    BOOST_STATIC_ASSERT((is_base_of<ApiJsonObject, T>::value));
+    BOOST_STATIC_ASSERT((is_base_of<ApiJsonObject, T>::value)); // @TODO list for every type
 
   public:
     string folder;
@@ -72,7 +72,7 @@ class JsonList : public ApiProcessible, public __JsonList, protected Log
 
     void restore() override;
     void store() override;
-    void setStorePath(RoutePath path) override;
+    void setRoute(ApiMessageRoute route) override;
 
   private:
     int &idAutoIncrement;

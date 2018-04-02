@@ -210,7 +210,7 @@ class ApiJsonObject : protected virtual Log, public virtual ApiProcessible, publ
     void restore() override;
     void store() override;
     void storeMe() override;
-    void setStorePath(RoutePath path) override;
+    void setRoute(ApiMessageRoute route) override;
 };
 
 #endif //OPENHABAI_JSONOBJECT_H

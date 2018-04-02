@@ -14,7 +14,6 @@
 using Json = nlohmann::json;
 using namespace std;
 
-typedef vector<pair<string, string>> RoutePath;
 
 /*
  * Apiprocessible class
@@ -26,7 +25,7 @@ class ApiProcessible
   public:
     /**
      * progress first route-object in route list
-     * @param request.route route list, defines something similar to rest url, in this example you want to access
+     * @param request.route defines something similar to rest url, in this example you want to access
      * @param request.what  defines action to perform, allowed values depend on route
      * @param request.data  contains data that is necessary to perform action
      */
@@ -57,35 +56,29 @@ class ApiProcessible
     /*
      * set full path to store this
      * this calls setStorePath of subObject recursively
-     * example: {
-     *   {"Component-A":   "entityID-A"},
-     *   {"Sub-Component": "entityID-B"},
-     * }
+     * example: /students/0/courses/0
      */
-    virtual void setStorePath(RoutePath path)
+    virtual void setRoute(ApiMessageRoute route)
     {
-      route = path;
-      storePathString = getPath();
+      this->route = route;
+      routeString = route.toString();
     }
+
+    /**
+     * set full path to store this and defines routes of all children
+     * @example ./my/file/path/to/store/root/of/api/
+     * @param path has to end with '/'
+     */
+    virtual void setStorePath(const string path) {
+      ApiMessageRoute myRoute;
+      myRoute.pathPrefix = path;
+      this->setRoute(myRoute);
+    }
+
 
   protected:
-    boost::optional<RoutePath> route;
-    string storePathString;
-
-    string getPath() {
-      if (!route.is_initialized())
-        return "";
-
-      string path = "";
-      for (auto r : route.get()) {
-        path += r.first + "/";
-        if (r.second != "")
-          path +=  r.second + "/";
-      }
-
-      storePathString = path;
-      return path;
-    }
+    boost::optional<ApiMessageRoute> route;
+    string routeString;
 
     void addWhat(string what, function<ApiRespond*(ApiRequest request)> action)
     {processWhats.insert({what, action});};

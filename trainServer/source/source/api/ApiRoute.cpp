@@ -7,7 +7,7 @@
 #include "api/ApiRoute.h"
 
 
-ApiRoute::ApiRoute() : Log("APIR")
+ApiRoute::ApiRoute() : Log("ApiRoute")
 {}
 
 ApiRoute::ApiRoute(map<string, ApiProcessible*> subRoutes) : ApiRoute()
@@ -18,32 +18,22 @@ ApiRoute::ApiRoute(map<string, ApiProcessible*> subRoutes) : ApiRoute()
 ApiRespond* ApiRoute::processApi(ApiRequest request)
 {
   // if route == empty, this is target
-  if (request.route.size() == 0) {
+  if (request.route.isEmpty()) {
     //warn("what: '"+ request.what +"' can not be processed by ApiRoute, route: " + request.route.dump(2));
     return nullptr;//new ApiRespondError("what: '"+ request.what +"' can not be processed by ApiRoute", request);
   }
 
   //info("route "+ to_string(request.route.size()) +": " + request.route.dump(2));
 
-  string component = (*request.route.begin()).begin().key();
-  string entityId  = (*request.route.begin()).begin().value();
+  string component = request.route.pop();
 
   // get route
   if (routes.find(component) == routes.end())
     return new ApiRespondError("subRoute: '"+ component +"' dose not exist", request);
-  else
-  {
+  else {
     ApiProcessible *subRoute = routes.find(component)->second;
-    // pop top route-element if not needed by subRoute (JsonList deletes it itself)
-    if (!dynamic_cast<__JsonList*>(subRoute))
-    {
-      //info("remove route");
-      request.route.erase(request.route.begin());
-    }
-
     return subRoute->processApi(request);
   }
-
 }
 
 void ApiRoute::setSubRoutes(map<string, ApiProcessible*> routes)
@@ -57,14 +47,14 @@ void ApiRoute::restore()
     route.second->restore();
 }
 
-void ApiRoute::setStorePath(RoutePath path)
+void ApiRoute::setRoute(ApiMessageRoute route)
 {
-  ApiProcessible::setStorePath(path);
+  ApiProcessible::setRoute(route);
   //info("my path: " + storePathString.get_value_or("??"));
-  for (auto route : routes) {
-    RoutePath n(path);
-    n.push_back({route.first, ""});
-    route.second->setStorePath(n);
+  for (auto child : routes) {
+    ApiMessageRoute n = route;
+    n.push(child.first);
+    child.second->setRoute(n);
   }
 }
 

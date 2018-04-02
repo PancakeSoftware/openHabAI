@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
       5555, // webSocket port
       8050  // http port
   );
-  apiRoot.setStorePath({});
+  apiRoot.setStorePath("./");
   apiRoot.restore();
 
 

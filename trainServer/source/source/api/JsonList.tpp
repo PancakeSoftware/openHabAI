@@ -15,20 +15,21 @@ template<class T>
 JsonList<T>::JsonList(int &idAutoIncrement)
     : idAutoIncrement(idAutoIncrement)
 {
-  setLogName("JSLI");
+  setLogName("JsonList");
 }
 template<class T>
 ApiRespond* JsonList<T>::processApi(ApiRequest request)
 {
+  // action to one entity
+  bool destEntity = !request.route.isEmpty();
 
-  string component = (*request.route.begin()).begin().key(); // already progressed by parent
-  string entityIdString = (*request.route.begin()).begin().value().get<string>();
+  // entity id
+  string entityIdString = request.route.pop();
   int entityId = -1;
 
   //info("at " + component + "/" + entityIdString);
 
-  // check if destination is entity
-  bool destEntity = (entityIdString.length() > 0);
+  // to int
   if (destEntity)
   {
     try
@@ -38,6 +39,7 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
     {
       err("entity's id is not a number", e.what());
       destEntity = false;
+      return new ApiRespondError("entity's id is not a number '" +string(e.what())+"'", request);
     }
   }
 
@@ -46,21 +48,19 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
   function<ApiRespond*()> callProcessApiOfItem = [&](){
     auto el = items.find(entityId);
     if (el == items.end())
-      return (ApiRespond*) new ApiRespondError("entity '" + entityIdString + "' of '"+ component +"' not found", request);
+      return (ApiRespond*) new ApiRespondError("entity '" + entityIdString + "' of '"+ route.get_value_or(ApiMessageRoute()).toStringAbsolute() +"' not found", request);
 
     ApiProcessible *processible = dynamic_cast<ApiProcessible*>(el->second);
     if (!processible)
-      return (ApiRespond*) new ApiRespondError("entity '" + entityIdString + "' cant process any api command", request);
+      return (ApiRespond*) new ApiRespondError("entity '" + entityIdString + "' cant process any api command because"
+                                                   + ((is_fundamental<T>::value) ? "it is a primitive type " : "") + "(Type: "+ typeid(T).name()+")", request);
 
     return processible->processApi(request);
   };
 
 
-  // JsonList has to remove top route itself, not done by parent ApiRoute
-  request.route.erase(request.route.begin());
-
   // we ar not target if there are still route parts left
-  if (request.route.size() > 0) {
+  if (!request.route.isEmpty()) {
     return callProcessApiOfItem();
   }
 
@@ -85,13 +85,13 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
     if (request.what == "add")
     {
       Json j = request.data;
-      j.update(Json{{"id", idAutoIncrement}});
+      j.update(Json{{"id", idAutoIncrement}}); // insert id key into data json
       T* n = createItemFunc(j);
       items.insert({idAutoIncrement, n});
       if (route.is_initialized()) {
-        RoutePath nPath = (this->route.get());
-        (nPath.end()-1)->second = to_string(idAutoIncrement); // set entity id
-        n->setStorePath(nPath);
+        ApiMessageRoute nRoute = this->route.get();
+        nRoute.push(to_string(idAutoIncrement)); // set entity id in its route
+        n->setRoute(nRoute);
         n->store();
       }
       idAutoIncrement++;
@@ -153,7 +153,7 @@ void JsonList<T>::restore()
   // foreach dir
   try
   {
-    fs::directory_iterator directory_iterator(fs::path(this->storePathString));
+    fs::directory_iterator directory_iterator(fs::path(this->route.get().toStringStorePath()));
     while (directory_iterator != fs::directory_iterator{})
     {
       /*
@@ -174,13 +174,13 @@ void JsonList<T>::restore()
        * read item.json */
       Json params;
       try {
-        ifstream item{storePathString + id + "/item.json"};
+        ifstream item{this->route.get().toStringStorePath() + id + "/item.json"};
         stringstream sItem;
         sItem << item.rdbuf();
         //info("file contend: " + sItem.str());
         params = Json::parse(sItem.str());
       } catch (exception& e) {
-        err("read item '"+ storePathString + id + "/item.json" +"' : " + string(e.what()));
+        err("read item '"+ this->route.get().toStringStorePath() + id + "/item.json" +"' : " + string(e.what()));
         directory_iterator++;
         continue;
       }
@@ -188,9 +188,9 @@ void JsonList<T>::restore()
       /*
        * add item */
       T *n = createItemFunc(params);
-      RoutePath nPath = route.get();
-      (nPath.end()-1)->second = id; // set entity id
-      n->setStorePath(nPath);
+      ApiMessageRoute nRoute = route.get();
+      nRoute.push(id); // set entity id
+      n->setRoute(nRoute);
       items.insert({idNum, n});
       n->restore();
 
@@ -205,17 +205,17 @@ void JsonList<T>::restore()
 }
 
 template<class T>
-void JsonList<T>::setStorePath(RoutePath path)
+void JsonList<T>::setRoute(ApiMessageRoute route)
 {
   info("setStorePath");
-  ApiProcessible::setStorePath(path);
-  info("myPath: " + storePathString);
+  ApiProcessible::setRoute(route);
+  info("myPath: " + routeString);
   for (auto i: items) {
-    RoutePath n = path;
+    ApiMessageRoute n = route;
     //if (n.at(n.size()-1))
-    info("path size " + to_string(n.size()));
-    (n.end()-1)->second = to_string(i.first); // set entity id
-    i.second->setStorePath(n);
+    info("path size " + to_string(n.route.size()));
+    n.push(to_string(i.first)); // set entity id
+    i.second->setRoute(n);
   }
 }
 

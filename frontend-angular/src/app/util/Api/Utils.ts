@@ -7,4 +7,4 @@ export class  ApiRouteContainig {
 }
 
 
-export type ApiRoute = Object[];
+export type ApiRoute = string;
