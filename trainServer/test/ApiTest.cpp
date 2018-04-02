@@ -91,7 +91,7 @@ TEST(ApiRouteTest, progressListAddGet)
           {"courseName", "SystemParallelProgramming"}
       }
   );
-  cout << "ADD course: " << root.processApi(*request)->toJson() << endl;
+  EXPECT_EQ("ok", root.processApi(*request)->toJson()["what"]);
   request->data["courseName"] = "Math1";
   root.processApi(*request);
 
@@ -100,11 +100,13 @@ TEST(ApiRouteTest, progressListAddGet)
    */
   for (int course : {0, 1})
     for (string name : {"hans", "peter", "max"})
-      cout << "ADD:  " << root.processApi(ApiRequest(
-          "courses/" +to_string(course)+ "/students",
-          "add",
-          Json{{"name", name}, {"age", 19}}
-      ))->toJson() << endl;
+      EXPECT_EQ("ok",
+                root.processApi(ApiRequest(
+                    "courses/" +to_string(course)+ "/students",
+                    "add",
+                    Json{{"name", name}, {"age", 19}}
+                ))->toJson()["what"]
+      );
 
 
 
@@ -121,7 +123,7 @@ TEST(ApiRouteTest, progressListAddGet)
    */
   root.store();
   RootRoute rootRestored;
-  rootRestored.setRoute({});
+  rootRestored.setStorePath("../test/apiTest/");
   rootRestored.restore();
   EXPECT_EQ(2, rootRestored.courses.length());
   EXPECT_EQ(3, rootRestored.courses.get(0).students.length());

@@ -6,21 +6,17 @@ There are two main types of packages:
     ```json
     {
       "type": "request",
-      "route": [
-        {"Component-A":   "entityID-A"},
-        {"Sub-Component": "entityID-B"}
-      ],
+      "route": "Component-A/entityID/Sub-Component/entityID",
+  
       "what": "add|update|remove|get|getAll|do|...",
       "data": {
-        
+  
       },
       "respondId": 12 
     }
     ```
     *   **route** defines something similar to rest url, in this example you want to access:<br>
-        ```entityID-A of Component-A / entityID-B of Sub-Component```<br>
-        Of every route object, key corresponds to component and value corresponds to entity of component.
-        If entity is empty you want ot access component as whole.
+        ```entityID-A of Component-A / entityID-B of Sub-Component```
     *   **what** defines action to perform, allowed values depend on route.
     *   **data** contains data that is necessary to perform action. 
     *   **respondId** `(optional)` if defined package requires respond, the responds *respondId* field will have same value as here specified. 
@@ -48,9 +44,7 @@ If type key not exists, package is treated as request.
 ```json
 {
   "type": "request",
-  "route": [
-    {"datastructure": ""}
-  ],
+  "route": "dataStructures/",
   "what": "getAll",
   "respondId": 12 
 }
@@ -74,9 +68,7 @@ respond:
 ```json
 {
   "type": "request",
-  "route": [
-    {"datastructure":   ""}
-  ],
+  "route": "dataStructures/",
   "what": "add",
   "data": {
     "name": "Test",
@@ -111,10 +103,7 @@ respond:
 ```json
 {
   "type": "request",
-  "route": [
-    {"datastructure": "2"},
-    {"network": ""}
-  ],
+  "route": "dataStructures/<id>/networks",
   "what": "getAll",
   "respondId": 12 
 }
@@ -137,10 +126,7 @@ respond:
 ```json
 {
   "type": "request",
-  "route": [
-    {"datastructure": "2"},
-    {"network": ""}
-  ],
+  "route": "dataStructures/<id>/networks",
   "what": "add",
   "data": {
     "name": "Test Net",
@@ -167,10 +153,7 @@ respond:
 ```json
 {
   "type": "request",
-  "route": [
-    {"datastructure": "2"},
-    {"network": "4"}
-  ],
+  "route": "dataStructures/<id>/networks/<id>",
   "what": "get",
   "respondId": 12 
 }
@@ -196,10 +179,7 @@ respond:
 ```json
 {
   "type": "request",
-  "route": [
-    {"datastructure": "2"},
-    {"network":       "4"}
-  ],
+  "route": "dataStructures/<id>/networks/<id>",
   "what": "do",
   "data": {
     "do": "startTrain|stopTrain",
@@ -221,28 +201,23 @@ respond:
 
 ## Chart
 #### Update
+send to server
 ```json
 {
   "type": "request",
-  "route": [
-    {"datastructure": "2"},
-    {"network":       "4"},
-    {"chart":         "progress"}
-  ],
+  "route": "dataStructures/<id>/networks/<id>/charts/progress",
   "what": "update",
   "data": {
-    "graphs": [
-        {
-          "graph": "error",
-          "data": [
-            {
-              "x": 1,
-              "y": 8
-            }
-          ]
-        }
-    ]
-  },
+      "fixedInputs": [
+          {"id": 0, "value": 10},
+          {"id": 1, "value": 5}
+      ],
+      "rangeInputs": [
+          {"id": 2, "from": 10, "to": 30,   "steps": 2},
+          {"id": 3, "from": 110, "to": 130, "steps": 2}
+      ],
+      "outputs": [1, 2]
+    },
   "respondId": 12 
 }
 ```
@@ -251,11 +226,7 @@ Register chart updates for network (for unsubscribe:  ```"type": "unsubscribe"``
 ```json
 {
   "type": "request",
-  "route": [
-    {"datastructure": "2"},
-    {"network":       "4"},
-    {"chart":         ""}
-  ],
+  "route": "dataStructures/<id>/networks/<id>/charts/progress",
   "what": "subscribe|unsubscribe",
   "respondId": 12 
 }
