@@ -14,6 +14,7 @@
 #include <boost/any.hpp>
 #include <unordered_map>
 #include "ApiProcessible.h"
+#include "Util.h"
 using Json = nlohmann::json;
 using namespace std;
 
@@ -115,8 +116,9 @@ class JsonObject
         try {
           //cout << "=fromJson= param " << key << ": " << params[key].dump() << endl;
           memberPtr->fromJson(params[key]);
-        } catch (exception &e) {
+        } catch (Json::type_error &e) {
           l.err("can't set jsonObject key '" + key +"' : " + e.what());
+          throw JsonObjectException("can't set jsonObject key '" + key +"' because of wrong type : " + e.what());
         }
       }
     };

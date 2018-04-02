@@ -75,6 +75,26 @@ TEST(JsonObjectTest, saveLoad)
   EXPECT_TRUE(testCompareJson(val, myObjectNew.toJson()));
 }
 
+TEST(JsonObjectTest, exceptions)
+{
+  Json val{
+      {"value1", false},
+      {"value2", 100},
+      {"value3", true}
+  };
+
+  MyObject myObject;
+
+  try
+  {
+    myObject = val;
+    cout << myObject.toJson().dump(2) << endl;
+    //FAIL();
+  } catch (exception &e) {
+    SUCCEED();
+  }
+}
+
 
 
 class SimpleObj: public JsonObject{
@@ -105,21 +125,6 @@ class SimpleObj: public JsonObject{
       param("vec", vec);
       param("objVec", objVec);
     }
-
-
-    /*
-    SimpleObj(const SimpleObj &old): JsonObject(old) {
-      cout << "[SimpleObj] '"<< name <<"'<-'"<< old.name << "' copy" << endl;
-    }
-
-    SimpleObj& operator =(const SimpleObj &src) {
-      JsonObject::operator=(src);
-      cout << "[SimpleObj] '"<< name <<"'<-'"<< src.name << "' copy assign" << endl;
-    }
-
-    ~SimpleObj() {
-      cout << "[SimpleObj] '"<< name <<"' destroy" << endl;
-    }*/
 };
 
 class As {

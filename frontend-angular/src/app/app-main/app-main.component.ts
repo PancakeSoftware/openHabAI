@@ -7,7 +7,7 @@ import {NetworksAndTrainComponent} from "../networks-and-train/networks-and-trai
 import {DataStructuresComponent} from "../data-structures/data-structures.component";
 import {NetworksComponent} from "../networks/networks.component";
 import {NetworkTrainComponent} from "../network-train/network-train.component";
-import {toastInfo} from "../util/Log";
+import {toastErr, toastInfo} from "../util/Log";
 import {DOCUMENT} from "@angular/common";
 
 /*
@@ -28,6 +28,9 @@ export class AppMainComponent {
     route: ActivatedRoute,
     @Inject(DOCUMENT) private document: Document)
   {
+    ApiConnection.onGetError.subscribe(msg => {
+      toastErr("<div><h6>" + msg.route+"</h6><p> "+ msg.message+ "</p></div>");
+    });
     ApiConnection.connect(this.document.location.hostname, 5555);
   }
 

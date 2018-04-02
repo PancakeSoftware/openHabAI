@@ -74,13 +74,10 @@ bool ApiJsonObject::load(string path, string fileName)
       throw domain_error("file is empty");
     params = Json::parse(sItem.str()); // @TODO somehow catch is not working for parse_error
   } catch (Json::parse_error &e) {
-    err("load from '"+ full +"' : " + string(e.what()));
+    err("load from '"+ full +"' can’t parse json", string(e.what()));
     return false;
-  } catch (exception& e) {
-    err("load from '"+ full +"' : " + string(e.what()));
-    return false;
-  } catch (...) {
-    err("load from '"+ full +"' unknown exception");
+  } catch (exception &e) {
+    err("load from '"+ full +"' ", string(e.what()));
     return false;
   }
 
@@ -94,7 +91,13 @@ bool ApiJsonObject::load(string path, string fileName)
 ApiRespond *ApiJsonObject::processApi(ApiRequest request)
 {
   if (request.what == "update")
-    this->fromJson(request.data);
+  {
+    try {
+      this->fromJson(request.data);
+    } catch (JsonObjectException &e) {
+      return new ApiRespondError(e.what(), request, route.get());
+    }
+  }
   if (request.what == "get")
     return new ApiRespondOk(this->toJson(), request);
   return nullptr;

@@ -197,9 +197,6 @@ void Frontend::WebSocketHandler::onData(WebSocket *sock, const char *data)
   } catch (exception &e) {
     l.err("can't progress api request: can't parse Json ("+  string(e.what()) +"): '"+ string(data) +"'");
   }
-  catch (...) {
-    l.err("can't progress api request: can't parse Json: '"+ string(data) +"'");
-  }
 
   // check if msg has necessary fields
   if (j["type"] != "" and j["route"] != "" and j["what"] != "")
@@ -218,13 +215,10 @@ void Frontend::WebSocketHandler::onData(WebSocket *sock, const char *data)
         Frontend::send(*response);
         delete response;
       }
-    } catch (logic_error &ex) {
+    } catch (exception &ex) {
       // error
       Frontend::send(ApiRespondError("can't progress api request ("+ string(ex.what()) +")", j));
       l.err("can't progress api request ("+  string(ex.what()) +"): '"+ j.dump(2) +"'");
-    }
-    catch (exception &e) {
-      l.err("can't progress api request general error ("+  string(e.what()) +"): '"+ j.dump(2) +"'");
     }
   }
 }

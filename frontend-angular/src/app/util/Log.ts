@@ -25,6 +25,6 @@ export function toastInfo(msg: string, obj: Object = null) {
 }
 
 export function toastErr(msg: string) {
-  Materialize.toast('<i class="material-icons left circle red">error_outline</i>' + msg, 2000);
+  Materialize.toast('<i class="material-icons left circle red">error_outline</i>' + msg, 3000);
 }
 

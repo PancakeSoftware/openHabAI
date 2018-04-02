@@ -207,10 +207,23 @@ class ApiRespondError : public ApiRespond
       this->what = "error";
     }
 
+    ApiRespondError(string error, ApiMessageRoute route) : ApiRespond(request)
+    {
+      this->data.update(Json{{"route", route.toString()}});
+    }
+
     ApiRespondError(string error, ApiRequest request) : ApiRespond(request)
     {
-      this->data = Json{{"message", error},{"request", request.toJson()}};
+      if (request.respondId < 0)
+        this->data = Json{{"message", error},{"request", request.toJson()}};
+      else
+        this->data = Json{{"message", error}};
       this->what = "error";
+    }
+
+    ApiRespondError(string error, ApiRequest request, ApiMessageRoute route) : ApiRespondError(error, request)
+    {
+      this->data.update(Json{{"route", route.toString()}});
     }
 
     ApiRespondError(string error, Json request)

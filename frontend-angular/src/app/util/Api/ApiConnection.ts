@@ -17,6 +17,7 @@ export class ApiConnection {
   static onReceive = new ReplaySubject<any>();
   static onSend: ReplaySubject<any> = new ReplaySubject<any>();
   static onReady: EventEmitter<undefined> = new EventEmitter();
+  static onGetError: ReplaySubject<{route: string, message: string}> = new ReplaySubject();
   static connectionStatus: ReplaySubject<CONNECTION_STATUS> = new ReplaySubject<CONNECTION_STATUS>();
 
   static connect(host: string, port: number) {
@@ -51,7 +52,10 @@ export class ApiConnection {
         case "respond":
           if (data.what == "error") {
             //toastErr("<p>" + data.data.message + "</p><br> <pre>" + Prism.highlight(JSON.stringify(data.data.request, null, 2), Prism.languages.json) + "</pre>");
-            toastErr("<p>" + data.data.message + "</p><br>");
+            this.onGetError.next({
+              route: ((data.data.respondId < 0) ? data.data.request.route : data.data.route),
+              message: data.data.message
+            });
             return;
           }
           if (this.respondCallbacks[data.respondId] != undefined) {
