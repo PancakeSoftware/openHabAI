@@ -87,15 +87,21 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
       Json j = request.data;
       j.update(Json{{"id", idAutoIncrement}}); // insert id key into data json
       T* n = createItemFunc(j);
-      items.insert({idAutoIncrement, n});
-      if (route.is_initialized()) {
-        ApiMessageRoute nRoute = this->route.get();
-        nRoute.push(to_string(idAutoIncrement)); // set entity id in its route
-        n->setRoute(nRoute);
-        n->store();
+      if (n != nullptr)
+      {
+        items.insert({idAutoIncrement, n});
+        if (route.is_initialized())
+        {
+          ApiMessageRoute nRoute = this->route.get();
+          nRoute.push(to_string(idAutoIncrement)); // set entity id in its route
+          n->setRoute(nRoute);
+          n->store();
+        }
+        idAutoIncrement++;
+        return new ApiRespondOk(n->toJson(), request);
       }
-      idAutoIncrement++;
-      return new ApiRespondOk(n->toJson(), request);
+      else
+        return new ApiRespondError("can’t create item by given data", request, route.get());
     }
   }
 

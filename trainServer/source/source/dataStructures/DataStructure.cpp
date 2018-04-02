@@ -43,10 +43,12 @@ DataStructure *DataStructure::create(Json params)
 {
   DataStructure *n;
   if (params == NULL)
-    return NULL;
+    return nullptr;
 
   if (params["type"] == "function")
     n = new FunctionDataStructure();
+  else
+    return nullptr;
 
   n->fromJson(params);
   return n;
