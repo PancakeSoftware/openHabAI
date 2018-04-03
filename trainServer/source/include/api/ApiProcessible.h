@@ -49,7 +49,13 @@ class ApiProcessible
     virtual void store() {};
 
     /**
-     * store state of self and subObjects
+     * removes saved data of self and subObjects
+     */
+    virtual void remove() {};
+
+    /**
+     * store state of self
+     * @TODO merge with store()
      */
     virtual void storeMe() {};
 

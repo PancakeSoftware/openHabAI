@@ -22,11 +22,12 @@ template<class T>
 /**
  * JsonList class
  * elements updatable via json (get, getAll, create)
- * @param T extends JsonObject 
+ * @param T extends JsonObject
+ * @note if derived objects of T are inserted into JsonList, T needs a virtual destructor because on destruction JsonList also deletes all its items
  */
 class JsonList : public ApiProcessible, public __JsonList, protected Log
 {
-    BOOST_STATIC_ASSERT((is_base_of<ApiJsonObject, T>::value)); // @TODO list for every type
+    BOOST_STATIC_ASSERT_MSG(is_base_of<ApiProcessible, T>::value, "JsonList<T> T has to be derivative of ApiProcessible to provide necessary functionality"); // @TODO list for every type
 
   public:
     string folder;
@@ -35,6 +36,8 @@ class JsonList : public ApiProcessible, public __JsonList, protected Log
 
     JsonList();
     JsonList(int &idAutoIncrement);
+
+    ~JsonList();
 
     /**
      * progress first route-object in route list
@@ -72,6 +75,7 @@ class JsonList : public ApiProcessible, public __JsonList, protected Log
 
     void restore() override;
     void store() override;
+    void remove() override;
     void setRoute(ApiMessageRoute route) override;
 
   private:

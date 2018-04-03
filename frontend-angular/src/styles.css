@@ -56,3 +56,10 @@
     margin-left: -15em; /*set to a negative number 1/2 of your width*/
     position:fixed;
 }
+
+.toastRoute {
+    background-color: #d9d9d9;
+    color: #282828;
+    padding: 4px;
+    border-radius: 2px;
+}

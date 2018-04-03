@@ -1,14 +1,12 @@
 import {Component, Inject, NgModule} from '@angular/core';
 import {ActivatedRoute, Router, RouterModule, Routes} from "@angular/router";
 import {DatastructureAndSettingsComponent} from "../datastructure-and-settings/datastructure-and-settings.component";
-import {toast} from "angular2-materialize";
 import {ApiConnection} from "../util/Api/ApiConnection";
 import {NetworksAndTrainComponent} from "../networks-and-train/networks-and-train.component";
-import {DataStructuresComponent} from "../data-structures/data-structures.component";
-import {NetworksComponent} from "../networks/networks.component";
-import {NetworkTrainComponent} from "../network-train/network-train.component";
 import {toastErr, toastInfo} from "../util/Log";
 import {DOCUMENT} from "@angular/common";
+import {Api} from "../util/Api/Api";
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
 
 /*
  *-- MainComponent ------------------------------------------------------- */
@@ -24,12 +22,15 @@ export class AppMainComponent {
   networkID: number;
   structureID: number;
 
+  // test list
+  listTest: BehaviorSubject<any[]>;
+
   constructor(
     route: ActivatedRoute,
     @Inject(DOCUMENT) private document: Document)
   {
     ApiConnection.onGetError.subscribe(msg => {
-      toastErr("<div><h6>" + msg.route+"</h6><p> "+ msg.message+ "</p></div>");
+      toastErr("<div><h6 class='toastRoute'>from:  " + msg.route+"</h6><p> "+ msg.message+ "</p></div>");
     });
     ApiConnection.connect(this.document.location.hostname, 5555);
   }

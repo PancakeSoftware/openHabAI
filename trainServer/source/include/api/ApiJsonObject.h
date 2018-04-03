@@ -211,6 +211,7 @@ class ApiJsonObject : protected virtual Log, public virtual ApiProcessible, publ
     ApiRespond *processApi(ApiRequest request) override;
     void restore() override;
     void store() override;
+    void remove() override;
     void storeMe() override;
     void setRoute(ApiMessageRoute route) override;
 };

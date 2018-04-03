@@ -29,7 +29,7 @@ ApiRespond* ApiRoute::processApi(ApiRequest request)
 
   // get route
   if (routes.find(component) == routes.end())
-    return new ApiRespondError("subRoute: '"+ component +"' dose not exist", request);
+    return new ApiRespondError("subRoute: '"+ component +"' dose not exist", request, route.get());
   else {
     ApiProcessible *subRoute = routes.find(component)->second;
     return subRoute->processApi(request);
@@ -63,4 +63,11 @@ void ApiRoute::store()
   ApiProcessible::store();
   for (auto route : routes)
     route.second->store();
+}
+
+void ApiRoute::remove()
+{
+  ApiProcessible::remove();
+  for (auto route : routes)
+    route.second->remove();
 }

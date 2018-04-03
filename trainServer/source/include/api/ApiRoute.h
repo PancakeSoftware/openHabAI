@@ -57,6 +57,7 @@ class ApiRoute : public virtual ApiProcessible, protected virtual Log
 
     void restore() override;
     void store() override;
+    void remove() override;
     void setRoute(ApiMessageRoute route) override;
 
   private:
@@ -101,6 +102,12 @@ class ApiRouteJson: public ApiRoute, public ApiJsonObject
     void storeMe() override
     {
       ApiJsonObject::storeMe();
+    }
+
+    void remove() override
+    {
+      ApiRoute::remove();
+      ApiJsonObject::remove();
     }
 
     void setRoute(ApiMessageRoute route) override

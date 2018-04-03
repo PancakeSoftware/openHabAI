@@ -2,6 +2,8 @@
 #include <string>
 #include <iostream>
 #include <json.hpp>
+#include <api/ApiProcessible.h>
+#include <dataStructures/DataStructure.h>
 using namespace std;
 using Json = nlohmann::json;
 
@@ -16,18 +18,9 @@ TEST(DebugTest, tryCatch)
 
 }
 
-TEST(DebugTest, jsonError)
+TEST(DebugTest, delete)
 {
-  string test = "{\"x\": \"\"d}";
-  cout << "will read: " << test << endl;
+  DataStructure *structure = new FunctionDataStructure();
+  delete structure;
 
-  Json j;
-  try
-  {
-    j = Json::parse(test);
-  } catch (exception& e) {
-    cout << "error: " << e.what() << endl;
-  }
-
-  cout << j.dump(2) << endl;
 }

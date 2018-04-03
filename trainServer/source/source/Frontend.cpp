@@ -42,7 +42,7 @@ void Frontend::send(ApiRespond message)
 void Frontend::send(ApiRespond message, WebSocket *destination)
 {
   serverWebsocket.execute([=]() mutable {
-    l.info("send ApiRespond to " + string(inet_ntoa(destination->getRemoteAddress().sin_addr)) + ":" + to_string(destination->getRemoteAddress().sin_port));
+    //l.info("send ApiRespond to " + string(inet_ntoa(destination->getRemoteAddress().sin_addr)) + ":" + to_string(destination->getRemoteAddress().sin_port));
     destination->send(message.toJson().dump());
   });
 }
@@ -50,7 +50,7 @@ void Frontend::send(ApiRespond message, WebSocket *destination)
 void Frontend::send(ApiRequest message, WebSocket *destination)
 {
   serverWebsocket.execute([=]() mutable {
-    l.info("send ApiRequest to " + string(inet_ntoa(destination->getRemoteAddress().sin_addr)) + ":" + to_string(destination->getRemoteAddress().sin_port));
+    //l.info("send ApiRequest to " + string(inet_ntoa(destination->getRemoteAddress().sin_addr)) + ":" + to_string(destination->getRemoteAddress().sin_port));
     destination->send(message.toJson().dump());
   });
 }

@@ -2,7 +2,7 @@
  * File:   ApiRoot.h
  * Author: Joshua Johannson
  *
-  */
+ */
 #ifndef APIROOT_H
 #define APIROOT_H
 

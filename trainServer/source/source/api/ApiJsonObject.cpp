@@ -125,3 +125,10 @@ void ApiJsonObject::storeMe()
   if (route.is_initialized())
     save(route.get().toStringStorePath(), "item.json");
 }
+
+void ApiJsonObject::remove()
+{
+  ApiProcessible::remove();
+  if (route.is_initialized())
+    boost::filesystem::remove(route.get().toStringStorePath() + "item.json");
+}

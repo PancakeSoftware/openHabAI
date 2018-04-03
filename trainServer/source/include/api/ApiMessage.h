@@ -44,7 +44,7 @@ class ApiMessageRoute {
     }
 
     string toString() const {
-      string out = "";
+      string out = "/";
       for (string token: route)
         out += token + "/";
       return out;
@@ -62,12 +62,12 @@ class ApiMessageRoute {
      */
     string toStringStorePath() const {
       if (pathPrefix.size() == 0)
-        return pathPrefix + toString();
+        return "." + toString();
       else {
         if (pathPrefix.back() == '/')
-          return pathPrefix + toString();
+          return pathPrefix.substr(0, pathPrefix.size()-1)  + toString();
         else
-          return pathPrefix + "/" + toString();
+          return pathPrefix  + toString();
       }
     }
 
@@ -236,6 +236,13 @@ class ApiRespondError : public ApiRespond
 class ApiRespondOk : public ApiRespond
 {
   public:
+
+    ApiRespondOk(ApiRequest request) : ApiRespond(request)
+    {
+      this->data = nullptr;
+      this->what = "ok";
+    }
+
     ApiRespondOk(Json data, ApiRequest request) : ApiRespond(request)
     {
       this->data = data;

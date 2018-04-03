@@ -37,6 +37,13 @@ class DataStructure : public ApiRouteJson
     JsonList<NeuralNetwork> networks;
 
     DataStructure();
+
+    /**
+     * because this is type and its child classes, of list
+     * a virtual destructor is needed
+     */
+    virtual ~DataStructure() = default;
+
     static DataStructure * create(Json params); // create right structure type by param 'type'
 
     inline bool operator == (int other) const;
@@ -62,6 +69,9 @@ class FunctionDataStructure : public DataStructure
     }
 
     FunctionDataStructure();
+
+    //~FunctionDataStructure(){
+    //}
 
     virtual vector<float> getDataBatch(vector<float> input) override;
 };

@@ -4,6 +4,7 @@ import {ApiRoute, ApiRouteContainig} from "./Utils";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {ApiConnection} from "./ApiConnection";
 import {reject} from "q";
+import {toastInfo} from "../Log";
 
 /*
  * - list
@@ -27,12 +28,16 @@ export class ApiList<T> extends ApiRouteContainig
 
   /**
    * get the actual list of all items
-   * @returns {Observable<T[]>} update on list change (add, remove, update of object in list)
+   * @returns {BehaviorSubject<T[]>} update on list change (add, remove, update of object in list)
    */
-  items(): Observable<T[]> {
+  items(): BehaviorSubject<T[]> {
+    return this.onChangeItems;
+    /*
+     * Observable not allows to get last set value
     return  new Observable<T[]>(observable => {
       this.onChangeItems.subscribe(value => observable.next(value));
     });
+    */
   }
 
   /**
@@ -51,12 +56,21 @@ export class ApiList<T> extends ApiRouteContainig
    * @param item
    * @returns {Promise} add done
    */
-  add(item: T): Promise<void>
+  add(item: T): Promise<number>
   {
-    return new Promise<void>((resolve, reject ) => {
+    return new Promise<number>((resolve, reject ) => {
       ApiConnection.sendRequest(this.route, "add", (status, data) => {
         if (status == 'ok')
-          resolve();
+        {
+          // update items[]
+          let lastItems: T[] = this.onChangeItems.getValue();
+          if (lastItems == null)
+            lastItems = [];
+
+          lastItems.push(data);
+          this.onChangeItems.next(lastItems);
+          resolve(data.id);
+        }
         else if (status == 'error')
           reject(data.message);
       }, item);
@@ -97,8 +111,33 @@ export class ApiList<T> extends ApiRouteContainig
    * @returns {Promise<void>}
    */
   remove(id: number): Promise<void> {
-    return new Promise<void>(((resolve, reject) => {
-
+    return new Promise<void>(((resolve, reject) =>
+    {
+      ApiConnection.sendRequest(this.route +"/"+ id, "remove", (what, data) => {
+        if (what === "ok")
+        {
+          // update items[]
+          this.onChangeItems.next(this.getOnChangedItemsValue_withoutId(id));
+          resolve();
+        }
+        else
+          reject(data.message);
+      })
     }));
+  }
+
+  /**
+   * get items[] filtered without object with id=id
+   * @param {number} id
+   * @returns {T[]}
+   */
+  private getOnChangedItemsValue_withoutId(id: number): T[] {
+    let arr =  this.onChangeItems.getValue();
+    let result: T[] = [];
+    for (let el of arr) {
+      if (!('id' in el) || (el['id'] != id ))
+        result.push(el);
+    }
+    return result;
   }
 }

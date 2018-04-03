@@ -48,7 +48,7 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
   function<ApiRespond*()> callProcessApiOfItem = [&](){
     auto el = items.find(entityId);
     if (el == items.end())
-      return (ApiRespond*) new ApiRespondError("entity '" + entityIdString + "' of '"+ route.get_value_or(ApiMessageRoute()).toStringAbsolute() +"' not found", request);
+      return (ApiRespond*) new ApiRespondError("entity '" + entityIdString + "'  not found", request, route.get_value_or(ApiMessageRoute()));
 
     ApiProcessible *processible = dynamic_cast<ApiProcessible*>(el->second);
     if (!processible)
@@ -84,15 +84,17 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
     // add
     if (request.what == "add")
     {
+      info("at "+route.get_value_or(ApiMessageRoute()).toString()+" add " + to_string(idAutoIncrement));
+
       Json j = request.data;
       j.update(Json{{"id", idAutoIncrement}}); // insert id key into data json
       T* n = createItemFunc(j);
       if (n != nullptr)
       {
         items.insert({idAutoIncrement, n});
-        if (route.is_initialized())
+        if (route.is_initialized() && is_base_of<ApiJsonObject, T>::value)
         {
-          ApiMessageRoute nRoute = this->route.get();
+          ApiMessageRoute nRoute = this->route.get_value_or(ApiMessageRoute());
           nRoute.push(to_string(idAutoIncrement)); // set entity id in its route
           n->setRoute(nRoute);
           n->store();
@@ -101,7 +103,7 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
         return new ApiRespondOk(n->toJson(), request);
       }
       else
-        return new ApiRespondError("can’t create item by given data", request, route.get());
+        return new ApiRespondError("can’t create item by given data", request, route.get_value_or(ApiMessageRoute()));
     }
   }
 
@@ -111,16 +113,31 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
     /*
      * Destination: single entity
      */
+    auto item = items.find(entityId);
+    if (item == items.end())
+    {
+      return new ApiRespondError("entity '" + entityIdString + "' not found", request, route.get_value_or(ApiMessageRoute()));
+    }
 
+    // get item
     if (request.what == "get")
     {
-      auto el = items.find(entityId);
-      if (el == items.end())
-      {
-        return new ApiRespondError("entity '" + entityIdString + "' not found", request);
-      }
+      return new ApiRespondOk((*item).second->toJson(), request);
+    }
 
-      return new ApiRespondOk((*el).second->toJson(), request);
+    // remove item
+    if (request.what == "remove")
+    {
+      if (route.is_initialized())
+      {
+        info("at " + route.get().toString() + " remove " + to_string(item->first));
+        item->second->remove();
+        boost::filesystem::remove_all(route.get().toStringStorePath() + entityIdString);
+        info("removed item " + route.get().toStringStorePath());
+        items.erase(item);
+        delete item->second;
+        return new ApiRespondOk(request);
+      }
     }
   }
 
@@ -179,13 +196,14 @@ void JsonList<T>::restore()
       /*
        * read item.json */
       Json params;
-      try {
+      try
+      {
         ifstream item{this->route.get().toStringStorePath() + id + "/item.json"};
         stringstream sItem;
         sItem << item.rdbuf();
-        //info("file contend: " + sItem.str());
         params = Json::parse(sItem.str());
-      } catch (exception& e) {
+      }
+      catch (exception& e) {
         err("read item '"+ this->route.get().toStringStorePath() + id + "/item.json" +"' : " + string(e.what()));
         directory_iterator++;
         continue;
@@ -233,3 +251,26 @@ void JsonList<T>::store()
     i.second->store();
   }
 }
+
+template<class T>
+void JsonList<T>::remove()
+{
+  ApiProcessible::remove();
+  for (auto item : items) {
+    item.second->remove();
+    delete item.second;
+  }
+  items.clear();
+  boost::filesystem::remove_all(route.get().toStringStorePath());
+  info("removed " + route.get().toStringStorePath());
+}
+
+template<class T>
+JsonList<T>::~JsonList()
+{
+  info("at "+route.get_value_or(ApiMessageRoute()).toString()+" will delete all items ...");
+  for (auto item : items)
+    delete item.second;
+  items.clear();
+}
+

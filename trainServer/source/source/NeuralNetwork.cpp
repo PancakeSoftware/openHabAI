@@ -48,7 +48,7 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
 
 
   // clear display
-  chartProgress.setGraphData("error",  {}, {}).changeApply();
+  //chartProgress.setGraphData("error",  {}, {}).changeApply();
 
   auto numHidden = 40;
   batchSize = 20;
@@ -267,6 +267,7 @@ void NeuralNetwork::printSymbolShapes(map<string, NDArray> map1)
 NeuralNetwork::~NeuralNetwork()
 {
   //stopTrain();
+  info("destruct NeuralNetwork");
 }
 void NeuralNetwork::shutdown()
 {

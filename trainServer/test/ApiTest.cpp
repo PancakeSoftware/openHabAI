@@ -75,7 +75,7 @@ class RootRoute : public ApiRoute
 
 
 
-TEST(ApiRouteTest, progressListAddGet)
+TEST(ApiRouteTest, progressListAddGetRemove)
 {
   RootRoute root;
   root.setStorePath("../test/apiTest/");
@@ -158,6 +158,26 @@ TEST(ApiRouteTest, progressListAddGet)
           nullptr,
           0))->data
     ));
+
+
+  /*
+   * remove test
+   */
+  root.processApi(ApiRequest(
+      "courses/0",
+      "remove"
+  ));
+
+  EXPECT_TRUE(testCompareJson(
+      Json{
+          {{"courseName", "Math1"}, {"id", 1}}
+      },
+      root.processApi(ApiRequest(
+          "/courses/",
+          "getAll",
+          nullptr,
+          0))->data
+  ));
 }
 
 TEST(JsonArrayTest, removeFromArray)
@@ -199,16 +219,16 @@ TEST(VectorTest, copy)
 TEST(ApiMessageRoute, parseRoute)
 {
   ApiMessageRoute route = ApiMessageRoute("/////courses/0//students/1///");
-  EXPECT_EQ("courses/0/students/1/", route.toString());
+  EXPECT_EQ("/courses/0/students/1/", route.toString());
   route.push("hey");
   route.push("you");
-  EXPECT_EQ("courses/0/students/1/hey/you/", route.toString());
+  EXPECT_EQ("/courses/0/students/1/hey/you/", route.toString());
   EXPECT_EQ(false, route.isEmpty());
 
   EXPECT_EQ("courses", route.pop());
   EXPECT_EQ("0", route.pop());
   EXPECT_EQ("students", route.pop());
-  EXPECT_EQ("1/hey/you/", route.toString());
+  EXPECT_EQ("/1/hey/you/", route.toString());
 
   EXPECT_EQ("1", route.pop());
   EXPECT_EQ("hey", route.pop());

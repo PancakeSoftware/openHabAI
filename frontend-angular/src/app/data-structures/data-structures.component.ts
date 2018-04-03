@@ -7,6 +7,7 @@ import {Observable} from "rxjs/Observable";
 import {el} from "@angular/platform-browser/testing/src/browser_util";
 import {Tabs} from "../util/Helper";
 import {Api} from "../util/Api/Api";
+import {ApiList} from "../util/Api/ApiList";
 
 
 @Component({
@@ -19,6 +20,7 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
   modalActions = new EventEmitter<string|MaterializeAction>();
 
 
+  dataStructuresList: ApiList<DataStructure>;
   dataStructures: Observable<DataStructure[]>;
 
   formNew: FormGroup;
@@ -30,11 +32,11 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
   constructor(
     fb: FormBuilder,
     hostElement: ElementRef,
-    api: Api)
+    private api: Api)
   {
     // get data
-    let list = api.list<DataStructure>("/dataStructures");
-    this.dataStructures = list.items();
+    this.dataStructuresList = api.list<DataStructure>("/dataStructures");
+    this.dataStructures = this.dataStructuresList.items();
 
 
     // control tabs
@@ -67,26 +69,16 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
    */
   createNew() {
     // set type by tabs
-    this.formNew.value.type = this.formNewTypeTabs.active;
+    this.formNew.value.type = "function";//this.formNewTypeTabs.active;
     toastInfo('New DataStructure: ', this.formNew.value);
 
-    ApiConnection.sendRequest("/dataStructures", "add", (what, data) => {
-      //if (what == 'ok')
-      //  this.dataStructures.push(data);
-    }, this.formNew.value);
+    this.dataStructuresList.add(this.formNew.value);
 
     this.formNew.reset();
   }
 
-  removeStruc(struc) {
-    toastInfo('remove is not implemented yet :(');
-    ApiConnection.sendRequest(`dataStructures/${struc.id.toString()}`, "remove", (what) => {
-      if (what != 'ok')
-        return;
-      //let index = this.dataStructures.findIndex(el => el.id == struc.id);
-      //if (index > -1)
-      //  this.dataStructures.splice(index, 1);
-    });
+  removeStruc(struc: DataStructure) {
+    this.dataStructuresList.remove(struc.id);
   }
 
   ngOnDestroy(): void {
