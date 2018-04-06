@@ -7,7 +7,7 @@
 
 <!-- Networks List -->
 <div class="col s12 networks no-select list" >
-  <div class="card" *ngFor="let net of networks | async" routerLink="network/{{net.id}}">
+  <div class="card" *ngFor="let net of networks | async" routerLink="/dataStructure/{{structureID}}/network/{{net.id}}">
     <div class="card-content">
       <i class="material-icons left medium">timeline</i>
       <a app-click-stop-propagation="" class="waves-effect waves-light btn-flat red lighten-1 right white-text" (click)="$event.stopPropagation(); removeNet(net); "> <i class="material-icons small" >delete</i> </a>

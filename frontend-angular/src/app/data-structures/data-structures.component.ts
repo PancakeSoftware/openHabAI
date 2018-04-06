@@ -50,7 +50,6 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
       range_from: -10,
       range_to: 10
     });
-
     // get data
     /*
     ApiConnection.sendRequest([{"dataStructures": ""}], "getAll", (what, data) => {
@@ -74,7 +73,13 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
 
     this.dataStructuresList.add(this.formNew.value);
 
-    this.formNew.reset();
+    this.formNew.reset({
+      name: 'MyDataStructure',
+      type: '',
+      function: 'x^3',
+      range_from: -10,
+      range_to: 10
+    });
   }
 
   removeStruc(struc: DataStructure) {
