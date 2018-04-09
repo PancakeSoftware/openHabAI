@@ -59,6 +59,11 @@ export class NetworksComponent implements OnInit
   createNetwork() {
     toastInfo('new net', this.formNew.value);
     this.networksList.add(this.formNew.value);
+    this.formNew.reset({
+      name: 'NeuralNetwork',
+      hidden: 2,
+      neuronsPerHidden: 10
+    });
   }
 }
 

@@ -219,7 +219,8 @@ void JsonList<T>::restore()
       n->restore();
 
       // next
-      idAutoIncrement++;
+      if (idNum >= idAutoIncrement)
+        idAutoIncrement = idNum + 1;
       directory_iterator++;
     }
   }

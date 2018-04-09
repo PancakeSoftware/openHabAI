@@ -16,7 +16,12 @@ export class NetworksAndTrainComponent implements OnInit {
     route.params.subscribe(params => {
       this.networkID = params['networkID'];
       this.structureID = params['structureID'];
-      //toastInfo('params:  ', params);
+
+      // show train tab
+      if (this.networkID != undefined) {
+        console.info('select tab', $('#nav-network .tabs')[0]);
+        $('#nav-network .tabs').tabs('select_tab', 'tab-run');
+      }
     });
   }
 
