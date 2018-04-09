@@ -63,12 +63,13 @@ class RootRoute : public ApiRoute
 {
   public:
     JsonList<UniversityCourse> courses;
+
     int coursesIdAutoIncrement = 0;
 
     RootRoute() :
         courses(coursesIdAutoIncrement),
         ApiRoute({  // set sub routes
-                     {"courses", &courses}
+                     {"courses", &courses} // /courses/
                  }) {}
 };
 
