@@ -34,11 +34,11 @@ class Chart: public ApiJsonObject
     void pushUpdate();
 
     ~Chart() {
-      Frontend::unRegisterWebsocketList(subscribers);
+        Frontend::unRegisterClientList(subscribers);
     }
 
   protected:
-    set<WebSocket*> subscribers;
+    set<Client> subscribers;
 };
 
 /*

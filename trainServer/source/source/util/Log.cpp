@@ -86,7 +86,7 @@ void Log::err(string text, string error)
 void Log::warn(string text)
 {
   if ((logLevelMask & LOG_LEVEL_WARNING) > 0)
-    print("[⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠⚠️ warn ⚠] ", text, LOG_LEVEL_WARNING);
+    print("[⚠ warn ⚠] ", text, LOG_LEVEL_WARNING);
 }
 
 void Log::ok(string text)

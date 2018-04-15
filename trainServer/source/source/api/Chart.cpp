@@ -12,7 +12,7 @@
 Chart::Chart()
 {
   // subscribers always has to be subset of connections
-  Frontend::registerWebsocketList(subscribers);
+  Frontend::registerClientList(subscribers);
 }
 
 ApiRespond *Chart::processApi(ApiRequest request)
@@ -21,11 +21,11 @@ ApiRespond *Chart::processApi(ApiRequest request)
 
   // subscribe
   if (request.what == "subscribe") {
-    subscribers.insert(request.websocket);
-    info("new subscriber " + to_string(request.websocket));
+    subscribers.insert(request.client);
+    info("new subscriber " + request.client.toString());
   }
   if (request.what == "unsubscribe")
-    subscribers.erase(request.websocket);
+    subscribers.erase(request.client);
 
   return respond;
 }

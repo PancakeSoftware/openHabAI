@@ -11,6 +11,7 @@
 #include <json.hpp>
 #include <util/Log.h>
 #include <api/ApiMessage.h>
+#include <queue>
 
 using namespace std;
 using namespace seasocks;
@@ -24,14 +25,14 @@ class Frontend
     static void sendData(Json data);
     static void send(ApiRespond message);
     static void send(ApiRequest message);
-    static void send(ApiRespond message, WebSocket *destination);
-    static void send(ApiRequest message, WebSocket *destination);
+    static void send(ApiRespond message, Client destination);
+    static void send(ApiRequest message, Client destination);
 
     /**
      * @param list always is subset of connected websockets
      */
-    static void registerWebsocketList(set<WebSocket*> &list);
-    static void unRegisterWebsocketList(set<WebSocket*> &list);
+    static void registerClientList(set<Client> &list);
+    static void unRegisterClientList(set<Client> &list);
 
     // chart
     class Chart
@@ -52,6 +53,13 @@ class Frontend
 
     static Chart &getChart(string name);
 
+    /* track packages to send, for testing
+     * pair<destination for message, message>
+     */
+    static list<pair<Client, ApiRequest>> requestsToSend;
+    static list<pair<Client, ApiRespond>> responsesToSend;
+
+
   private:
     static Log l;
     struct WebSocketHandler : WebSocket::Handler
@@ -65,12 +73,14 @@ class Frontend
     static Server serverHttp;
 
     static set<WebSocket *> webSockConnections;
-    static set<set<WebSocket *>*> linkedWebSockConnections;
+    static set<set<Client>*> linkedWebSockConnections;
 
     static void serverWebsocketThreadFunction();
     static void serverHttpThreadFunction();
     static int port;
     static int portHtml;
+
+
 };
 
 /**

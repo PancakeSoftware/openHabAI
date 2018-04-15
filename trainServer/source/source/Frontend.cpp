@@ -11,10 +11,13 @@ using namespace seasocks;
 // static
 Log Frontend::l("FRONTEND");
 set<WebSocket *> Frontend::webSockConnections;
-set<set<WebSocket *>*> Frontend::linkedWebSockConnections;
+set<set<Client>*> Frontend::linkedWebSockConnections;
 
 int Frontend::port;
 int Frontend::portHtml;
+list<pair<Client, ApiRequest>> Frontend::requestsToSend;
+list<pair<Client, ApiRespond>> Frontend::responsesToSend;
+
 
 Server Frontend::serverWebsocket(make_shared<SeasocksLogger>( "ServerWebsocket", Logger::Level::INFO));
 Server Frontend::serverHttp(make_shared<SeasocksLogger>("ServerHttp", Logger::Level::INFO));
@@ -25,33 +28,43 @@ Server Frontend::serverHttp(make_shared<SeasocksLogger>("ServerHttp", Logger::Le
 
 void Frontend::send(ApiRequest message)
 {
-  if (message.websocket == nullptr)
+  if (message.client.websocket == nullptr)
     sendData(message.toJson());
   else
-    send(message, message.websocket);
+    send(message, message.client.websocket);
 }
 
 void Frontend::send(ApiRespond message)
 {
-  if (!message.requestValid || message.request.websocket == nullptr)
+  if (!message.requestValid || message.request.client.websocket == nullptr)
     sendData(message.toJson());
   else
-    send(message, message.request.websocket);
+    send(message, message.request.client.websocket);
 }
 
-void Frontend::send(ApiRespond message, WebSocket *destination)
+void Frontend::send(ApiRespond message, Client destination)
 {
+  // push to queue and store iterator
+  responsesToSend.push_back(make_pair(destination, message));
+  auto const messageIterator = prev(responsesToSend.end());
+
   serverWebsocket.execute([=]() mutable {
     //l.info("send ApiRespond to " + string(inet_ntoa(destination->getRemoteAddress().sin_addr)) + ":" + to_string(destination->getRemoteAddress().sin_port));
-    destination->send(message.toJson().dump());
+    destination.websocket->send(message.toJson().dump());
+    responsesToSend.erase(messageIterator);
   });
 }
 
-void Frontend::send(ApiRequest message, WebSocket *destination)
+void Frontend::send(ApiRequest message, Client destination)
 {
+    // push to queue and store iterator
+  requestsToSend.push_back(make_pair(destination, message));
+  auto const messageIterator = prev(requestsToSend.end());
+
   serverWebsocket.execute([=]() mutable {
     //l.info("send ApiRequest to " + string(inet_ntoa(destination->getRemoteAddress().sin_addr)) + ":" + to_string(destination->getRemoteAddress().sin_port));
-    destination->send(message.toJson().dump());
+    destination.websocket->send(message.toJson().dump());
+    requestsToSend.erase(messageIterator);
   });
 }
 
@@ -204,7 +217,7 @@ void Frontend::WebSocketHandler::onData(WebSocket *sock, const char *data)
     try
     {
       ApiRequest request(ApiMessageRoute(j["route"].get<string>()), j["what"]);
-      request.websocket = sock;
+      request.client.websocket = sock;
       if (j.find("data") != j.end())
         request.data = j["data"];
       if (j.find("respondId") != j.end())
@@ -226,13 +239,20 @@ void Frontend::WebSocketHandler::onData(WebSocket *sock, const char *data)
 void Frontend::WebSocketHandler::onDisconnect(WebSocket *socket)
 {
   webSockConnections.erase(socket);
+
+  // remove socket form each linkedWebSockConnections set
   for (auto el: linkedWebSockConnections)
-    el->erase(socket);
+      for(auto removeCandidate = el->begin(); removeCandidate != el->end();) {
+          if (removeCandidate->websocket == socket)
+              removeCandidate = el->erase(removeCandidate);
+          else
+              removeCandidate++;
+      }
 }
 
-void Frontend::registerWebsocketList(set<WebSocket *> &list) {
+void Frontend::registerClientList(set<Client> &list) {
   linkedWebSockConnections.insert(&list);
 }
-void Frontend::unRegisterWebsocketList(set<WebSocket *> &list) {
+void Frontend::unRegisterClientList(set<Client> &list) {
   linkedWebSockConnections.erase(&list);
 }

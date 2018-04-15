@@ -15,6 +15,8 @@
 #include <unordered_map>
 #include "ApiProcessible.h"
 #include "Util.h"
+#include "ApiSubscribable.h"
+#include <stdarg.h>
 using Json = nlohmann::json;
 using namespace std;
 
@@ -95,6 +97,23 @@ class JsonObject
       return json;
     };
 
+    /**
+     * @return configured class attributes as json, but only params that match a string in params parameter
+     * @see JsonObject::params()
+     * @param params only this params converted to json
+     */
+    virtual Json toJson(vector<string>& params) const {
+        refreshParams();
+
+        Json json;
+        for (auto &paramPtr: paramPointers) {
+            const auto& key = paramPtr.first;
+            const auto& memberPtr = paramPtr.second;
+            if (find(params.begin(), params.end(), key) != params.end()) // if key in params
+                json[key] = memberPtr->toJson();
+        }
+        return json;
+    }
 
 
     /**
@@ -182,7 +201,7 @@ static void from_json(const Json& j, JsonObject& p) {
  * bind variables to json keys
  * supported data types: int, float, double, bool
  */
-class ApiJsonObject : protected virtual Log, public virtual ApiProcessible, public virtual JsonObject
+class ApiJsonObject : protected virtual Log, public virtual ApiSubscribable, public virtual JsonObject
 {
   public:
     ApiJsonObject();
@@ -207,6 +226,13 @@ class ApiJsonObject : protected virtual Log, public virtual ApiProcessible, publ
      */
     virtual bool load(string path, string fileName);
 
+    /**
+     * send changed object params to all subscribers
+     * @param param... changed json object params
+     */
+    void notifyParamsChanged(vector<string> param);
+    void notifyParamsChanged(string param, ...);
+
 
     ApiRespond *processApi(ApiRequest request) override;
     void restore() override;
@@ -214,6 +240,24 @@ class ApiJsonObject : protected virtual Log, public virtual ApiProcessible, publ
     void remove() override;
     void storeMe() override;
     void setRoute(ApiMessageRoute route) override;
+
+  private:
+    template <typename T>
+    vector<T> flatten(T t)
+    {
+        vector<T> v;
+        v.push_back(t);
+        return v;
+    }
+
+    template<typename T, typename... Args>
+    vector<T> flatten(T t, Args... args) // recursive variadic function
+    {
+        vector<T> v = {t};
+        vector<T> before = flatten(args...);
+        v.insert(before.begin(), before.end());
+        return v;
+    }
 };
 
 #endif //OPENHABAI_JSONOBJECT_H

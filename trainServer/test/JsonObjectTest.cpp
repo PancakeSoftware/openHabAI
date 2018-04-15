@@ -17,9 +17,9 @@ class  MyObject : public ApiJsonObject
     bool b = false;
 
     void params() override {JsonObject::params();
-      param("value1", i);
-      param("value2", s);
-      param("value3", b);
+      param("i", i);
+      param("s", s);
+      param("b", b);
     }
 };
 
@@ -27,16 +27,16 @@ class  MyObject : public ApiJsonObject
 TEST(JsonObjectTest, fromToJson)
 {
   Json valIn{
-      {"value1", 20},
-      {"value2", "string"},
-      {"value3", true},
+      {"i", 20},
+      {"s", "string"},
+      {"b", true},
       {"dontHave", "error"}
   };
 
   Json valOut{
-      {"value1", 20},
-      {"value2", "string"},
-      {"value3", true},
+      {"i", 20},
+      {"s", "string"},
+      {"b", true},
   };
 
   MyObject myObject;
@@ -52,9 +52,9 @@ TEST(JsonObjectTest, fromToJson)
 TEST(JsonObjectTest, saveLoad)
 {
   Json val{
-      {"value1", 20},
-      {"value2", "string"},
-      {"value3", true}
+      {"i", 20},
+      {"s", "string"},
+      {"b", true}
   };
 
   MyObject myObject;
@@ -78,9 +78,9 @@ TEST(JsonObjectTest, saveLoad)
 TEST(JsonObjectTest, exceptions)
 {
   Json val{
-      {"value1", false},
-      {"value2", 100},
-      {"value3", true}
+      {"i", false},
+      {"s", 100},
+      {"b", true}
   };
 
   MyObject myObject;
@@ -97,7 +97,7 @@ TEST(JsonObjectTest, exceptions)
 
 
 
-class SimpleObj: public JsonObject{
+class SimpleObj: public ApiJsonObject{
   public:
     float from;
     float to;
@@ -197,4 +197,29 @@ TEST(JsonObjectTest, simpleJsonObject)
   Json out = obj;
   EXPECT_TRUE(testCompareJson(json, out));
   cout << "Json: " << out.dump(2) << endl;
+}
+
+
+
+TEST(JsonObjectTest, notifyParamsChanged)
+{
+    // check send package queue
+    EXPECT_EQ(0, Frontend::requestsToSend.size());
+
+    MyObject obj;
+    obj.setStorePath("../test/jsonObjectTest");
+    obj.processApi(ApiRequest("", "subscribe"));
+
+    obj.s = "test";
+    obj.i = 12345;
+    obj.notifyParamsChanged({"i", "s", "not-a-param"});
+
+    // check send package queue
+    EXPECT_TRUE(1 <= Frontend::requestsToSend.size());
+    EXPECT_TRUE(testCompareJson(
+            ApiRequest("", "update", Json{
+                    {"s", "test"},
+                    {"i", 12345}
+            }).toJson(),
+            Frontend::requestsToSend.back().second.toJson()));
 }

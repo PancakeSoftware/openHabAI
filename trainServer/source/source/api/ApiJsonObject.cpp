@@ -90,6 +90,8 @@ bool ApiJsonObject::load(string path, string fileName)
 
 ApiRespond *ApiJsonObject::processApi(ApiRequest request)
 {
+  ApiRespond *processible =  ApiSubscribable::processApi(request);
+
   if (request.what == "update")
   {
     try {
@@ -100,7 +102,8 @@ ApiRespond *ApiJsonObject::processApi(ApiRequest request)
   }
   if (request.what == "get")
     return new ApiRespondOk(this->toJson(), request);
-  return nullptr;
+
+  return processible;
 }
 
 void ApiJsonObject::restore()
@@ -131,4 +134,37 @@ void ApiJsonObject::remove()
   ApiProcessible::remove();
   if (route.is_initialized())
     boost::filesystem::remove(route.get().toStringStorePath() + "item.json");
+}
+
+void ApiJsonObject::notifyParamsChanged(string paramC ...) {
+  if (!route.is_initialized()) {
+      warn("can’t push update to subscribers at notifyParamsChanged(...) because route of Object is not set, maybe you forgot to call setRoute() or setStorePath().");
+      return;
+  }
+
+  vector<string> params = flatten(paramC);
+    warn(accumulate(params.begin(), params.end(), string("notifyParamsChanged(), please use notifyParamsChanged(vector<string>) because this method seems not to work: changed params("+to_string(params.size())+"): "), [](string text, string param) {
+        return text + param + ",";
+    }));
+
+  // send changed params to subscribers
+  sendToSubscribers(
+          ApiRequest(route.get(),
+                     "update",
+                     toJson(params))
+  );
+}
+
+void ApiJsonObject::notifyParamsChanged(vector<string> params) {
+  if (!route.is_initialized()) {
+    warn("can’t push update to subscribers at notifyParamsChanged(...) because route of Object is not set, maybe you forgot to call setRoute() or setStorePath().");
+    return;
+  }
+
+  // send changed params to subscribers
+  sendToSubscribers(
+          ApiRequest(route.get(),
+                     "update",
+                     toJson(params))
+  );
 }
