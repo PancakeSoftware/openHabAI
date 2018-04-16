@@ -111,7 +111,7 @@ class SeasocksLogger : public seasocks::Logger {
         if (level == Level::ERROR)
           l.err(message);
         if (level == Level::SEVERE)
-          l.info('SEVERE: ' + message);
+          l.info("SEVERE: " + string(message));
       }
     }
 

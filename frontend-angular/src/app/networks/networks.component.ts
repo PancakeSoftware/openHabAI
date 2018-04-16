@@ -39,6 +39,9 @@ export class NetworksComponent implements OnInit
       hidden: 2,
       neuronsPerHidden: 10
     });
+
+    // init dropdown
+    $('#train-optimizer').dropdown();
   }
 
   ngOnInit() {

@@ -5,6 +5,7 @@ import {ApiConnection} from "./ApiConnection";
 import {Subject} from "rxjs/Subject";
 import {observable} from "rxjs/symbol/observable";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {Promise} from "q";
 
 /*
  * - objects
@@ -36,18 +37,41 @@ export class ApiObject<T> extends ApiRouteContainig
    * @returns {Observable<T[]>} update on object change
    */
   object(): Observable<T> {
-    return  new Observable<T>(observable => {
+    return new Observable<T>(observable => {
       this.onChange.subscribe(value => observable.next(value));
     });
   }
 
   /**
    * updates params of object
+   * @param params
    * @returns {Promise} update done
    */
-  update(): Promise<void> {
-    return new Promise<void>(((resolve, reject) => {
+  update(params: any): Promise<void> {
+    return Promise<void>(((resolve, reject) => {
+      ApiConnection.sendRequest(this.route, 'update', (status, data) => {
+        if (status == 'ok')
+          resolve(data);
+        else
+          reject(data);
+      }, params);
+    }));
+  }
 
+  /**
+   * send action to object
+   * @param {string} action
+   * @param data
+   * @returns {Promise} respond
+   */
+  action(action: string, data?: any): Promise<any> {
+    return Promise<any>(((resolve, reject) => {
+      ApiConnection.sendRequest(this.route, action, (status, data) => {
+        if (status == 'ok')
+          resolve(data);
+        else
+          reject(data);
+      }, data);
     }));
   }
 

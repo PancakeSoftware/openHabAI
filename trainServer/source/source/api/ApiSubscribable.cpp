@@ -14,8 +14,6 @@ ApiSubscribable::ApiSubscribable() {
 
 ApiRespond *ApiSubscribable::processApi(ApiRequest request) {
     ApiRespond *processible =  ApiProcessible::processApi(request);
-    if (processible != nullptr)
-        return processible;
 
     // subscribe
     if (request.what == "subscribe") {
@@ -24,6 +22,8 @@ ApiRespond *ApiSubscribable::processApi(ApiRequest request) {
     }
     if (request.what == "unsubscribe")
         subscribers.erase(request.client);
+
+    return processible;
 }
 
 void ApiSubscribable::sendToSubscribers(ApiRequest respond) {

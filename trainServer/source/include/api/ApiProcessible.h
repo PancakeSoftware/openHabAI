@@ -34,8 +34,7 @@ class ApiProcessible
       auto el = processWhats.find(request.what);
       if (el != processWhats.end())
         return el->second(request);
-      else
-        return nullptr;
+      return nullptr;
     };
 
     /**
@@ -86,7 +85,7 @@ class ApiProcessible
     boost::optional<ApiMessageRoute> route;
     string routeString;
 
-    void addWhat(string what, function<ApiRespond*(ApiRequest request)> action)
+    void addAction(string what, function<ApiRespond *(ApiRequest request)> action)
     {processWhats.insert({what, action});};
 
   private:

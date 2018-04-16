@@ -33,6 +33,18 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
   setLogName("NETWORK");
 
   /*
+   * onw actions
+   */
+  addAction("startTrain", [this](ApiRequest request) {
+      trainInNewThread();
+      return new ApiRespondOk(request);
+  });
+  addAction("stopTrain", [this](ApiRequest request) {
+      stopTrain();
+      return new ApiRespondOk(request);
+  });
+
+  /*
    * mount charts */
   setSubRoutes({{"charts", &charts}});
   charts.setSubRoutes({{"progress", &chartProgressT}});

@@ -1,3 +1,54 @@
-<p>
-  network-train works!
-</p>
+<div class="row">
+  <div class="col s12">
+    <div class="card" [formGroup]="trainParams">
+      <div class="card-content">
+        <div class="row s12">
+          <a id="bt-startTrain" class="waves-effect waves-light btn green" (click)="onTriggerTrain(true)"><i
+                  class="material-icons right">play_arrow</i>start train</a>
+          <a id="bt-stopTrain" class="waves-effect waves-light btn red"    (click)="onTriggerTrain(false)"><i
+                  class="material-icons right">stop</i>stop
+            train</a>
+        </div>
+
+        <div class="row s12">
+          <div class="input-field col s2">
+            <select id="train-optimizer" materialize="material_select" formControlName="optimizer">
+              <option value="sgd" >Stochastic Gradient Decent</option>
+              <option value="rms" >RMSProp (comming later)</option>
+              <option value="ada" disabled>Adagrad (comming later)</option>
+            </select>
+            <label for="train-optimizer">Optimizer</label>
+          </div>
+          <div class="input-field col s2">
+            <input value="0.0" id="train-learnRate" min="0" step="0.01" type="number" formControlName="learnRate">
+            <label for="train-learnRate">Learn rate</label>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col s12">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">Network Progress</span>
+
+        <div class="row">
+          <div class="col s12 m6">
+            <canvas id="chart-learnRate"></canvas>
+          </div>
+
+          <div class="col s12 m6">
+            <canvas id="chart-outputShape"></canvas>
+          </div>
+        </div>
+
+        <div class="col s4 m2">
+          <p></p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
