@@ -172,10 +172,12 @@ class ApiRequest: public ApiMessage
 
     virtual Json toJson() override
     {
+      // @TODO route.toString in Request.toString
+      string r = route.toString().size() <= 1 ? route.toStringAbsolute() : route.toString();
       if (respondId >= 0)
         return Json {
             {"type", "request"},
-            {"route", route.toStringAbsolute()},
+            {"route", r},
             {"what", what},
             {"data", data},
             {"respondId", respondId}
@@ -183,7 +185,7 @@ class ApiRequest: public ApiMessage
       else
         return Json {
             {"type", "request"},
-            {"route", route.toStringAbsolute()},
+            {"route", r},
             {"what", what},
             {"data", data}
         };
@@ -243,7 +245,7 @@ class ApiRespondError : public ApiRespond
       if (request.respondId < 0)
         this->data = Json{{"message", error},{"request", request.toJson()}};
       else
-        this->data = Json{{"message", error}};
+        this->data = Json{{"message", error}, {"route", request.route.toStringAbsolute()}};
       this->what = "error";
     }
 

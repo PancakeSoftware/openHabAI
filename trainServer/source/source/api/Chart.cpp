@@ -11,30 +11,17 @@
 
 Chart::Chart()
 {
-  // subscribers always has to be subset of connections
-  Frontend::registerClientList(subscribers);
 }
 
 ApiRespond *Chart::processApi(ApiRequest request)
 {
   ApiRespond *respond = ApiJsonObject::processApi(request);
-
-  // subscribe
-  if (request.what == "subscribe") {
-    subscribers.insert(request.client);
-    info("new subscriber " + request.client.toString());
-  }
-  if (request.what == "unsubscribe")
-    subscribers.erase(request.client);
-
   return respond;
 }
 
 void Chart::pushUpdate()
 {
-  for (auto sub = subscribers.begin(); sub != subscribers.end(); sub++) {
-    Frontend::send(ApiRequest(route.get(), "update", Json{}), *sub);
-  }
+
 }
 
 
@@ -55,16 +42,19 @@ ApiRespond *ParameterChart::processApi(ApiRequest request)
       return new ApiRespondError("can't update chart data: updateFunction(used to generate output data from rangeInputs) is not set", request);
 
     // update chart data
-    TaskManager::addTaskOnceOnly([this]() {
+    // @TODO if calc update is already in tasklist replace it
+    TaskManager::addTaskOnceOnly([this, route = this->route, &data = this->data, outputs = this->outputs, fixedInputs = this->fixedInputs, rangeInputs = this->rangeInputs, &updateFunc = this->updateFunc]() {
+      map<int, vector<ChartDataPoint>> dataOut;
+
       // for each rageInput
-      function<void(vector<RangeParam>::iterator, map<int, float>)> createData =
-          [this, &createData](vector<RangeParam>::iterator input, map<int, float> inputData)
+      function<void(vector<RangeParam>::const_iterator, map<int, float>)> createData =
+          [&](vector<RangeParam>::const_iterator input, map<int, float> inputData)
           {
             if (input == rangeInputs.end())
             {
               //debug("create dataPoint at "+ Json{inputData}.dump());
-              for (auto i: updateFunc(inputData, this->outputs))
-                data[i.first].push_back(ChartDataPoint(i.second, inputData));
+              for (auto i: updateFunc(inputData, outputs))
+                dataOut[i.first].push_back(ChartDataPoint(i.second, inputData));
               return;
             }
 
@@ -89,14 +79,18 @@ ApiRespond *ParameterChart::processApi(ApiRequest request)
           };
 
       // remove old data
-      data.clear();
+      // data.clear();
 
       // generate new data
       map<int, float> inputDat;
       for (auto i: fixedInputs) // insert fixedInputs
         inputDat.emplace(i.id, i.value);
       createData(rangeInputs.begin(), inputDat); // generate data by rangeInputs
-      Frontend::send(ApiRequest(route.get(), "update", this->data));
+      //debug("will send to Frontend: " + route.get().toString() + "  =   " + to_string(data.size()) + Json(data).dump(2));
+
+      // send data, update data in object
+      sendToSubscribers(ApiRequest(route.get(), "updateData", dataOut));
+      data = dataOut;
     });
   }
 

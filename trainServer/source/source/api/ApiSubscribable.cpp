@@ -26,7 +26,7 @@ ApiRespond *ApiSubscribable::processApi(ApiRequest request) {
     return processible;
 }
 
-void ApiSubscribable::sendToSubscribers(ApiRequest respond) {
+void ApiSubscribable::sendToSubscribers(ApiRequest request) {
     for (auto sub : subscribers)
-        Frontend::send(respond, sub);
+        Frontend::send(request, sub);
 }

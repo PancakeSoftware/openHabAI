@@ -11,11 +11,14 @@
 
 
 DataStructure::DataStructure()
-: ApiRouteJson({{"networks", &networks},
-                /*{"dataChart", &dataChart}*/}),
+: ApiRouteJson(),
   dataChart()
 {
+  setSubRoutes({{"networks", &networks},
+                {"dataChart", &dataChart}});
+
   setLogName("DATASTRUC");
+
   // link network when created with this datastructure
   networks.setCreateItemFunction([this](Json params) ->  NeuralNetwork* {
         NeuralNetwork *t = new NeuralNetwork(this);
@@ -24,15 +27,20 @@ DataStructure::DataStructure()
   });
 
   // setup chart
-  dataChart.setUpdateFunction([this] (map<int, float> &inputValues, vector<int> &outputIds) {
+  dataChart.setUpdateFunction([this] (const map<int, float> &inputValues, const vector<int> &outputIds) {
     // @TODO ineffective
+    // input Vector index=id
     vector<float> in;
     for (auto i: inputValues)
-      in[i.first] = i.second;
+      in.insert(in.begin() +i.first, i.second);
+
+    // get data point
     vector<float> out = getDataBatch(in);
+
+    // convert back to id map
     map<int, float> outPut;
     for (auto id: outputIds) {
-      if (out.size() < id)
+      if (out.size() >= id)
       outPut.emplace(id, out[id]);
     }
     return outPut;
@@ -74,7 +82,7 @@ FunctionDataStructure::FunctionDataStructure()
 
 vector<float> FunctionDataStructure::getDataBatch(vector<float> input)
 {
-  cout << "get Batch: " << this->function << endl;
+  //cout << "get Batch: " << this->function << endl;
 
   typedef exprtk::symbol_table<double> symbol_table_t;
   typedef exprtk::expression<double>     expression_t;

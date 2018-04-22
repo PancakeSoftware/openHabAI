@@ -105,7 +105,7 @@ class SeasocksLogger : public seasocks::Logger {
         if (level == Level::INFO)
           l.info(message);
         if (level == Level::ACCESS)
-          l.info('ACCESS: ' + message);
+          l.info("ACCESS: " + string(message));
         if (level == Level::WARNING)
           l.warn(message);
         if (level == Level::ERROR)

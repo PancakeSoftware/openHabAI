@@ -51,10 +51,10 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
 
   /*
    * charts update functions */
-  chartProgressT.setUpdateFunction([this] (map<int, float> &inputValues, vector<int> &outputIds) {
+  chartProgressT.setUpdateFunction([this] (const map<int, float> &inputValues, const vector<int> &outputIds) {
     map<int, float> out;
-    for (int id: outputIds)
-      out[id] = inputValues[0]+inputValues[1]+inputValues[2]+inputValues[3] * id;
+    //for (int id: outputIds)
+    //  out[id] = inputValues[0]+inputValues[1]+inputValues[2]+inputValues[3] * id;
     return out;
   });
 
@@ -298,7 +298,7 @@ ApiRespond *NeuralNetwork::processApi(ApiRequest request)
   if (request.what == "do") {
     if (request.data["do"] == "startTrain") {
       TaskManager::addTaskOnceOnly([this]{ info("train from task ..."); });
-      chartProgressT.pushUpdate();
+      //chartProgressT.pushUpdate();
       //return new ApiRespondError("not supported", request);
     }
     else if (request.data["do"] == "stopTrain") {

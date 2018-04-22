@@ -32,13 +32,6 @@ class Chart: public ApiJsonObject
      * send change data to subscribers
      */
     void pushUpdate();
-
-    ~Chart() {
-        Frontend::unRegisterClientList(subscribers);
-    }
-
-  protected:
-    set<Client> subscribers;
 };
 
 /*
@@ -62,7 +55,7 @@ class ParameterChart: public Chart
      * set the function for generating chart data
      * @param func generates for given inputValue( map<inputID, value> ) outputValue( map<outputID, value> )
      */
-    void setUpdateFunction(function<map<int, float> (map<int, float> &inputValues, vector<int> &outputIds)> func) {
+    void setUpdateFunction(function<map<int, float> (const map<int, float> &inputValues, const vector<int> &outputIds)> func) {
       this->updateFunc = func;
     }
 
@@ -74,7 +67,7 @@ class ParameterChart: public Chart
     vector<int> outputs;
     map<int, vector<ChartDataPoint>> data;
 
-    function<map<int, float> (map<int, float> &inputValue, vector<int> &outputIds)> updateFunc;
+    function<map<int, float> (const map<int, float> &inputValue, const vector<int> &outputIds)> updateFunc;
 };
 
 
