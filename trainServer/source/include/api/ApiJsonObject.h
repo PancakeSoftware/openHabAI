@@ -28,7 +28,7 @@ class AJsonParam
 {
   public:
     virtual Json toJson() const {};
-    virtual void fromJson(Json j) const {};
+    virtual void fromJson(Json j) {};
 };
 
 template <class T>
@@ -49,7 +49,7 @@ class JsonParam: public AJsonParam{
       return Json(*valuePtr);
     }
 
-    void fromJson(Json j) const override {
+    void fromJson(Json j) override {
       *valuePtr = j.get<T>();
     }
 
@@ -69,8 +69,27 @@ class JsonParamReadOnly: public AJsonParam{
       return Json(*valuePtr);
     }
 
-    void fromJson(Json j) const override
+    void fromJson(Json j) override
     {}
+};
+
+
+class JsonParamFunction: public AJsonParam{
+  public:
+    function<void (Json)> onSet;
+    function<Json ()> onGet;
+
+    JsonParamFunction(function<void (Json)> onSet, function<Json ()> onGet, string key)
+    {this->onGet = onGet; this->onSet = onSet;}
+
+    Json toJson() const override {
+      return onGet();
+    }
+
+    void fromJson(Json j) override
+    {
+      onSet(j);
+    }
 };
 
 }
@@ -161,6 +180,15 @@ class JsonObject
     template <class T>
     void paramReadOnly(string key, T &value) {
       paramPointers.emplace(key, make_shared<internal::JsonParamReadOnly<T>>(value, key)); // unique_ptr -> deletes JsonParam when JsonObject is deleted
+    }
+
+    /**
+     * links json key with getter and setter function
+     * @warning use this function only inside your implementation of defineParams() !
+     * @see defineParams()
+     */
+    void paramWithFunction(string key, function<void (Json)> onSet, function<Json ()> onGet) {
+      paramPointers.emplace(key, make_shared<internal::JsonParamFunction>(onSet, onGet, key)); // unique_ptr -> deletes JsonParam when JsonObject is deleted
     }
 
     /**
@@ -259,5 +287,12 @@ class ApiJsonObject : protected virtual Log, public virtual ApiSubscribable, pub
         return v;
     }
 };
+
+/**
+ * helper
+ */
+
+
+
 
 #endif //OPENHABAI_JSONOBJECT_H

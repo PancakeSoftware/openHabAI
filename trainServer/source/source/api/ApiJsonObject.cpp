@@ -168,3 +168,4 @@ void ApiJsonObject::notifyParamsChanged(vector<string> params) {
                      toJson(params))
   );
 }
+
