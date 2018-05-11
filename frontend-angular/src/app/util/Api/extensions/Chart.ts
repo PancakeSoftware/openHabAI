@@ -6,6 +6,9 @@ import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
 import "rxjs/add/operator/takeUntil";
 import {componentDestroyed} from "ng2-rx-componentdestroyed";
+import "rxjs/add/operator/delayWhen";
+import {Observable} from "rxjs/Observable";
+import {timer} from "rxjs/observable/timer";
 
 @Component({
   selector: 'chart-range',
@@ -56,9 +59,9 @@ export class ApiChart implements OnInit, OnDestroy
     this.object = obj;
 
     // update self
-    if (this.chart != null)
+    if (this.chart != null && this.chartDirty)
       this.refreshObject();
-    else
+    else if (!this.chartDirty)
       this.chartDirty = true; // set object later after this.chart is initialised
 
     console.info("set obj", obj);
@@ -75,7 +78,7 @@ export class ApiChart implements OnInit, OnDestroy
     /* generate fixed/range Inputs lists  */
     let fixedInputs = [];
     let rangeInputs = [];
-    console.log(this.inputValues);
+
     for (let id in this.inputValues)
     {
       if (!this.inputValues.hasOwnProperty(id))
@@ -97,25 +100,21 @@ export class ApiChart implements OnInit, OnDestroy
 
 
   private refreshObject() {
-    console.info('refreshObject');
+    console.info('\n\n refreshObject --------');
 
     // update chart on data change
     this.object.onAction()
       .takeUntil(componentDestroyed(this))
-      .subscribe(value => {
-      if (value.action == 'updateData') {
-        //console.info( 'ApiChart!!: ', value.data);
+      .subscribe(value =>
+      {
+        if (value.action == 'updateData') {
 
         // test data
         let outList = value.data[0];
         //{
          // console.info( 'outList: ', outList[1]);
-          console.log('chart ('+this.gone+'): ' + this.object.route, this.chart.chart.data);
+          console.log('chart update: ' + this.object.route, this.chart.chart.data);
 
-          if (this.chart.data.datasets.length <= 0) {
-            toastErr('dataset empty :(');
-            return;
-          }
           this.chart.data.datasets[outList[0]].data = outList[1].reduce((dataPoints, point) => dataPoints.concat({
             x: point.inputs[0][1],
             y: point.value
@@ -136,8 +135,6 @@ export class ApiChart implements OnInit, OnDestroy
       if (obj == null)
         return;
 
-      //toastInfo("got object", obj);
-
       this.inputs = obj.inputNames.map((inp) => {return {id: inp[0], name: inp[1]};});
       this.outputs = obj.outputNames.map((inp) => {return {id: inp[0], name: inp[1]};});
       //toastInfo("outputs ", this.outputs);
@@ -156,6 +153,7 @@ export class ApiChart implements OnInit, OnDestroy
           fill: false
         });
       }
+      this.chart.update();
 
       // set first input bound to x
       if (this.inputs.length > 0)
@@ -174,9 +172,6 @@ export class ApiChart implements OnInit, OnDestroy
    * setup gui stuff: link chart.js to html canvas
    */
   ngOnInit(): void {
-    ApiChart.instances++;
-    console.info('ngOnInit instances: ' + ApiChart.instances);
-
     // setup chart.js chart
     this.chart = new Chart(( <HTMLCanvasElement> this.chartElement.nativeElement).getContext("2d"), {
       type: 'line',
@@ -226,15 +221,11 @@ export class ApiChart implements OnInit, OnDestroy
   /**
    * cleanup
    */
-  gone: boolean = false;
-  static instances: number = 0;
   ngOnDestroy(): void {
-    ApiChart.instances--;
-    console.log('ngOnDestroy instances: ' + ApiChart.instances);
+    this.chart.destroy();
     this.object.unsubscribe();
     this.objectUnsubscribe.next();
     this.objectUnsubscribe.complete();
-    this.gone = true;
   }
 
 

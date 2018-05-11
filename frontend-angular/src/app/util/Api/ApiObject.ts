@@ -22,7 +22,7 @@ import {ReplaySubject} from "rxjs/ReplaySubject";
 export class ApiObject<T> extends ApiRouteContainig
 {
   protected onChange = new BehaviorSubject<T>(null);
-  protected onActionReceive = new ReplaySubject<{action: string, data:any}>();
+  protected onActionReceive = new Subject<{action: string, data:any}>();
   protected subscribing: boolean = false;
 
   constructor(route: ApiRoute) {
@@ -53,10 +53,10 @@ export class ApiObject<T> extends ApiRouteContainig
 
   /**
    * on action is received
-   * @returns {ReplaySubject<{action: string; data: any}>}
+   * @returns BehaviorSubject<{action: string; data: any}>
    * @see subscribe()
    */
-  onAction(): ReplaySubject<{action: string, data:any}> {
+  onAction(): Subject<{action: string, data:any}> {
     return this.onActionReceive;
   }
 

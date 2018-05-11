@@ -1,11 +1,17 @@
 <div>
+    <!-- chart canvas -->
     <canvas #chartElement id="chart-outputShape"></canvas>
 
+    <!-- debug inputs list values -->
+    <!--
     <p *ngFor="let o of inputValues | keys">
         {{o.key}}
-        {{o.value | json}}
+        {{o.inputValues | json}}
     </p>
+    -->
+    <pre style="height: 100px;">{{inputValues | json}}</pre>
 
+    <!-- Inputs List -->
     <table class="col s12 m12">
         <tbody>
         <tr *ngFor="let input of inputs">
@@ -14,7 +20,7 @@
             <td>
                 <label>
                     <select id="train-optimizer" materialize="material_select" [(ngModel)]="inputValues[input.id].boundTo" [class.green-text]="inputValues[input.id].boundTo != ''" (change)="onInputsChanged()">
-                        <option value="" >Not bound to axis</option>
+                        <option value="" >Fixed</option>
                         <option value="x" >bound to X axis</option>
                         <option value="y" >bound to Y axis</option>
                         <option value="z" >bound to Z axis</option>
@@ -45,6 +51,4 @@
         </tr>
         </tbody>
     </table>
-
-    <input materialize="slider" type="range" #ref (change)="object.update({ rangeInputs: [{id: 0, from: -10, to: 10,   steps: +ref.value}]});"/>
 </div>

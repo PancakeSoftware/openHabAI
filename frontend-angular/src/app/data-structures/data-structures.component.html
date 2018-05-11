@@ -1,73 +1,83 @@
 <!-- Tab DataStructures -->
 <div>
-  <div class="card" *ngFor="let struc of dataStructures | async" routerLink="dataStructure/{{struc.id}}">
-    <div class="card-content">
-      <i class="material-icons left medium">memory</i>
-      <a app-click-stop-propagation="" class="waves-effect waves-light btn-flat red lighten-1 right white-text" (click)="$event.stopPropagation(); removeStruc(struc); "> <i class="material-icons small" >delete</i> </a>
-      <div class="card-title">{{struc.name}}</div>
-      <p><i class="material-icons left blue-grey-text">{{struc.type === "function" ? "functions" : "home"}}</i>{{struc.type === "function" ? "Function "+struc.function : "OpenHab"}} </p>
-      <p>ID: {{struc.id}}</p>
+    <div class="card" *ngFor="let struc of dataStructures | async" routerLink="dataStructure/{{struc.id}}">
+        <div class="card-content">
+            <i class="material-icons left medium">memory</i>
+            <a app-click-stop-propagation="" class="waves-effect waves-light btn-flat red lighten-1 right white-text"
+               (click)="$event.stopPropagation(); removeStruc(struc); "> <i class="material-icons small">delete</i> </a>
+            <div class="card-title">{{struc.name}}</div>
+            <p><i class="material-icons left blue-grey-text">{{struc.type === "function" ? "functions" : "home"}}</i>{{struc.type
+                === "function" ? "Function: "+struc.function : "OpenHab"}} </p>
+            <p>ID: {{struc.id}}</p>
+        </div>
     </div>
-  </div>
 </div>
-
 
 
 <!-- Button New -->
 <div class="fixed-action-btn">
-  <a href="#modal-new-dataStructure" class="btn-floating btn-large waves-effect waves-light tooltipped modal-trigger"
-     data-position="left" data-tooltip="New dataStructure"><i class="material-icons">add</i></a>
+    <a href="#modal-new-dataStructure" class="btn-floating btn-large waves-effect waves-light tooltipped modal-trigger"
+       data-position="left" data-tooltip="New dataStructure"><i class="material-icons">add</i></a>
 </div>
 
 <!-- Modal new DataStructure -->
-<div id="modal-new-dataStructure" class="modal" materialize="modal" [materializeParams]="[{dismissible: true}]" [materializeActions]="modalActions">
-  <div class="modal-content" [formGroup]="formNew">
-    <h4 style="margin-bottom: 20px">New Data Structure</h4>
+<div id="modal-new-dataStructure" class="modal" materialize="modal" [materializeParams]="[{dismissible: true}]"
+     [materializeActions]="modalActions">
+    <div class="modal-content" [formGroup]="formNew">
+        <h4 style="margin-bottom: 20px">New Data Structure</h4>
 
-    <!--<form [formGroup]="formNew">-->
-    <div class="input-field col s12">
-      <input formControlName="name" id="txt-name" type="text">
-      <label for="txtSendTest">Data Structure name</label>
-    </div>
-
-    <div class="row">
-      <div class="col s12" style="margin-bottom: 30px">
-        <ul formArrayName="type" materialize="tabs" (click)="formNewTypeSelectionParams = ['select_tab','tab-newD-function']" class="tabs dStructure-type" style="background: transparent;">
-          <li class="tab col s3"><a type="openhab" #TypeTab href="#tab-newD-openhab">OpenHab Data</a></li>
-          <li class="tab col s3"><a type="function" #TypeTab class="active" href="#tab-newD-function">Function Approximation</a>
-          </li>
-        </ul>
-      </div>
-      <div id="tab-newD-openhab" class="col s12">openhab coming soon...</div>
-      <div id="tab-newD-function" class="col s12">
-        <div class="row">
-          <div class="col s12 m4">
-            <div class="input-field col s12">
-              <i class="material-icons prefix">functions</i>
-              <input formControlName="function" value="x^3" id="txt-func" type="text">
-              <label for="txtSendTest">Function</label>
-            </div>
-            <div class="input-field col s6">
-              <i class="material-icons prefix">drag_handle</i>
-              <input formControlName="range_from" value="-10" id="num-from" type="number">
-              <label for="num-from">From</label>
-            </div>
-            <div class="input-field col s6">
-              <input formControlName="range_to" value="10" id="num-to" type="number">
-              <label for="num-to">To</label>
-            </div>
-          </div>
-          <div class="col s12 m8">
-            <canvas id="chart-function"></canvas>
-          </div>
+        <!--<form [formGroup]="formNew">-->
+        <div class="input-field col s12">
+            <input formControlName="name" id="txt-name" type="text">
+            <label for="txtSendTest">Data Structure name</label>
         </div>
-      </div>
+
+        <!-- Tabs Navigation -->
+        <div class="row">
+            <div class="col s12" style="margin-bottom: 30px">
+                <ul formArrayName="type" materialize="tabs"
+                    (click)="formNewTypeSelectionParams = ['select_tab','tab-newD-function']"
+                    class="tabs dStructure-type" style="background: transparent;">
+                    <li class="tab col s3"><a type="openhab" #TypeTab href="#tab-newD-openhab">OpenHab Data</a></li>
+                    <li class="tab col s3"><a type="function" #TypeTab class="active" href="#tab-newD-function">Function
+                        Approximation</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Tab new OpenHab -->
+            <div id="tab-newD-openhab" class="col s12">openhab coming soon...</div>
+
+            <!-- Tab new Functions -->
+            <div id="tab-newD-function" class="col s12">
+                <div class="row">
+                    <div class="col s12 m4">
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">functions</i>
+                            <input formControlName="function" value="x^3" id="txt-func" type="text">
+                            <label for="txtSendTest">Function</label>
+                        </div>
+                        <div class="input-field col s6">
+                            <i class="material-icons prefix">drag_handle</i>
+                            <input formControlName="range_from" value="-10" id="num-from" type="number">
+                            <label for="num-from">From</label>
+                        </div>
+                        <div class="input-field col s6">
+                            <input formControlName="range_to" value="10" id="num-to" type="number">
+                            <label for="num-to">To</label>
+                        </div>
+                    </div>
+                    <div class="col s12 m8">
+                        <canvas id="chart-function"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--</form>-->
     </div>
-  <!--</form>-->
-  </div>
-  <div class="modal-footer">
-    <a class="modal-action modal-close waves-effect  btn-flat red white-text">Cancel</a>
-    <a (click)="createNew()"
-       class="modal-action modal-close waves-effect waves-green btn-flat green white-text">Create</a>
-  </div>
+    <div class="modal-footer">
+        <a class="modal-action modal-close waves-effect  btn-flat red white-text">Cancel</a>
+        <a (click)="createNew()"
+           class="modal-action modal-close waves-effect waves-green btn-flat green white-text">Create</a>
+    </div>
 </div>
