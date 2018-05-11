@@ -5,7 +5,7 @@ OpenHabAI provides a fast c++ backend
 ([mxnet is used for computation](http://mxnet.io)) and frontend that run in browser.
 
 
-## Build [![](https://travis-ci.org/JeyRunner/openHabAI.svg?branch=master)](https://travis-ci.org/JeyRunner/openHabAI)
+## Build [![Build Status](https://travis-ci.org/PancakeSoftware/openHabAI.svg?branch=master)](https://travis-ci.org/PancakeSoftware/openHabAI)
 First **install** these packages:
 * For **frontend**
     * nodejs
