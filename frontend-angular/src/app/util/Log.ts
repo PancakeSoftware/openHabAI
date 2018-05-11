@@ -24,7 +24,13 @@ export function toastInfo(msg: string, obj: Object = null) {
     Materialize.toast(`<i class="material-icons left circle blue">info_outline</i><div> ${msg}` + `<pre><ngx-prism [language] = "'json'"> ${JSON.stringify(obj, null, 2)} </ngx-prism></pre></div>`, 5000);
 }
 
+export function toastWarn(msg: string) {
+  Materialize.toast('<i class="material-icons left yellow-text">warning</i>' + msg, 3000);
+}
+
+
+
 export function toastErr(msg: string) {
-  Materialize.toast('<i class="material-icons left circle red">error_outline</i>' + msg, 3000);
+  Materialize.toast('<i class="material-icons left circle red">error_outline</i>' + msg, 5000);
 }
 

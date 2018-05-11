@@ -27,12 +27,26 @@ DataStructure::DataStructure()
   });
 
   // setup chart
+  dataChart.setInputOutputNames({"x"}, {"y"});
   dataChart.setUpdateFunction([this] (const map<int, float> &inputValues, const vector<int> &outputIds) {
     // @TODO ineffective
+    auto maxInputId = std::max_element(inputValues.begin(), inputValues.end(),
+                              [](const pair<int, float>& p1, const pair<int, float>& p2) {
+                                return p1.first < p2.first; });
+    maxInputId->first;
+
     // input Vector index=id
+    debug("inputs: " + Json(inputValues).dump(2));
     vector<float> in;
-    for (auto i: inputValues)
-      in.insert(in.begin() +i.first, i.second);
+    for (int j = 0; j <= maxInputId->first; ++j) {
+      debug("insert ... " + to_string(j));
+      in.push_back((inputValues.find(j) != inputValues.end()) ? inputValues.find(j)->second : 0);
+    }
+    /*)
+    for (auto i: inputValues) {
+      in[i.first] = i.second;
+      //in.insert(in.begin() + i.first, i.second);
+    }*/
 
     // get data point
     vector<float> out = getDataBatch(in);
@@ -91,11 +105,19 @@ vector<float> FunctionDataStructure::getDataBatch(vector<float> input)
 
   vector<float> result;
 
-  double x;
+  vector<double > inputs;
 
-  // Register x with the symbol_table
+  // Register all alphabetic characters in the symbol_table
+  double x;
   symbol_table_t symbol_table;
   symbol_table.add_variable("x",x);
+  /*
+  for (char c : function) {
+    if (isalpha(c)) {
+      symbol_table.add_variable(string(1, c), inputs);
+    }
+  }
+  */
 
   // Instantiate expression and register symbol_table
   expression_t expression;

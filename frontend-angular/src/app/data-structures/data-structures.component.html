@@ -5,7 +5,7 @@
       <i class="material-icons left medium">memory</i>
       <a app-click-stop-propagation="" class="waves-effect waves-light btn-flat red lighten-1 right white-text" (click)="$event.stopPropagation(); removeStruc(struc); "> <i class="material-icons small" >delete</i> </a>
       <div class="card-title">{{struc.name}}</div>
-      <p><i class="material-icons left blue-grey-text">{{struc.type === "function" ? "functions" : "home"}}</i>{{struc.type === "function" ? "Function" : "OpenHab"}} </p>
+      <p><i class="material-icons left blue-grey-text">{{struc.type === "function" ? "functions" : "home"}}</i>{{struc.type === "function" ? "Function "+struc.function : "OpenHab"}} </p>
       <p>ID: {{struc.id}}</p>
     </div>
   </div>

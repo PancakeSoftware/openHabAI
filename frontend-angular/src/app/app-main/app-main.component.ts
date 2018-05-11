@@ -50,7 +50,8 @@ export class AppMainComponent {
 const routes: Routes = [
   {path: '', component: DatastructureAndSettingsComponent},
   {path: 'dataStructure/:structureID', component: NetworksAndTrainComponent},
-  {path: 'dataStructure/:structureID/network/:networkID', component: NetworksAndTrainComponent}
+  {path: 'dataStructure/:structureID/network/:networkID', component: NetworksAndTrainComponent},
+  {path: 'dataStructure/:structureID/network/:networkID/train', component: NetworksAndTrainComponent}
 ];
 
 @NgModule({

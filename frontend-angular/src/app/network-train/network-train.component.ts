@@ -1,9 +1,12 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {Api} from "../util/Api/Api";
 import {ActivatedRoute} from "@angular/router";
 import {toastInfo, toastOk} from "../util/Log";
 import {FormBuilder, FormGroup} from "@angular/forms";
 import {ApiObject} from "../util/Api/ApiObject";
+import { Chart, ChartData, Point } from 'chart.js';
+import {ApiChart} from "../util/Api/extensions/Chart";
+
 
 @Component({
   selector: 'app-network-train',
@@ -16,6 +19,9 @@ export class NetworkTrainComponent implements OnInit {
   networkID: number = -1;
   trainParams: FormGroup;
   private network: ApiObject<any>;
+
+  @ViewChild('dataChart') dataChart;
+  private dataChartInited: boolean = false;
 
   constructor(private router: ActivatedRoute,
               private fb: FormBuilder,
@@ -40,27 +46,76 @@ export class NetworkTrainComponent implements OnInit {
     });
   }
 
+  setupCharts()
+  {
+    //this.chartOutputShape = new ApiChart(this.api.object(`/dataStructures/${this.structureID}/dataChart/`), document.getElementById('chart-outputShape'));
+
+
+  }
+
 
   ngOnInit() {
+    this.setupCharts();
+
+    if (!this.dataChartInited) {
+      this.dataChart.apiObject = this.api.object('/dataStructures/' + this.structureID + '/dataChart/');
+      this.dataChartInited = true;
+    }
+
   }
 
   private updateSelf() {
+    if (this.structureID == undefined || this.networkID == undefined)
+      return;
+
     toastInfo("update ... " + this.structureID + "/" + this.networkID);
 
     // store self
     this.network = this.api.object(`/dataStructures/${this.structureID}/networks/${this.networkID}/`);
 
+    if (this.dataChart != undefined) {
+      this.dataChart.apiObject = this.api.object('/dataStructures/' + this.structureID + '/dataChart/');
+      this.dataChartInited = true;
+    }
+
+    /*
+    // get datastructure Chart
+    let dataStructureOuts = this.api.object(`/dataStructures/${this.structureID}/dataChart/`);
+
+    // on new data
+    dataStructureOuts.onAction().subscribe(value => {
+      //if (value.action == 'update')
+        toastInfo('update chart: ', value);
+    });
+
+    // set params
+    dataStructureOuts.update({
+      fixedInputs: [
+      ],
+      rangeInputs: [
+        {id: 0, from: 10, to: 30, steps: 2},
+      ],
+      outputs: [0]
+    });
+    toastInfo("data", dataStructureOuts.object().getValue());
+    */
 
   }
 
+  a: number = 11;
+
   onTriggerTrain(startTrain: boolean) {
     if (startTrain) {
-      toastInfo("start train: ", this.trainParams.value)
+      toastInfo("start train: ", this.trainParams.value);
       this.network.update(this.trainParams.value);
       this.network.action('startTrain')
-        .then(() => toastOk('start train'));;
+        .then(() => toastOk('start train'));
+
+
+
     }
-    else
+    else {
       this.network.action('stopTrain').then(() => toastOk('stopped train'));
+    }
   }
 }

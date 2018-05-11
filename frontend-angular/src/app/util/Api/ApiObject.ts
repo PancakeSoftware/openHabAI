@@ -6,6 +6,8 @@ import {Subject} from "rxjs/Subject";
 import {observable} from "rxjs/symbol/observable";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Promise} from "q";
+import {Api} from "./Api";
+import {ReplaySubject} from "rxjs/ReplaySubject";
 
 /*
  * - objects
@@ -19,7 +21,9 @@ import {Promise} from "q";
 @Injectable()
 export class ApiObject<T> extends ApiRouteContainig
 {
-  private onChange = new BehaviorSubject<T>(null);
+  protected onChange = new BehaviorSubject<T>(null);
+  protected onActionReceive = new ReplaySubject<{action: string, data:any}>();
+  protected subscribing: boolean = false;
 
   constructor(route: ApiRoute) {
     super(route);
@@ -30,16 +34,30 @@ export class ApiObject<T> extends ApiRouteContainig
       if (status === 'ok')
         this.onChange.next(data);
     });
+
+    // listen for actions
+    ApiConnection.listenForAction(route, (action, data) => {
+      if (action !== '' )
+        this.onActionReceive.next({action, data});
+    });
   }
 
   /**
    * get the actual object
    * @returns {Observable<T[]>} update on object change
+   * @see subscribe()
    */
-  object(): Observable<T> {
-    return new Observable<T>(observable => {
-      this.onChange.subscribe(value => observable.next(value));
-    });
+  object(): BehaviorSubject<T> {
+    return this.onChange;
+  }
+
+  /**
+   * on action is received
+   * @returns {ReplaySubject<{action: string; data: any}>}
+   * @see subscribe()
+   */
+  onAction(): ReplaySubject<{action: string, data:any}> {
+    return this.onActionReceive;
   }
 
   /**
@@ -73,6 +91,30 @@ export class ApiObject<T> extends ApiRouteContainig
           reject(data);
       }, data);
     }));
+  }
+
+  /**
+   * subscribe to changes of object
+   * this sends subscribe action to backend
+   */
+  subscribe(): void {
+    // subscribe to changes
+    if (!this.subscribing) {
+      ApiConnection.sendRequest(this.route, 'subscribe');
+      this.subscribing = true;
+    }
+  }
+
+  /**
+   * unsubscribe to changes of object
+   * this sends unsubscribe action to backend
+   */
+  unsubscribe(): void {
+    // unsubscribe to changes
+    if (this.subscribing) {
+      ApiConnection.sendRequest(this.route, 'unsubscribe');
+      this.subscribing = false;
+    }
   }
 
 

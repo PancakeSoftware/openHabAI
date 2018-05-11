@@ -40,7 +40,10 @@
           </div>
 
           <div class="col s12 m6">
-            <canvas id="chart-outputShape"></canvas>
+            <chart-range #dataChart>
+                    <!--[inputs]="[ {id: 0, name: 'x'}, {id: 10, name: 'y'}, {id: 2, name: 'z'}, {id: 3, name: 'u'} ]"
+                    [outputs]="[{id: 0, name: 'f(x, y, z, u)'}]">-->
+            </chart-range>
           </div>
         </div>
 

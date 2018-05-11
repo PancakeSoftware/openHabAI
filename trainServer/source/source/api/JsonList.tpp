@@ -58,6 +58,10 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
     return processible->processApi(request);
   };
 
+  // test constexpr
+  //if constexpr (is_fundamental<T>::value) {
+  //  info("progressApi of fundamental T type: " + string(typeid(T).name()));
+  //}
 
   // we ar not target if there are still route parts left
   if (!request.route.isEmpty()) {

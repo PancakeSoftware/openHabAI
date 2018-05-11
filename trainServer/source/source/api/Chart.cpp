@@ -31,6 +31,7 @@ void Chart::pushUpdate()
 ParameterChart::ParameterChart()
 {
 }
+
 ApiRespond *ParameterChart::processApi(ApiRequest request)
 {
   ApiRespond *respond = Chart::processApi(request);

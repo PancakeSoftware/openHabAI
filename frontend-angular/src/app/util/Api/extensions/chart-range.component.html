@@ -1,0 +1,50 @@
+<div>
+    <canvas #chartElement id="chart-outputShape"></canvas>
+
+    <p *ngFor="let o of inputValues | keys">
+        {{o.key}}
+        {{o.value | json}}
+    </p>
+
+    <table class="col s12 m12">
+        <tbody>
+        <tr *ngFor="let input of inputs">
+            <td>{{input.id}}</td>
+            <td class="blue-text bold">{{input.name | uppercase}}</td>
+            <td>
+                <label>
+                    <select id="train-optimizer" materialize="material_select" [(ngModel)]="inputValues[input.id].boundTo" [class.green-text]="inputValues[input.id].boundTo != ''" (change)="onInputsChanged()">
+                        <option value="" >Not bound to axis</option>
+                        <option value="x" >bound to X axis</option>
+                        <option value="y" >bound to Y axis</option>
+                        <option value="z" >bound to Z axis</option>
+                    </select>
+                </label>
+            </td>
+
+            <ng-container *ngIf="inputValues[input.id].boundTo == ''">
+                <td>
+                    <div>
+                        <label>Value: </label>
+                        <input style="width: 100%;" type="range" [(ngModel)]="inputValues[input.id].valueFixed" (change)="onInputsChanged()"/>
+                        <input style="width: 3em; float: right;" type="number" [(ngModel)]="inputValues[input.id].valueFixed" (change)="onInputsChanged()" />
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container *ngIf="inputValues[input.id].boundTo != ''">
+                <td>
+                    <label>From: </label>
+                    <input style="width: 3em;" type="number" [(ngModel)]="inputValues[input.id].valueRange.from" value="0" (change)="onInputsChanged()" />
+                    <label> To: </label>
+                    <input style="width: 3em;" type="number" [(ngModel)]="inputValues[input.id].valueRange.to" value="1" (change)="onInputsChanged()" />
+                    <label> Steps: </label>
+                    <input style="width: 3em;" type="number" [(ngModel)]="inputValues[input.id].valueRange.steps" value="2" (change)="onInputsChanged()" />
+                </td>
+            </ng-container>
+        </tr>
+        </tbody>
+    </table>
+
+    <input materialize="slider" type="range" #ref (change)="object.update({ rangeInputs: [{id: 0, from: -10, to: 10,   steps: +ref.value}]});"/>
+</div>

@@ -14,7 +14,9 @@
 
 
 <div id="tab-train" class="col s12">
-    <app-network-train></app-network-train>
+    <app-network-train *ngIf="networkID != undefined">
+
+    </app-network-train>
 </div>
 
 <div id="tab-networks" class="col s12">

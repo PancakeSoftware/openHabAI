@@ -1,6 +1,6 @@
 
 // -- socket ------------------------------------------------------------
-import {toastErr, toast, toastInfo, toastOk} from "../Log";
+import {toastErr, toast, toastInfo, toastOk, toastWarn} from "../Log";
 import {ReplaySubject} from "rxjs/ReplaySubject";
 import {$} from "protractor";
 import {EventEmitter} from "@angular/core";
@@ -12,6 +12,7 @@ export class ApiConnection {
   private static sock: WebSocket;
   private static respondCounter: number;
   private static respondCallbacks: any[] = [];
+  private static actionCallbacks: any[] = [];
   private static sendQueue: {route, what: string, callback, data} [] = [];
 
   static onReceive = new ReplaySubject<any>();
@@ -68,17 +69,23 @@ export class ApiConnection {
           break;
 
         case "request":
-          toastErr("progress request not implemented yet");
+          if (this.actionCallbacks[data.route] != undefined) {
+            this.actionCallbacks[data.route](data.what, data.data);
+          } else
+            toastWarn("no callback fuction to progress request for route " + data.route);
           break;
 
         default:
           toastErr("got unknown message type '" + data.type + "'");
       }
     }
-
   }
 
-  static sendRequest(route: ApiRoute, what: string, callback, data = null) {
+  static listenForAction(route: string, callback: (action: string, data: any) => void) {
+    this.actionCallbacks[route] = callback;
+  }
+
+  static sendRequest(route: ApiRoute, what: string, callback = null, data = null) {
     this.sendQueue.push({route, what, callback, data});
     this.progressQueue();
   }
@@ -102,7 +109,7 @@ export class ApiConnection {
     }
   }
 
-  private static sendRequestNonWait(route: string, what: string, callback, data = null) {
+  private static sendRequestNonWait(route: string, what: string, callback = null, data = null) {
     if (this.sock.readyState == this.sock.CLOSED || this.sock.readyState == this.sock.CONNECTING)
       return;
 

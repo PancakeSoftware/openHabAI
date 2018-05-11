@@ -11,6 +11,7 @@ export class NetworksAndTrainComponent implements OnInit {
 
   networkID: number;
   structureID: number;
+  tabsElement: any;
 
   constructor(private route: ActivatedRoute) {
     route.params.subscribe(params => {
@@ -18,9 +19,9 @@ export class NetworksAndTrainComponent implements OnInit {
       this.structureID = params['structureID'];
 
       // show train tab
-      if (this.networkID != undefined) {
-        console.info('select tab', $('#nav-network .tabs')[0]);
-        $('#nav-network .tabs').tabs('select_tab', 'tab-run');
+      if (this.networkID != undefined && (this.tabsElement != undefined)) {
+        console.info('select tab', this.tabsElement);
+        this.tabsElement.tabs('select_tab', 'tab-run');
       }
     });
   }
@@ -28,6 +29,13 @@ export class NetworksAndTrainComponent implements OnInit {
   ngOnInit() {
     // reload the tabs of materializz
     $('ul.tabs').tabs();
+    this.tabsElement = $('.nav-network .tabs');
+
+    // show train tab
+    if (this.networkID != undefined) {
+      console.info('select tab', this.tabsElement);
+      this.tabsElement.tabs('select_tab', 'tab-run');
+    }
   }
 
 }

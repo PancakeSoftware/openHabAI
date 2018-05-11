@@ -46,9 +46,37 @@ class ParameterChart: public Chart
     /*
      * Json keys */
     void params() override { Chart::params();
+      paramReadOnly("inputNames", inputNames);
+      paramReadOnly("outputNames", outputNames);
       param("fixedInputs", fixedInputs);
       param("rangeInputs", rangeInputs);
       param("outputs", outputs);
+    }
+
+    /**
+     * set input/output names and their Id
+     * @param inputNames
+     * @param outputNames
+     */
+    void setInputOutputNames(map<int, string> inputNames, map<int, string> outputNames) {
+      this->inputNames = inputNames;
+      this->outputNames = outputNames;
+    }
+
+    /**
+     * set input/output names, id is set automatic
+     * @param inputNames
+     * @param outputNames
+     */
+    void setInputOutputNames(vector<string> inputNames, vector<string> outputNames) {
+      this->inputNames.clear();
+      this->outputNames.clear();
+      int i = 0;
+      for (string name : inputNames)
+        this->inputNames.emplace(i++, name);
+      i = 0;
+      for (string name : outputNames)
+        this->outputNames.emplace(i++, name);
     }
 
     /**
@@ -62,6 +90,9 @@ class ParameterChart: public Chart
     ApiRespond *processApi(ApiRequest request) override;
 
   private:
+    map<int, string> inputNames;
+    map<int, string> outputNames;
+
     vector<ValueParam> fixedInputs;
     vector<RangeParam> rangeInputs;
     vector<int> outputs;

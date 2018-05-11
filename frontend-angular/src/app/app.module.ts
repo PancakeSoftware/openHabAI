@@ -19,6 +19,8 @@ import {CustomReuseStrategy} from "./util/ReuseStrategy";
 import {RouteReuseStrategy} from "@angular/router";
 import { NetworkTrainComponent } from './network-train/network-train.component';
 import {Api} from "./util/Api/Api";
+import {ApiChart} from "./util/Api/extensions/Chart";
+import {KeysPipe} from "./util/Api/Utils";
 
 
 
@@ -30,7 +32,9 @@ import {Api} from "./util/Api/Api";
     BackendConsoleComponent,
     NetworksAndTrainComponent,
     NetworksComponent,
-    NetworkTrainComponent
+    NetworkTrainComponent,
+    ApiChart,
+    KeysPipe
   ],
   imports: [
     BrowserModule,
