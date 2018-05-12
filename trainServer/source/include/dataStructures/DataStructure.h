@@ -25,16 +25,14 @@ class DataStructure : public ApiRouteJson
     int id;
     string name;
     string type;
+    map<int, string> inputNames;
+    map<int, string> outputNames;
+
     ParameterChart dataChart;
+    JsonList<NeuralNetwork> networks;
 
     /* Json keys */
-    void params() override { ApiRouteJson::params();
-        param("name", name);
-        param("type", type);
-        param("id", id);
-    }
-
-    JsonList<NeuralNetwork> networks;
+    void params() override;
 
     DataStructure();
 
@@ -69,9 +67,6 @@ class FunctionDataStructure : public DataStructure
     }
 
     FunctionDataStructure();
-
-    //~FunctionDataStructure(){
-    //}
 
     virtual vector<float> getDataBatch(vector<float> input) override;
 };

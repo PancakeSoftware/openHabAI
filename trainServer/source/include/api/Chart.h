@@ -62,6 +62,12 @@ class ParameterChart: public Chart
       this->inputNames = inputNames;
       this->outputNames = outputNames;
     }
+    void setInputNames(map<int, string> inputNames) {
+      this->inputNames = inputNames;
+    }
+    void setOutputNames(map<int, string> outputNames) {
+      this->outputNames = outputNames;
+    }
 
     /**
      * set input/output names, id is set automatic

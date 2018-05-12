@@ -47,6 +47,7 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
       name: 'MyDataStructure',
       type: '',
       function: 'x^3',
+      inputNames: 'x',
       range_from: -10,
       range_to: 10
     });
@@ -69,6 +70,8 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
   createNew() {
     // set type by tabs
     this.formNew.value.type = "function";//this.formNewTypeTabs.active;
+    this.formNew.value.inputNames = this.formNew.value.inputNames.split(' ');
+    this.formNew.value.outputNames = ['function'];
     toastInfo('New DataStructure: ', this.formNew.value);
 
     this.dataStructuresList.add(this.formNew.value);
@@ -77,6 +80,7 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
       name: 'MyDataStructure',
       type: '',
       function: 'x^3',
+      inputNames: 'x',
       range_from: -10,
       range_to: 10
     });

@@ -27,7 +27,7 @@ DataStructure::DataStructure()
   });
 
   // setup chart
-  dataChart.setInputOutputNames({"x"}, {"y"});
+  dataChart.setInputOutputNames({"x", "someInput", "otherInput"}, {"y"});
   dataChart.setUpdateFunction([this] (const map<int, float> &inputValues, const vector<int> &outputIds) {
     // @TODO ineffective
     auto maxInputId = std::max_element(inputValues.begin(), inputValues.end(),
@@ -86,6 +86,54 @@ bool DataStructure::operator==(const DataStructure &other) const
   return this->id == other.id;
 }
 
+/* Json keys */
+void DataStructure::params()
+{ ApiRouteJson::params();
+  param("name", name);
+  param("type", type);
+  param("id", id);
+  // @TODO somehow map<K, V> can only be set if K = string
+  // -> use workaround via paramWithFunction
+  paramWithFunction("inputNames",
+                    [this](Json j) {
+                      inputNames.clear();
+                      int idNext = 0;
+                      for (auto it=j.begin(); it!=j.end(); it++) {
+                        if (it.value().is_array())
+                        { // contains id
+                          inputNames.insert(make_pair(it.value().begin().value(),
+                                                      next(it.value().begin()).value().get<string>()));
+                          idNext = idNext > it.value().begin().value() ? idNext+1 : ((int)it.value().begin().value())+1;
+                        }
+                        else
+                          inputNames.insert(make_pair(idNext++, it.value().get<string>()));
+                      }
+                      // update chart
+                      dataChart.setInputNames(inputNames);
+                    },
+                    [this] () { return inputNames;});
+  paramWithFunction("outputNames",
+                    [this](Json j) {
+                      outputNames.clear();
+                      int idNext = 0;
+                      for (auto it=j.begin(); it!=j.end(); it++) {
+                        if (it.value().is_array())
+                        { // contains id
+                          outputNames.insert(make_pair(it.value().begin().value(),
+                                                       next(it.value().begin()).value().get<string>()));
+                          idNext = idNext > it.value().begin().value() ? idNext+1 : ((int)it.value().begin().value())+1;
+                        }
+                        else
+                          outputNames.insert(make_pair(idNext++, it.value().get<string>()));
+                      }
+                      // update chart
+                      dataChart.setOutputNames(outputNames);
+                    },
+                    [this] () { return outputNames;});
+}
+
+
+
 
 
 // -- FUCTION -------------------------------
@@ -106,18 +154,15 @@ vector<float> FunctionDataStructure::getDataBatch(vector<float> input)
   vector<float> result;
 
   vector<double > inputs;
+  // copy input values
+  for (float val : input)
+    inputs.push_back(val);
 
-  // Register all alphabetic characters in the symbol_table
-  double x;
+  // Register all inputs in the symbol_table
   symbol_table_t symbol_table;
-  symbol_table.add_variable("x",x);
-  /*
-  for (char c : function) {
-    if (isalpha(c)) {
-      symbol_table.add_variable(string(1, c), inputs);
-    }
+  for (auto in : inputNames) {
+    symbol_table.add_variable(in.second, inputs[in.first]);
   }
-  */
 
   // Instantiate expression and register symbol_table
   expression_t expression;
@@ -129,11 +174,7 @@ vector<float> FunctionDataStructure::getDataBatch(vector<float> input)
 
 
   // evaluate
-  for (float val : input)
-  {
-    x = val;
-    result.push_back(expression.value());
-  }
+  result.push_back(expression.value());
 
   return result;
 }
