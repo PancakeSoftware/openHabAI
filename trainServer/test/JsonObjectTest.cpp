@@ -223,3 +223,67 @@ TEST(JsonObjectTest, notifyParamsChanged)
             }).toJson(),
             Frontend::requestsToSend.back().second.toJson()));
 }
+
+
+class ObjWithFunction: public JsonObject {
+  public:
+    string text;
+    map<int, string> idMap; //@TODO somehow map<K, V> can only be set if K = string
+
+    void params() override
+    { JsonObject::params();
+      paramWithFunction("text", [this](Json j) {text = j;}, [](){ return "set from lambda!";});
+      paramWithFunction("idMap",
+                        [this](Json j) {
+                          idMap.clear();
+                          for (auto it=j.begin(); it!=j.end(); it++)
+                            idMap.insert(make_pair(it.value().begin().value(),
+                                                   next(it.value().begin()).value().get<string>()));
+                        },
+                        [this] () { return idMap;} );
+    }
+};
+
+TEST(JsonObjectTest, paramWithFunction)
+{
+  ObjWithFunction objWithFunction;
+  Json setJ{
+      {"text", "hello"},
+      {"idMap", {
+          {1, "first"},
+          {2, "second"},
+      }}
+  };
+  /*
+   * setJ =
+   * {
+   *   "text": "hello",
+   *   "idMap": [
+   *     [
+   *       1,
+   *       "first"
+   *     ],
+   *     [
+   *       2,
+   *       "second"
+   *     ]
+   *   ],
+   * }
+   */
+  objWithFunction = setJ;
+
+  map<int, string> idMap = {
+      {1, "first"},
+      {2, "second"}
+  };
+  EXPECT_EQ("hello", objWithFunction.text);
+  EXPECT_EQ(idMap, objWithFunction.idMap);
+  EXPECT_TRUE(testCompareJson(
+      Json{
+          {"text", "set from lambda!"},
+          {"idMap", {
+              {1, "first"},
+              {2, "second"},
+          }}
+      }, objWithFunction.toJson()));
+}
