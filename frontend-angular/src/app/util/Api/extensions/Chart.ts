@@ -115,11 +115,16 @@ export class ApiChart implements OnInit, OnDestroy
          // console.info( 'outList: ', outList[1]);
           console.log('chart update: ' + this.object.route, this.chart.chart.data);
 
-          this.chart.data.datasets[outList[0]].data = outList[1].reduce((dataPoints, point) => dataPoints.concat({
-            x: point.inputs[0][1],
-            y: point.value
-          }), []);
-        //}
+          let boundToXId = Object.keys(this.inputValues).filter((id, index) => this.inputValues[id].boundTo == 'x')[0];
+          if (boundToXId == undefined) {
+            this.chart.data.datasets[outList[0]].data = [];
+          }
+          else {
+            this.chart.data.datasets[outList[0]].data = outList[1].reduce((dataPoints, point) => dataPoints.concat({
+              x: point.inputs[boundToXId] [1],
+              y: point.value
+            }), []);
+          }
 
         // add:        this.chartLearnRate.data.datasets[1].data = this.chartLearnRate.data.datasets[1].data.concat({x: this.a++, y: this.a*this.a});
         this.chart.update();
