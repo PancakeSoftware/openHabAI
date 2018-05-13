@@ -110,10 +110,10 @@ class ParameterChart: public Chart
 
 /*
  * chart for 2D data
- * x-axis = time
+ * x-axis =
  * add dataPoints over time
  */
-class TimeChart: public Chart
+class SeriesChart: public Chart
 {
 
 };

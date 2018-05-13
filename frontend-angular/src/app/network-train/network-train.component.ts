@@ -31,18 +31,18 @@ export class NetworkTrainComponent implements OnInit {
 
     // get route changes
     router.params.subscribe(params => {
-      if (this.structureID !== params.structureID || this.networkID !== params.networkID) {
-        this.structureID = params.structureID;
-        this.networkID = params.networkID;
-        this.updateSelf();
-      }
-
       // setup form
       this.trainParams = fb.group({
           optimizer: "sgd",
           learnRate: 12
         }
       );
+
+      if (this.structureID !== params.structureID || this.networkID !== params.networkID) {
+        this.structureID = params.structureID;
+        this.networkID = params.networkID;
+        this.updateSelf();
+      }
     });
   }
 
@@ -77,6 +77,16 @@ export class NetworkTrainComponent implements OnInit {
       this.dataChart.apiObject = this.api.object('/dataStructures/' + this.structureID + '/dataChart/');
       this.dataChartInited = true;
     }
+
+    // on network change
+    /*
+    this.network.object().subscribe(value => {
+      this.trainParams.reset({
+        optimizer: value.optimizer,
+        learnRate: value.learnRate
+      });
+    });
+    */
 
     /*
     // get datastructure Chart

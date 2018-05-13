@@ -15,7 +15,7 @@
     <table class="col s12 m12">
         <tbody>
         <tr *ngFor="let input of inputs">
-            <td>{{input.id}}</td>
+            <td class="grey-text lighten-1">{{input.id}}</td>
             <td class="blue-text bold">{{input.name | uppercase}}</td>
             <td>
                 <label>
@@ -23,7 +23,6 @@
                         <option value="" >Fixed</option>
                         <option value="x" >bound to X axis</option>
                         <option value="y" >bound to Y axis</option>
-                        <option value="z" >bound to Z axis</option>
                     </select>
                 </label>
             </td>

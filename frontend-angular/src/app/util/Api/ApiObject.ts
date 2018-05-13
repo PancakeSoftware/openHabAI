@@ -22,6 +22,7 @@ import {ReplaySubject} from "rxjs/ReplaySubject";
 export class ApiObject<T> extends ApiRouteContainig
 {
   protected onChange = new BehaviorSubject<T>(null);
+  protected onChangeKeys = new BehaviorSubject<{object: T, changedKeys: string[]}>(null);
   protected onActionReceive = new Subject<{action: string, data:any}>();
   protected subscribing: boolean = false;
 
@@ -31,24 +32,55 @@ export class ApiObject<T> extends ApiRouteContainig
 
     // get object
     ApiConnection.sendRequest(route, 'get', (status, data) => {
-      if (status === 'ok')
+      if (status === 'ok') {
         this.onChange.next(data);
+        this.onChangeKeys.next({
+          object: data,
+          changedKeys: Object.keys(data)
+        });
+      }
     });
 
     // listen for actions
     ApiConnection.listenForAction(route, (action, data) => {
-      if (action !== '' )
+      if (action !== '' ) {
         this.onActionReceive.next({action, data});
+
+
+        // object changed
+        if (action === 'update') {
+          console.log('\n == got ('  + action + ')', data);
+          // merge
+          let obj = this.onChange.value;
+          for (let key in data)
+            obj[key] = data[key];
+
+          this.onChange.next(obj);
+          this.onChangeKeys.next({
+            object: obj,
+            changedKeys: Object.keys(data)
+          });
+        }
+      }
     });
   }
 
   /**
    * get the actual object
-   * @returns {Observable<T[]>} update on object change
+   * @returns {Observable<T>} update on object change
    * @see subscribe()
    */
   object(): BehaviorSubject<T> {
     return this.onChange;
+  }
+
+  /**
+   * get the actual object and changed keys
+   * @returns {Observable<{object: T, changedKeys: string[]}>} update on object change
+   * @see subscribe()
+   */
+  objectChanged(): BehaviorSubject<{object: T, changedKeys: string[]}> {
+    return this.onChangeKeys;
   }
 
   /**

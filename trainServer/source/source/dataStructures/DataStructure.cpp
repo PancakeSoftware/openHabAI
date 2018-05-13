@@ -36,10 +36,10 @@ DataStructure::DataStructure()
     maxInputId->first;
 
     // input Vector index=id
-    debug("inputs: " + Json(inputValues).dump(2));
+    //debug("inputs: " + Json(inputValues).dump(2));
     vector<float> in;
     for (int j = 0; j <= maxInputId->first; ++j) {
-      debug("insert ... " + to_string(j));
+      //debug("insert ... " + to_string(j));
       in.push_back((inputValues.find(j) != inputValues.end()) ? inputValues.find(j)->second : 0);
     }
     /*)

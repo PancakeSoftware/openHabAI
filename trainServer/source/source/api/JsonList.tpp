@@ -229,7 +229,7 @@ void JsonList<T>::restore()
     }
   }
   catch (exception &e){
-    err("restore: " + string(e.what()));
+    err("restore ("+this->route.get().toStringStorePath()+"): " + string(e.what()));
   }
 }
 

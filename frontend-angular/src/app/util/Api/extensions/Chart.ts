@@ -24,6 +24,7 @@ export class ApiChart implements OnInit, OnDestroy
   @ViewChild("chartElement") chartElement;  // chart canvas
   public chart: Chart = null;               // chart.js object
   private chartDirty: boolean = true;
+  private chartGotFirstData: boolean = false;
 
   /* store input values
    * index = id  */
@@ -113,7 +114,7 @@ export class ApiChart implements OnInit, OnDestroy
         let outList = value.data[0];
         //{
          // console.info( 'outList: ', outList[1]);
-          console.log('chart update: ' + this.object.route, this.chart.chart.data);
+          console.log('chart DATA update: ' + this.object.route, this.chart.chart.data);
 
           let boundToXId = Object.keys(this.inputValues).filter((id, index) => this.inputValues[id].boundTo == 'x')[0];
           if (boundToXId == undefined) {
@@ -133,40 +134,74 @@ export class ApiChart implements OnInit, OnDestroy
     });
 
     // set inputs/outputs when object props change
-    this.object.object()
+    this.object.objectChanged()
       .takeUntil(componentDestroyed(this))
-      .subscribe((obj) =>
-      {
-      if (obj == null)
-        return;
+      .subscribe((changed) => {
+        if (changed == null)
+          return;
 
-      this.inputs = obj.inputNames.map((inp) => {return {id: inp[0], name: inp[1]};});
-      this.outputs = obj.outputNames.map((inp) => {return {id: inp[0], name: inp[1]};});
-      //toastInfo("outputs ", this.outputs);
+        let obj = changed.object;
+        console.info('chart changed: ', changed.changedKeys);
 
-      // generate inputs
-      for (let input of this.inputs)
-        this.inputValues[input.id] = new ChartInput();
+        // update input/output names
+        if (changed.changedKeys.includes('inputNames') || changed.changedKeys.includes('outputNames')) {
+          this.inputs = obj.inputNames.map((inp) => {
+            return {id: inp[0], name: inp[1]};
+          });
+          this.outputs = obj.outputNames.map((inp) => {
+            return {id: inp[0], name: inp[1]};
+          });
 
-      // generate outputs
-      for (let output of this.outputs) {
-        this.chart.data.datasets.push({
-          data: [],
-          label: output.name,
-          backgroundColor: "#3e95cd",
-          borderColor: "#3e95cd",
-          fill: false
-        });
-      }
-      this.chart.update();
+          // generate outputs
+          this.chart.data.datasets = [];
+          for (let output of this.outputs) {
+            this.chart.data.datasets.push({
+              data: [],
+              label: output.name,
+              backgroundColor: "#3e95cd",
+              borderColor: "#3e95cd",
+              fill: false
+            });
+          }
+          this.chart.update();
+        }
 
-      // set first input bound to x
-      if (this.inputs.length > 0)
-        this.inputValues[Object.keys(this.inputValues)[0]].boundTo = 'x';
+        // generate inputs
+        // fixed
+        if (changed.changedKeys.includes('fixedInputs'))
+          for (let input of obj.fixedInputs) {
+            this.inputValues[input.id] = {
+              id: input.id,
+              boundTo: '',
+              valueFixed: input.value,
+              valueRange: {
+                from: -5,
+                to: 5,
+                steps: 10,
+              }
+            }
+          }
+        // range
+        if (changed.changedKeys.includes('rangeInputs'))
+          for (let input of obj.rangeInputs) {
+            this.inputValues[input.id] = {
+              id: input.id,
+              boundTo: 'x',
+              valueFixed: 0,
+              valueRange: {
+                from: input.from,
+                to: input.to,
+                steps: input.steps,
+              }
+            }
+          }
 
-      // update chart
-      this.onInputsChanged();
-    });
+        // request initial data
+        if (!this.chartGotFirstData) {
+          this.onInputsChanged();
+          this.chartGotFirstData = true;
+        }
+      });
 
     // get data updates
     this.object.subscribe();

@@ -18,10 +18,12 @@ ApiRespond *ApiSubscribable::processApi(ApiRequest request) {
     // subscribe
     if (request.what == "subscribe") {
         subscribers.insert(request.client);
-        l.info("new subscriber " + request.client.toString());
+        l.info("("+routeString+") new subscriber " + request.client.toString() + " (subscribers: "+to_string(subscribers.size())+")");
     }
-    if (request.what == "unsubscribe")
-        subscribers.erase(request.client);
+    if (request.what == "unsubscribe") {
+      subscribers.erase(request.client);
+      l.info("("+routeString+") remove subscriber " + request.client.toString() + " (subscribers: "+to_string(subscribers.size())+")");
+    }
 
     return processible;
 }

@@ -121,7 +121,7 @@ class JsonObject
      * @see JsonObject::params()
      * @param params only this params converted to json
      */
-    virtual Json toJson(vector<string>& params) const {
+    virtual Json toJson(vector<string> params) const {
         refreshParams();
 
         Json json;
@@ -138,12 +138,14 @@ class JsonObject
     /**
      * @param params set configured class attributes to values in params
      * @see JsonObject::params()
+     * @return vector of changed param names
      */
-    virtual void fromJson(Json params) {
+    virtual vector<string> fromJson(Json params) {
       /* refresh param pointers
        * this is very inefficient but necessary (rebuild whole param list):
        * when the object is copied all param pointers have to be redefined (change pointer address) */
       refreshParams();
+      vector<string> changed;
 
       for (auto &paramPtr: paramPointers) {
         const auto &key = paramPtr.first;
@@ -154,11 +156,13 @@ class JsonObject
         try {
           //cout << "=fromJson= param " << key << ": " << params[key].dump() << endl;
           memberPtr->fromJson(params[key]);
+          changed.push_back(key);
         } catch (Json::type_error &e) {
           l.err("can't set jsonObject key '" + key +"' : " + e.what());
           throw JsonObjectException("can't set jsonObject key '" + key +"' because of wrong type : " + e.what());
         }
       }
+      return changed;
     };
 
     /**
@@ -236,7 +240,7 @@ class ApiJsonObject : protected virtual Log, public virtual ApiSubscribable, pub
     ApiJsonObject(Json params);
 
 
-    void fromJson(Json params) override;
+    vector<string> fromJson(Json params) override;
 
     /**
      * store toJson output in file

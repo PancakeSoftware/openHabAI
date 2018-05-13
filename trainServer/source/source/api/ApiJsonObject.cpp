@@ -25,12 +25,18 @@ ApiJsonObject::ApiJsonObject(Json params)
   fromJson(params);
 }
 
-void ApiJsonObject::fromJson(Json params)
+vector<string> ApiJsonObject::fromJson(Json params)
 {
-  JsonObject::fromJson(params);
+  vector<string> changedParams = JsonObject::fromJson(params);
 
   // save all
   storeMe();
+
+  // push updates to subscribers
+  if (route.is_initialized())
+    sendToSubscribers(ApiRequest(route.get(), "update", toJson(changedParams)));
+
+  return changedParams;
 }
 
 

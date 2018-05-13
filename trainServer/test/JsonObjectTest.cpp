@@ -46,6 +46,10 @@ TEST(JsonObjectTest, fromToJson)
   EXPECT_EQ("string", myObject.s);
   EXPECT_EQ(true, myObject.b);
   EXPECT_EQ(valOut, myObject.toJson());
+  EXPECT_TRUE( testCompareJson( Json{
+      {"s", "string"},
+      {"b", true},
+  }, myObject.toJson({"s", "b"})));
 }
 
 

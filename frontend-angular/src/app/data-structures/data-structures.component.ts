@@ -2,7 +2,7 @@ import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, ViewChild, ViewC
 import {MaterializeAction} from "angular2-materialize";
 import {ApiConnection} from "../util/Api/ApiConnection";
 import {FormBuilder, FormGroup} from "@angular/forms";
-import {toastInfo} from "../util/Log";
+import {toastErr, toastInfo, toastOk} from "../util/Log";
 import {Observable} from "rxjs/Observable";
 import {el} from "@angular/platform-browser/testing/src/browser_util";
 import {Tabs} from "../util/Helper";
@@ -46,8 +46,8 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
     this.formNew = fb.group({
       name: 'MyDataStructure',
       type: '',
-      function: 'x^3',
-      inputNames: 'x',
+      function: 'x^3 + y^2',
+      inputNames: 'x y',
       range_from: -10,
       range_to: 10
     });
@@ -72,15 +72,17 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
     this.formNew.value.type = "function";//this.formNewTypeTabs.active;
     this.formNew.value.inputNames = this.formNew.value.inputNames.split(' ');
     this.formNew.value.outputNames = ['function'];
-    toastInfo('New DataStructure: ', this.formNew.value);
+    //toastInfo('New DataStructure: ', this.formNew.value);
 
-    this.dataStructuresList.add(this.formNew.value);
+    this.dataStructuresList.add(this.formNew.value)
+      .then(value => toastOk('Added dataStructure (id: ' + value + ')'))
+      .catch(reason => toastErr("can't add dataStructure: " + reason));
 
     this.formNew.reset({
       name: 'MyDataStructure',
       type: '',
-      function: 'x^3',
-      inputNames: 'x',
+      function: 'x^3 + y^2',
+      inputNames: 'x y',
       range_from: -10,
       range_to: 10
     });
