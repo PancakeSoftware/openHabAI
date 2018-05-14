@@ -240,7 +240,23 @@ class ApiJsonObject : protected virtual Log, public virtual ApiSubscribable, pub
     ApiJsonObject(Json params);
 
 
+    /**
+     * set configured class attributes to values in params
+     * , save changes and send updates to subscribers
+     * @see JsonObject::params()
+     * @return vector of changed param names
+     */
     vector<string> fromJson(Json params) override;
+
+    /**
+     * set configured class attributes to values in params
+     * , save changes and send updates to subscribers
+     * @param skipSendUpdateTo not send update to this client
+     * @see JsonObject::params()
+     * @return vector of changed param names
+     */
+    vector<string> fromJson(Json params, Client skipSendUpdateTo);
+
 
     /**
      * store toJson output in file

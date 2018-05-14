@@ -31,8 +31,8 @@
                 <td>
                     <div>
                         <label>Value: </label>
-                        <input style="width: 100%;" type="range" [(ngModel)]="inputValues[input.id].valueFixed" (change)="onInputsChanged()"/>
-                        <input style="width: 3em; float: right;" type="number" [(ngModel)]="inputValues[input.id].valueFixed" (change)="onInputsChanged()" />
+                        <input style="width: 100%;" type="range" step="0.1" [(ngModel)]="inputValues[input.id].valueFixed" (change)="onInputsChanged()"/>
+                        <input style="width: 3em; float: right;" type="number" step="0.1" [(ngModel)]="inputValues[input.id].valueFixed" (change)="onInputsChanged()" />
                     </div>
                 </td>
             </ng-container>

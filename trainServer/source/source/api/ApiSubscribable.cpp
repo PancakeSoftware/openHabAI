@@ -29,6 +29,15 @@ ApiRespond *ApiSubscribable::processApi(ApiRequest request) {
 }
 
 void ApiSubscribable::sendToSubscribers(ApiRequest request) {
-    for (auto sub : subscribers)
+    for (auto sub : subscribers) {
         Frontend::send(request, sub);
+    }
+}
+
+void ApiSubscribable::sendToSubscribers(ApiRequest request, Client skipSendUpdateTo)
+{
+    for (auto sub : subscribers) {
+        if (sub.websocket != skipSendUpdateTo.websocket)
+            Frontend::send(request, sub);
+    }
 }

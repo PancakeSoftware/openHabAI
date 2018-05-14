@@ -19,9 +19,16 @@ class ApiSubscribable: public virtual ApiProcessible
 
     /**
      * send api message to each subscriber
-     * @param respond
+     * @param request
      */
-    void sendToSubscribers(ApiRequest respond);;
+    void sendToSubscribers(ApiRequest request);
+
+    /**
+     * send api message to each subscriber
+     * @param request
+     * @param skipSendUpdateTo not send update to this client
+     */
+    void sendToSubscribers(ApiRequest request, Client skipSendUpdateTo);
 
 
   protected:

@@ -39,6 +39,21 @@ vector<string> ApiJsonObject::fromJson(Json params)
   return changedParams;
 }
 
+vector<string> ApiJsonObject::fromJson(Json params, Client skipSendUpdateTo)
+{
+  vector<string> changedParams = JsonObject::fromJson(params);
+
+  // save all
+  storeMe();
+
+  // push updates to subscribers
+  if (route.is_initialized())
+    sendToSubscribers(ApiRequest(route.get(), "update", toJson(changedParams)), skipSendUpdateTo);
+
+  return changedParams;
+}
+
+
 
 // -- SAVE LOAD --------------------------------------------------------
 bool ApiJsonObject::save(string path, string fileName)
@@ -101,7 +116,8 @@ ApiRespond *ApiJsonObject::processApi(ApiRequest request)
   if (request.what == "update")
   {
     try {
-      this->fromJson(request.data);
+      // update own params by json, fromJson() will send update to subscribers but will skip sender
+      this->fromJson(request.data, request.client);
     } catch (JsonObjectException &e) {
       return new ApiRespondError(e.what(), request, route.get());
     }

@@ -195,6 +195,11 @@ export class ApiChart implements OnInit, OnDestroy
               }
             }
           }
+        // if id not in range/fixed inputs
+        for (let input of obj.inputNames) {
+          if (!(input[0] in this.inputValues))
+            this.inputValues[input[0]] = new ChartInput();
+        }
 
         // request initial data
         if (!this.chartGotFirstData) {
