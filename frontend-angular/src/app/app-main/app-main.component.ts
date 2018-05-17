@@ -1,6 +1,6 @@
 import {Component, Inject, NgModule} from '@angular/core';
 import {ActivatedRoute, Router, RouterModule, Routes} from "@angular/router";
-import {DatastructureAndSettingsComponent} from "../datastructure-and-settings/datastructure-and-settings.component";
+import {DatastructureAndSettingsComponent} from "@frontend/";
 import {ApiConnection} from "../util/Api/ApiConnection";
 import {NetworksAndTrainComponent} from "../networks-and-train/networks-and-train.component";
 import {toastErr, toastInfo} from "../util/Log";

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {ApiConnection, CONNECTION_STATUS} from "../util/Api/ApiConnection";
+import {ApiConnection, CONNECTION_STATUS} from "@frontend/";
 import {toastInfo} from "../util/Log";
 import {delay} from "q";
 
@@ -19,9 +19,13 @@ export class BackendConsoleComponent implements OnInit {
   constructor() {
     ApiConnection.onReceive.subscribe(data => {
       this.log.push({direction: 'got', message: data});
+      if (this.log.length > 50)
+        this.log = this.log.slice(0, this.log.length - 50);
     });
     ApiConnection.onSend.subscribe(data => {
       this.log.push({direction: 'send', message: data});
+      if (this.log.length > 50)
+        this.log = this.log.slice(0, this.log.length - 50);
     });
 
     // get status updates
