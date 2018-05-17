@@ -8,7 +8,10 @@ Catflow is a framework for syncing object-tree-structures between a c++ backend 
     * *ApiList (extends ApiJsonObject)*: list of multiple JsonObjects (add,remove items)
     * *ApiRouteJson (extends ApiJsonObject)*: contains subRoutes: `/my-apiJsonRoute/subRoute1`
  * ApiList and ApiRouteJson can be nested into each other
- 
+
+### C++ Uml of main classes
+![](doc/cppUml.png)
+
 ### Example
 Create the following api-tree structure to organize a university:
  * the university consists of multiple courses (has a ApiList as subRoute at `courses/` )
@@ -121,7 +124,7 @@ Now we can use this api from the fronted via typescript/javascript:
 ```typescript
 // connect to c++ backend
 ApiConnection.connect('localhost', 5555);
-Api api;
+Api api = new Api();
 
 
 // lets display all courses every time one changes (added, removed)
@@ -161,29 +164,36 @@ api.list('/courses').add(
 ```
 After adding the new course and student our console.log should show:
 ```javascript
-/courses List changed:  [
+/courses List changed:  
+[
   {
-    "name": "math"
+    "name": "math",
+    "id": 0
   }
 ]
+
 
 /courses/0/students List changed: 
 [
   {
     "name": "Lisa",
-    "age": 22
+    "age": 22,
+    "id": 0
   }
 ]
+
 
 /courses/0/students List changed: 
 [
   {
     "name": "Lisa",
-    "age": 22
+    "age": 22,
+    "id": 0
   },
   {
     "name": "Peter",
-    "age": 25
-  },
+    "age": 25,
+    "id": 1
+  }
 ]
 ```
