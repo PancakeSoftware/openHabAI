@@ -1,9 +1,9 @@
-
 # OpenHabAI<br>![](doc/img/frontend.png)
 Automate your home using Neuronal networks. <br>
 OpenHabAI provides a fast c++ backend 
 ([mxnet is used for computation](http://mxnet.io)) and frontend that run in browser.
 
+To see api documentation look at: [catflow/README.md](catflow/README.md)
 
 ## Build [![Build Status](https://travis-ci.org/PancakeSoftware/openHabAI.svg?branch=master)](https://travis-ci.org/PancakeSoftware/openHabAI)
 First **install** these packages:

@@ -1,0 +1,11 @@
+build/*
+
+cmake-build-debug
+
+# eclipse
+.settings/
+.classpath
+.project
+
+# inteijj
+.idea/*

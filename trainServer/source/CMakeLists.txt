@@ -7,6 +7,7 @@ set(SRC)
 file(GLOB SRC_FILES
         ${SOURCE_DIR}*/*.cpp
         ${SOURCE_DIR}*.cpp
+        ${CATFLOW_SRC}
         ${INCLUDE_DIR}*/*.h)
 
 
@@ -37,6 +38,7 @@ target_include_directories(${TARGET}
 
         PUBLIC
         ${DEFAULT_INCLUDE_DIRECTORIES}
+        ${CATFLOW_INCLUDE}
         )
 
 
@@ -50,51 +52,6 @@ if (${OPTION_BUILD_DEPS})
     add_dependencies(${TARGET} ${DEFAULT_DEPENDENCIES})
 endif ()
 
-
-# ########################################
-# test
-if (OPTION_TESTS)
-    list(REMOVE_ITEM SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_DIR}main.cpp)
-
-    # files
-    file(GLOB SRC_FILES_TEST
-            ${TEST_DIR_GLOB}*cpp)
-
-    #file(GLOB SRC_FILES
-    #        ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_DIR}api/*.cpp
-    #        ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_DIR}util/*.cpp)
-
-    #
-    # extrutable / Lib
-    #
-    add_executable(
-            ${TARGET}-test
-            ${SRC_FILES}
-            ${SRC_FILES_TEST})
-
-
-    #
-    # Include directories
-    #
-    target_include_directories(${TARGET}-test
-            PRIVATE
-
-            ${PROJECT_BINARY_DIR}/source/include
-            ${CMAKE_CURRENT_SOURCE_DIR}/include
-            ${CMAKE_CURRENT_BINARY_DIR}/include
-
-            PUBLIC
-            ${DEFAULT_INCLUDE_DIRECTORIES}
-            )
-
-    #
-    # Libraries
-    #
-    target_link_libraries(${TARGET}-test
-            ${DEFAULT_LIBRARIES}
-            GTest::main
-            )
-endif ()
 
 
 # ########################################

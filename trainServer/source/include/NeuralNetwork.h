@@ -9,8 +9,8 @@
 #include <thread>
 #include <string>
 #include <Frontend.h>
-#include <api/ApiRoute.h>
-#include <api/Chart.h>
+#include <ApiRoute.h>
+#include <Chart.h>
 using namespace std;
 using namespace mxnet::cpp;
 class DataStructure;

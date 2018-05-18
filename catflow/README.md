@@ -2,15 +2,18 @@
 Catflow is a framework for syncing object-tree-structures between a c++ backend and a web-javascript frontend.
  * noSql database like access to objects (path to the object in **api-object-tree**)
  * objects are represented in json format
- * push aidentifiero changed objects
+ * push and react to changed objects
+ * access api via webSocket connection from javascript [(protocol doc here)](doc/README.md)
  * **main types** of elements in the object-tree:
     * *ApiJsonObject*: represents a object instance of a class (has properties/members, ...)
     * *ApiList (extends ApiJsonObject)*: list of multiple JsonObjects (add,remove items)
     * *ApiRouteJson (extends ApiJsonObject)*: contains subRoutes: `/my-apiJsonRoute/subRoute1`
  * ApiList and ApiRouteJson can be nested into each other
 
+
+
 ### C++ Uml of main classes
-![](doc/cppUml.png)
+![](doc/uml/cppUml.png)
 
 ### Example
 Create the following api-tree structure to organize a university:
