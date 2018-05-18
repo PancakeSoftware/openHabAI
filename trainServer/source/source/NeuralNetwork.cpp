@@ -1,4 +1,4 @@
-#include <Frontend.h>
+#include <Catflow.h>
 #include <util/TaskManager.h>
 #include "NeuralNetwork.h"
 
@@ -27,8 +27,8 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
       chartProgressT(),
       charts(),
       structure(*structure),
-      chartProgress(Frontend::getChart("progress")),
-      chartShape(Frontend::getChart("outputShape"))
+      chartProgress(Catflow::getChart("progress")),
+      chartShape(Catflow::getChart("outputShape"))
 {
   setLogName("NETWORK");
 

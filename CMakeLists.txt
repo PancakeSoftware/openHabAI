@@ -121,5 +121,6 @@ set(DEFAULT_DEPENDENCIES
 # --------------------------------------------------
 # -- subdirs
 add_subdirectory(catflow/cpp)
+add_subdirectory(catflow/example)
 add_subdirectory(frontend)
 add_subdirectory(trainServer)

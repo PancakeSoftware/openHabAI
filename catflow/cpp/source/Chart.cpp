@@ -5,7 +5,7 @@
  */
 #include <ApiMessage.h>
 #include <util/TaskManager.h>
-#include <Frontend.h>
+#include <Catflow.h>
 #include "Chart.h"
 
 
@@ -87,7 +87,7 @@ ApiRespond *ParameterChart::processApi(ApiRequest request)
       for (auto i: fixedInputs) // insert fixedInputs
         inputDat.emplace(i.id, i.value);
       createData(rangeInputs.begin(), inputDat); // generate data by rangeInputs
-      //debug("will send to Frontend: " + route.get().toString() + "  =   " + to_string(data.size()) + Json(data).dump(2));
+      //debug("will send to Catflow: " + route.get().toString() + "  =   " + to_string(data.size()) + Json(data).dump(2));
 
       // send data, update data in object
       sendToSubscribers(ApiRequest(route.get(), "updateData", dataOut));

@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #include "NeuralNetwork.h"
-#include "Frontend.h"
+#include "Catflow.h"
 #include <ApiRoot.h>
 #include <util/TaskManager.h>
 
@@ -37,13 +37,14 @@ int main(int argc, char *argv[])
 
   // start frontend, load saved
   NeuralNetwork::init(new Context(DeviceType::kCPU, 0));
-  Frontend::start(
+
+  apiRoot.setStorePath("./");
+  apiRoot.restore();
+  Catflow::setApiRootRoute(apiRoot);
+  Catflow::start(
       5555, // webSocket port
       8050  // http port
   );
-  apiRoot.setStorePath("./");
-  apiRoot.restore();
-
 
   // start blocking taskManager
   TaskManager::start();

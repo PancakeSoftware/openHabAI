@@ -9,7 +9,7 @@ Log ApiSubscribable::l("ApiSubscribable");
 
 ApiSubscribable::ApiSubscribable() {
     // subscribers always has to be subset of connections
-    Frontend::registerClientList(subscribers);
+    Catflow::registerClientList(subscribers);
 }
 
 ApiRespond *ApiSubscribable::processApi(ApiRequest request) {
@@ -30,7 +30,7 @@ ApiRespond *ApiSubscribable::processApi(ApiRequest request) {
 
 void ApiSubscribable::sendToSubscribers(ApiRequest request) {
     for (auto sub : subscribers) {
-        Frontend::send(request, sub);
+        Catflow::send(request, sub);
     }
 }
 
@@ -38,6 +38,6 @@ void ApiSubscribable::sendToSubscribers(ApiRequest request, Client skipSendUpdat
 {
     for (auto sub : subscribers) {
         if (sub.websocket != skipSendUpdateTo.websocket)
-            Frontend::send(request, sub);
+            Catflow::send(request, sub);
     }
 }

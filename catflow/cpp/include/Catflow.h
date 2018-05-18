@@ -1,9 +1,9 @@
-//
-// Created by joshua on 14.07.17.
-//
+/*
+ * Catflow.h
+ */
 
-#ifndef Frontend_H
-#define Frontend_H
+#ifndef CATFLOW_H
+#define CATFLOW_H
 
 #include <thread>
 #include <seasocks/Server.h>
@@ -18,7 +18,7 @@ using namespace std;
 using namespace seasocks;
 using Json = nlohmann::json;
 
-class Frontend
+class Catflow
 {
   public:
     /**
@@ -33,8 +33,8 @@ class Frontend
      * @note do this before calling start()
      * @param apiRoot
      */
-    static void setApiRoot(ApiProcessible &apiRoot){
-      Frontend::apiRoot = &apiRoot;
+    static void setApiRootRoute(ApiProcessible &apiRoot){
+      Catflow::apiRoot = &apiRoot;
     }
 
     static void sendData(Json data);
@@ -49,7 +49,10 @@ class Frontend
     static void registerClientList(set<Client> &list);
     static void unRegisterClientList(set<Client> &list);
 
-    // chart
+    /**
+     * @deprecated use Chart from Chart.h
+     * chart
+     */
     class Chart
     {
       public:
@@ -137,4 +140,4 @@ class SeasocksLogger : public seasocks::Logger {
 };
 
 
-#endif //Frontend_H
+#endif //CATFLOW_H

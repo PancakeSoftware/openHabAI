@@ -7,7 +7,7 @@
 #define OPENHABAI_CHART_H
 
 #include "ApiJsonObject.h"
-#include "Catflow.h"
+#include "Frontend.h"
 class RangeParam;
 class ValueParam;
 class ChartDataPoint;

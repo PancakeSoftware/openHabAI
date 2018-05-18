@@ -3,7 +3,7 @@
  * Author: Joshua Johannson
  *
   */
-#include <Frontend.h>
+#include <Catflow.h>
 #include <cstdio>
 #include "util/Log.h"
 
@@ -62,13 +62,13 @@ void Log::setUseColor(bool use)
 void Log::fatal(string text)
 {
   print("[❎fatal ❎] ", text, LOG_LEVEL_ERROR);
-//  Frontend::send("fatal", {{"message",  text + "''"}});
+//  Catflow::send("fatal", {{"message",  text + "''"}});
 }
 
 void Log::fatal(string text, string error)
 {
   print("[❎fatal ❎] ", text + ": '" + error + "'", LOG_LEVEL_ERROR);
-  //Frontend::send("fatal", {{"message",  text + "'" + error + "'"}});
+  //Catflow::send("fatal", {{"message",  text + "'" + error + "'"}});
 }
 
 void Log::err(string text)

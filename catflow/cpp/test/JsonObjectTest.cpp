@@ -208,7 +208,7 @@ TEST(JsonObjectTest, simpleJsonObject)
 TEST(JsonObjectTest, notifyParamsChanged)
 {
     // check send package queue
-    EXPECT_EQ(0, Frontend::requestsToSend.size());
+    EXPECT_EQ(0, Catflow::requestsToSend.size());
 
     MyObject obj;
     obj.setStorePath("../test/jsonObjectTest");
@@ -219,13 +219,13 @@ TEST(JsonObjectTest, notifyParamsChanged)
     obj.notifyParamsChanged({"i", "s", "not-a-param"});
 
     // check send package queue
-    EXPECT_TRUE(1 <= Frontend::requestsToSend.size());
+    EXPECT_TRUE(1 <= Catflow::requestsToSend.size());
     EXPECT_TRUE(testCompareJson(
             ApiRequest("", "update", Json{
                     {"s", "test"},
                     {"i", 12345}
             }).toJson(),
-            Frontend::requestsToSend.back().second.toJson()));
+            Catflow::requestsToSend.back().second.toJson()));
 }
 
 

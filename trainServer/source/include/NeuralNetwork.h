@@ -8,13 +8,13 @@
 #include <mxnet-cpp/MxNetCpp.h>
 #include <thread>
 #include <string>
-#include <Frontend.h>
+#include <Catflow.h>
 #include <ApiRoute.h>
 #include <Chart.h>
 using namespace std;
 using namespace mxnet::cpp;
 class DataStructure;
-class Frontend;
+class Catflow;
 
 
 class NeuralNetwork : public ApiRouteJson
@@ -74,8 +74,8 @@ class NeuralNetwork : public ApiRouteJson
     void printSymbolShapes(map<string, NDArray> map1);
 
     // Charts
-    Frontend::Chart chartProgress;
-    Frontend::Chart chartShape;
+    Catflow::Chart chartProgress;
+    Catflow::Chart chartShape;
 
 };
 

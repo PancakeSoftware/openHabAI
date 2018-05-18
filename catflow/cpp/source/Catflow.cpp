@@ -3,31 +3,31 @@
 //
 
 #include <arpa/inet.h>
-#include "Frontend.h"
+#include "Catflow.h"
 
 using namespace seasocks;
 
 // static
-ApiProcessible* Frontend::apiRoot = nullptr;
+ApiProcessible* Catflow::apiRoot = nullptr;
 
-Log Frontend::l("FRONTEND");
-set<WebSocket *> Frontend::webSockConnections;
-set<set<Client>*> Frontend::linkedWebSockConnections;
+Log Catflow::l("FRONTEND");
+set<WebSocket *> Catflow::webSockConnections;
+set<set<Client>*> Catflow::linkedWebSockConnections;
 
-int Frontend::port;
-int Frontend::portHtml;
-list<pair<Client, ApiRequest>> Frontend::requestsToSend;
-list<pair<Client, ApiRespond>> Frontend::responsesToSend;
+int Catflow::port;
+int Catflow::portHtml;
+list<pair<Client, ApiRequest>> Catflow::requestsToSend;
+list<pair<Client, ApiRespond>> Catflow::responsesToSend;
 
 
-Server Frontend::serverWebsocket(make_shared<SeasocksLogger>( "ServerWebsocket", Logger::Level::INFO));
-Server Frontend::serverHttp(make_shared<SeasocksLogger>("ServerHttp", Logger::Level::INFO));
+Server Catflow::serverWebsocket(make_shared<SeasocksLogger>( "ServerWebsocket", Logger::Level::INFO));
+Server Catflow::serverHttp(make_shared<SeasocksLogger>("ServerHttp", Logger::Level::INFO));
 
 /*
  * -- Communication
  */
 
-void Frontend::send(ApiRequest message)
+void Catflow::send(ApiRequest message)
 {
   if (message.client.websocket == nullptr)
     sendData(message.toJson());
@@ -35,7 +35,7 @@ void Frontend::send(ApiRequest message)
     send(message, message.client.websocket);
 }
 
-void Frontend::send(ApiRespond message)
+void Catflow::send(ApiRespond message)
 {
   if (!message.requestValid || message.request.client.websocket == nullptr)
     sendData(message.toJson());
@@ -43,7 +43,7 @@ void Frontend::send(ApiRespond message)
     send(message, message.request.client.websocket);
 }
 
-void Frontend::send(ApiRespond message, Client destination)
+void Catflow::send(ApiRespond message, Client destination)
 {
   // push to queue and store iterator
   responsesToSend.push_back(make_pair(destination, message));
@@ -56,7 +56,7 @@ void Frontend::send(ApiRespond message, Client destination)
   });
 }
 
-void Frontend::send(ApiRequest message, Client destination)
+void Catflow::send(ApiRequest message, Client destination)
 {
     // push to queue and store iterator
   requestsToSend.push_back(make_pair(destination, message));
@@ -73,14 +73,14 @@ void Frontend::send(ApiRequest message, Client destination)
  * -- Chart
  */
 
-Frontend::Chart::Chart(string name)
+Catflow::Chart::Chart(string name)
     : tmpGraphs()
 {
   this->name = name;
 }
 
 
-Frontend::Chart &Frontend::Chart::setGraphData(string graph,
+Catflow::Chart &Catflow::Chart::setGraphData(string graph,
                                                initializer_list<float> xVals,
                                                initializer_list<float> yVals)
 {
@@ -90,7 +90,7 @@ Frontend::Chart &Frontend::Chart::setGraphData(string graph,
   return setGraphData(graph, x, y);
 }
 
-Frontend::Chart &Frontend::Chart::setGraphData(string graph, vector<float> xVals, vector<float> yVals)
+Catflow::Chart &Catflow::Chart::setGraphData(string graph, vector<float> xVals, vector<float> yVals)
 {
   Json data = {
       {"graph", graph},
@@ -113,7 +113,7 @@ Frontend::Chart &Frontend::Chart::setGraphData(string graph, vector<float> xVals
   return *this;
 }
 
-void Frontend::Chart::apply(string type)
+void Catflow::Chart::apply(string type)
 {
   Json data = {
       {"type", "updateChart"},
@@ -131,17 +131,17 @@ void Frontend::Chart::apply(string type)
 }
 
 
-void Frontend::Chart::addApply()
+void Catflow::Chart::addApply()
 {
   apply("add");
 }
 
-void Frontend::Chart::changeApply()
+void Catflow::Chart::changeApply()
 {
   apply("change");
 }
 
-Frontend::Chart &Frontend::getChart(string name)
+Catflow::Chart &Catflow::getChart(string name)
 {
   return *new Chart(name);
 }
@@ -150,13 +150,13 @@ Frontend::Chart &Frontend::getChart(string name)
 
 
 // -- start
-void Frontend::start(int portWebsocket, int portHtml)
+void Catflow::start(int portWebsocket, int portHtml)
 {
-  if (Frontend::apiRoot == nullptr)
+  if (Catflow::apiRoot == nullptr)
     l.warn("you have to set apiRoute!");
 
-  Frontend::portHtml = portHtml;
-  Frontend::port = portWebsocket;
+  Catflow::portHtml = portHtml;
+  Catflow::port = portWebsocket;
 
   // start server threads
   thread serverWebsocketThread(serverWebsocketThreadFunction);
@@ -169,7 +169,7 @@ void Frontend::start(int portWebsocket, int portHtml)
 }
 
 
-void Frontend::serverWebsocketThreadFunction()
+void Catflow::serverWebsocketThreadFunction()
 {
   serverWebsocket.addWebSocketHandler("/", make_shared<WebSocketHandler>());
   l.ok("listen for webSocket connection on port " + to_string(port));
@@ -177,7 +177,7 @@ void Frontend::serverWebsocketThreadFunction()
   l.info("stop listening to webSocket on port " + to_string(port) + "  [stopped serverWebsocketThread]");
 }
 
-void Frontend::serverHttpThreadFunction()
+void Catflow::serverHttpThreadFunction()
 {
   l.info("listen for http connection on port " + to_string(portHtml));
   serverHttp.serve("../../frontend-angular/dist", portHtml);
@@ -185,14 +185,14 @@ void Frontend::serverHttpThreadFunction()
 }
 
 /* -- WEBSOCKET -------------------------------------*/
-void Frontend::WebSocketHandler::onConnect(WebSocket *socket)
+void Catflow::WebSocketHandler::onConnect(WebSocket *socket)
 {
   webSockConnections.insert(socket);
   l.info("new connection from '" + socket->getRequestUri() + "'");
 }
 
 
-void Frontend::sendData(Json data)
+void Catflow::sendData(Json data)
 {
   serverWebsocket.execute([=]() {
     for (auto s : webSockConnections)
@@ -202,10 +202,10 @@ void Frontend::sendData(Json data)
 
 
 
-void Frontend::WebSocketHandler::onData(WebSocket *sock, const char *data)
+void Catflow::WebSocketHandler::onData(WebSocket *sock, const char *data)
 {
   //l.debug("got" + string(data));
-  if (Frontend::apiRoot == nullptr) {
+  if (Catflow::apiRoot == nullptr) {
     l.err("can't progress ApiRequest because apiRoute is not set");
     return;
   }
@@ -231,20 +231,20 @@ void Frontend::WebSocketHandler::onData(WebSocket *sock, const char *data)
       if (j.find("respondId") != j.end())
         request.respondId = j["respondId"];
 
-      ApiRespond* response = Frontend::apiRoot->processApi(request);
+      ApiRespond* response = Catflow::apiRoot->processApi(request);
       if (response != nullptr) {
-        Frontend::send(*response);
+        Catflow::send(*response);
         delete response;
       }
     } catch (exception &ex) {
       // error
-      Frontend::send(ApiRespondError("can't progress api request ("+ string(ex.what()) +")", j));
+      Catflow::send(ApiRespondError("can't progress api request ("+ string(ex.what()) +")", j));
       l.err("can't progress api request ("+  string(ex.what()) +"): '"+ j.dump(2) +"'");
     }
   }
 }
 
-void Frontend::WebSocketHandler::onDisconnect(WebSocket *socket)
+void Catflow::WebSocketHandler::onDisconnect(WebSocket *socket)
 {
   webSockConnections.erase(socket);
 
@@ -258,9 +258,9 @@ void Frontend::WebSocketHandler::onDisconnect(WebSocket *socket)
       }
 }
 
-void Frontend::registerClientList(set<Client> &list) {
+void Catflow::registerClientList(set<Client> &list) {
   linkedWebSockConnections.insert(&list);
 }
-void Frontend::unRegisterClientList(set<Client> &list) {
+void Catflow::unRegisterClientList(set<Client> &list) {
   linkedWebSockConnections.erase(&list);
 }

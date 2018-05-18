@@ -9,7 +9,7 @@
 #include <json.hpp>
 #include <ApiRoute.h>
 #include <dataStructures/DataStructure.h>
-#include "Frontend.h"
+#include "Catflow.h"
 
 using namespace std;
 using Json = nlohmann::json;

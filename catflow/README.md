@@ -20,7 +20,9 @@ Create the following api-tree structure to organize a university:
  * the university consists of multiple courses (has a ApiList as subRoute at `courses/` )
  * each course has a id and courseName, multiple students can be part of that course (has a ApiList as subRoute at `students/` )
  * each students has a id, age and name 
- * => to address student 44 in course 3 you would write: `/courses/5/students/1/`
+
+To address student 44 in course 3 you would write: `/courses/5/students/1/`.
+The full example code is [here](example).
 
 ```bash
 /courses -+
@@ -109,7 +111,7 @@ int main()
 {
     RootRoute rootRoute;
     rootRoute.setStorePath("./"); // store all in this dir
-    rootRoute.restore();          // resore object-tree from privios run
+    rootRoute.restore();          // restore object-tree from previous run
     
     Catflow::setRootRoute(rootRoute);
     Catflow::start(
