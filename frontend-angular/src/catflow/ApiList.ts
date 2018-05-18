@@ -3,8 +3,6 @@ import {Injectable} from "@angular/core";
 import {ApiRoute, ApiRouteContainig} from "./Utils";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {ApiConnection} from "./ApiConnection";
-import {reject} from "q";
-import {toastInfo} from "../Log";
 
 /*
  * - list

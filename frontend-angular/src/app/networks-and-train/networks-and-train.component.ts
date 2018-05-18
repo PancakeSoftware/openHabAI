@@ -1,6 +1,5 @@
 import {Component, EventEmitter, OnInit} from '@angular/core';
 import {ActivatedRoute, Params} from "@angular/router";
-import {toastInfo} from "../util/Log";
 
 @Component({
   selector: 'app-networks-and-train',

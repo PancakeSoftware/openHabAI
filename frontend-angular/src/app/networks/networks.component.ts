@@ -2,9 +2,8 @@ import {Component, Input, OnInit} from '@angular/core';
 import {ActivatedRoute, Params} from "@angular/router";
 import {Observable} from "rxjs/Observable";
 import {toastInfo, toastOk} from "../util/Log";
-import {ApiConnection} from "../util/Api/ApiConnection";
-import {Api} from "../util/Api/Api";
-import {ApiList} from "../util/Api/ApiList";
+import {Api} from "@catflow/Api";
+import {ApiList} from "@catflow/ApiList";
 import {FormBuilder, FormGroup} from "@angular/forms";
 
 @Component({

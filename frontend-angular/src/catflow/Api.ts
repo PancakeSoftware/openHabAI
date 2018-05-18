@@ -1,7 +1,4 @@
 import {Injectable} from "@angular/core";
-import { Operator } from 'rxjs/Operator';
-import {Observable} from "rxjs/Observable";
-import {reject} from "q";
 import {ApiList} from "./ApiList";
 import {ApiObject} from "./ApiObject";
 import {ApiRoute} from "./Utils";

@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {ApiConnection, CONNECTION_STATUS} from "@frontend/";
-import {toastInfo} from "../util/Log";
-import {delay} from "q";
+import {ApiConnection, CONNECTION_STATUS} from "@catflow/ApiConnection";
 
 @Component({
   selector: 'app-backend-console',

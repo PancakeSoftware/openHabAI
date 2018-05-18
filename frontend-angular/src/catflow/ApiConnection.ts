@@ -1,10 +1,7 @@
 
 // -- socket ------------------------------------------------------------
-import {toastErr, toast, toastInfo, toastOk, toastWarn} from "../Log";
 import {ReplaySubject} from "rxjs/ReplaySubject";
-import {$} from "protractor";
 import {EventEmitter} from "@angular/core";
-import {Observable} from "rxjs/Observable";
 import {ApiRoute} from "./Utils";
 
 export class ApiConnection {
@@ -26,12 +23,12 @@ export class ApiConnection {
     console.info('will connect to: ' + 'ws://'+host+':'+port);
     this.sock = new WebSocket('ws://'+host+':'+port);
     this.sock.onerror = (error) => {
-      toastErr("can't connect to server");
+      console.error("can't connect to server");
       this.connectionStatus.next(CONNECTION_STATUS.NOT_CONNECTED);
     };
 
     this.sock.onopen = (p1) => {
-      toastOk("connected with server");
+      console.info("connected with server OK");
       this.onReady.emit();
       this.connectionStatus.next(CONNECTION_STATUS.CONNECTED);
 
@@ -52,7 +49,6 @@ export class ApiConnection {
       switch (data.type) {
         case "respond":
           if (data.what == "error") {
-            //toastErr("<p>" + data.data.message + "</p><br> <pre>" + Prism.highlight(JSON.stringify(data.data.request, null, 2), Prism.languages.json) + "</pre>");
             this.onGetError.next({
               route: ((data.data.respondId < 0) ? data.data.request.route : data.data.route),
               message: data.data.message
@@ -72,11 +68,11 @@ export class ApiConnection {
           if (this.actionCallbacks[data.route] != undefined) {
             this.actionCallbacks[data.route](data.what, data.data);
           } else
-            toastWarn("no callback fuction to progress request for route " + data.route);
+            console.warn("no callback function to progress request for route " + data.route);
           break;
 
         default:
-          toastErr("got unknown message type '" + data.type + "'");
+          console.error("got unknown message type '" + data.type + "'");
       }
     }
   }

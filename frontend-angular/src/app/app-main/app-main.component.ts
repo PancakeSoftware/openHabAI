@@ -1,11 +1,10 @@
 import {Component, Inject, NgModule} from '@angular/core';
 import {ActivatedRoute, Router, RouterModule, Routes} from "@angular/router";
-import {DatastructureAndSettingsComponent} from "@frontend/";
-import {ApiConnection} from "../util/Api/ApiConnection";
+import {DatastructureAndSettingsComponent} from "@frontend/datastructure-and-settings/datastructure-and-settings.component";
+import {ApiConnection} from "@catflow/ApiConnection";
 import {NetworksAndTrainComponent} from "../networks-and-train/networks-and-train.component";
 import {toastErr, toastInfo} from "../util/Log";
 import {DOCUMENT} from "@angular/common";
-import {Api} from "../util/Api/Api";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 
 /*

@@ -1,13 +1,11 @@
 import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, ViewChild, ViewChildren} from '@angular/core';
 import {MaterializeAction} from "angular2-materialize";
-import {ApiConnection} from "../util/Api/ApiConnection";
 import {FormBuilder, FormGroup} from "@angular/forms";
-import {toastErr, toastInfo, toastOk} from "../util/Log";
+import {toastErr, toastOk} from "../util/Log";
 import {Observable} from "rxjs/Observable";
-import {el} from "@angular/platform-browser/testing/src/browser_util";
 import {Tabs} from "../util/Helper";
-import {Api} from "../util/Api/Api";
-import {ApiList} from "../util/Api/ApiList";
+import {Api} from "@catflow/Api";
+import {ApiList} from "@catflow/ApiList";
 
 
 @Component({

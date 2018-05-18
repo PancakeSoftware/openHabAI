@@ -3,11 +3,8 @@ import {Injectable} from "@angular/core";
 import {ApiRoute, ApiRouteContainig} from "./Utils";
 import {ApiConnection} from "./ApiConnection";
 import {Subject} from "rxjs/Subject";
-import {observable} from "rxjs/symbol/observable";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Promise} from "q";
-import {Api} from "./Api";
-import {ReplaySubject} from "rxjs/ReplaySubject";
 
 /*
  * - objects

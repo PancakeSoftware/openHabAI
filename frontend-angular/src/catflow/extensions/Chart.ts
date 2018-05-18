@@ -1,14 +1,10 @@
 import {ApiObject} from "../ApiObject";
-import {toastErr, toastInfo} from "../../Log";
 import { Chart, ChartData, Point } from 'chart.js';
 import {Component, EventEmitter, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {Subscription} from "rxjs/Subscription";
 import {Subject} from "rxjs/Subject";
 import "rxjs/add/operator/takeUntil";
 import {componentDestroyed} from "ng2-rx-componentdestroyed";
 import "rxjs/add/operator/delayWhen";
-import {Observable} from "rxjs/Observable";
-import {timer} from "rxjs/observable/timer";
 
 @Component({
   selector: 'chart-range',

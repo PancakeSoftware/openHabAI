@@ -1,11 +1,10 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Api} from "../util/Api/Api";
+import {Api} from "@catflow/Api";
 import {ActivatedRoute} from "@angular/router";
 import {toastInfo, toastOk} from "../util/Log";
 import {FormBuilder, FormGroup} from "@angular/forms";
-import {ApiObject} from "../util/Api/ApiObject";
+import {ApiObject} from "@catflow/ApiObject";
 import { Chart, ChartData, Point } from 'chart.js';
-import {ApiChart} from "../util/Api/extensions/Chart";
 
 
 @Component({
