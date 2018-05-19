@@ -49,4 +49,4 @@ before_script:
 
 script:
   - make
-  - ./build/bin/OpenHabAI-test
+  - ./build/bin/catflow-test

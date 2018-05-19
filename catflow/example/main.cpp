@@ -31,14 +31,12 @@ class Student : public ApiJsonObject
 class UniversityCourse : public ApiRouteJson
 {
   public:
-    JsonList <Student> students;
-    int studentsIdAutoIncrement = 0;
+    JsonList<Student> students;
 
     string courseName;
     int id; // <courseId>
 
-    UniversityCourse() :
-        students(studentsIdAutoIncrement),
+    UniversityCourse():
         ApiRouteJson({{"students", &students}}) // mount JsonList<Student> at 'students/'
     {
     }
@@ -59,18 +57,15 @@ class UniversityCourse : public ApiRouteJson
 class RootRoute : public ApiRoute
 {
   public:
-    JsonList <UniversityCourse> courses;
+    JsonList<UniversityCourse> courses;
 
-    int coursesIdAutoIncrement = 0;
-
-    RootRoute() :
-        courses(coursesIdAutoIncrement),
+    RootRoute():
         ApiRoute({  // set sub routes
                      {"courses", &courses} // mount JsonList<UniversityCourse> at 'courses/'
                  })
     {
     }
-
+};
 
 
 
@@ -92,4 +87,7 @@ int main()
 
   // start blocking taskManager, use for chart updates
   TaskManager::start();
+
+  // on exit
+  return EXIT_SUCCESS;
 }

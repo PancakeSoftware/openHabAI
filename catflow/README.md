@@ -66,13 +66,11 @@ class UniversityCourse : public ApiRouteJson
 {
   public:
     JsonList<Student> students;
-    int studentsIdAutoIncrement = 0;
 
     string courseName;
     int id; // <courseId>
 
     UniversityCourse():
-      students(studentsIdAutoIncrement),
       ApiRouteJson({{"students", &students}}) // mount JsonList<Student> at 'students/'
     {
     }
@@ -93,11 +91,8 @@ class RootRoute : public ApiRoute
 {
   public:
     JsonList<UniversityCourse> courses;
-
-    int coursesIdAutoIncrement = 0;
-
+    
     RootRoute():
-      courses(coursesIdAutoIncrement),
       ApiRoute({  // set sub routes
                  {"courses", &courses} // mount JsonList<UniversityCourse> at 'courses/'
                }) 
