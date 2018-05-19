@@ -4,6 +4,7 @@
 #include <ApiJsonObject.h>
 #include <ApiRoute.h>
 #include <util/TaskManager.h>
+#include <Chart.h>
 
 /*
  * students in course
@@ -32,13 +33,34 @@ class UniversityCourse : public ApiRouteJson
 {
   public:
     JsonList<Student> students;
+    ParameterChart chart;
 
     string courseName;
     int id; // <courseId>
 
     UniversityCourse():
-        ApiRouteJson({{"students", &students}}) // mount JsonList<Student> at 'students/'
+        chart()
     {
+      setSubRoutes({{"students", &students},// mount JsonList<Student> at 'students/'
+                    {"chart", &chart}       // mount chart at 'chart/'
+                   });
+
+      // set chart inputs[id, name]/outputs[id, name]
+      chart.setInputOutputNames({make_pair(0, "day in semester")},
+                                {make_pair(0, "students visiting lecture")}
+      );
+      // function to generate output by input
+      chart.setUpdateFunction([](const map<int, float> &inputValues, const vector<int> &outputIds) {
+        map<int, float> studentsInLecture;
+
+        if (inputValues.find(0) == inputValues.end())
+          return studentsInLecture;
+
+        float dayInSemester = inputValues.at(0); // get input with id 0
+        studentsInLecture.emplace(0,
+                                  1/(pow(dayInSemester, 2)+0.05) + pow(dayInSemester, 2)); // set output with id 0 to f(x)
+        return studentsInLecture;
+      });
     }
 
     void params() override
