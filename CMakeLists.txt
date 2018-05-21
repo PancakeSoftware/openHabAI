@@ -87,6 +87,7 @@ link_directories(
         ${OUTPUT_LIB}
         ${DEPENDENCIES_TENSORFLOW_DIR}
         ${DEPENDENCIES_MXNET_DIR}
+        ${DEPENDENCIES_UWEBSOCKETS_DIR}
 )
 
 
@@ -97,13 +98,14 @@ set(DEFAULT_INCLUDE_DIRECTORIES
         ${DEPENDENCIES_MXNET_INCLUDE}
         ${OUTPUT_INCLUDE}
         ${DEPENDENCIES_EXPRTK_INCLUDE}
-
+        ${DEPENDENCIES_UWEBSOCKETS_INCLUDE}
         )
 
 set(DEFAULT_LIBRARIES
         ${DEPENDENCIES_TENSORFLOW_LIB}
         ${DEPENDENCIES_SEASOCKS_LIB}
         ${DEPENDENCIES_MXNET_LIB}
+        ${DEPENDENCIES_UWEBSOCKETS_LIB}
         pthread
         Boost::filesystem
         Boost::system
@@ -111,6 +113,7 @@ set(DEFAULT_LIBRARIES
 
 set(DEFAULT_DEPENDENCIES
         mxnet_external
+        uWebSockets
         seasocks_external
         )
 

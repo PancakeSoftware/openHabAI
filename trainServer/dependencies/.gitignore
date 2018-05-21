@@ -1,6 +1,7 @@
 exprtk
 mxnet
 seasocks
+uWebSockets
 !.gitignore
 !json/json.hpp
 !CMakeLists.txt

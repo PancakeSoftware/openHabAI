@@ -1,7 +1,7 @@
 
 # files
 file(GLOB SRC_FILES
-        *.cpp
+        main.cpp
         ${CATFLOW_SRC})
 
 # extrutable / Lib
@@ -25,3 +25,8 @@ target_include_directories(catflow-example
 # Libraries
 target_link_libraries(catflow-example
         ${DEFAULT_LIBRARIES})
+
+#add_dependencies(
+#        catflow-example
+#
+#)

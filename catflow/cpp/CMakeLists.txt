@@ -58,3 +58,7 @@ if (OPTION_TESTS)
             GTest::main
             )
 endif ()
+
+
+## include
+add_subdirectory(test/uWebsocketsExample)

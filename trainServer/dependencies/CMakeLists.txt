@@ -70,3 +70,24 @@ set(DEPENDENCIES_EXPRTK_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/exprtk PARENT_SCOPE)
 #        PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/exprtk"
 #        BUILD_IN_SOURCE 1
 #        )
+
+
+# -- websocket: uWebSockets -----------------------------------------------
+if (OPTION_BUILD_DEPS)
+    ExternalProject_Add(uWebSockets_external
+            GIT_REPOSITORY https://github.com/uNetworking/uWebSockets.git
+            GIT_TAG v0.14.8
+            PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/uWebSockets"
+
+            BUILD_IN_SOURCE 1
+            CONFIGURE_COMMAND ""
+            BUILD_COMMAND ${MAKE}
+            INSTALL_COMMAND ""
+            )
+else()
+    # empty dummy target
+    add_custom_target(uWebSockets_external)
+endif ()
+set(DEPENDENCIES_UWEBSOCKETS_LIB uWS pthread ssl crypto z uv PARENT_SCOPE)
+set(DEPENDENCIES_UWEBSOCKETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/uWebSockets/src/uWebSockets PARENT_SCOPE)
+set(DEPENDENCIES_UWEBSOCKETS_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/uWebSockets/src/uWebSockets/src PARENT_SCOPE)
