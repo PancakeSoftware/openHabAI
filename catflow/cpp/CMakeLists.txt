@@ -7,6 +7,7 @@ set(CATFLOW_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/util/*.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/util/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/server/*.h
         PARENT_SCOPE)
 file(GLOB CATFLOW_SRC_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h
@@ -14,8 +15,10 @@ file(GLOB CATFLOW_SRC_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/util/*.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/util/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/server/*.h
         )
-set(CATFLOW_INCLUDE   ${CMAKE_CURRENT_SOURCE_DIR}/include   PARENT_SCOPE)
+set(CATFLOW_INCLUDE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include   PARENT_SCOPE)
 
 
 # ########################################
@@ -48,15 +51,23 @@ if (OPTION_TESTS)
 
             PUBLIC
             ${DEFAULT_INCLUDE_DIRECTORIES}
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
             )
 
     #
     # Libraries
     #
     target_link_libraries(catflow-test
-            ${DEFAULT_LIBRARIES}
+            ${DEPENDENCIES_SEASOCKS_LIB}
+            pthread
+            Boost::filesystem
+            Boost::system
             GTest::main
             )
+
+    if (${OPTION_BUILD_DEPS})
+        add_dependencies(catflow-test ${DEFAULT_DEPENDENCIES})
+    endif ()
 endif ()
 
 

@@ -7,6 +7,7 @@
 #include <gtest/gtest.h>
 #include "TestHelper.hpp"
 #include <ApiJsonObject.h>
+#include <server/ApiServer.h>
 
 
 class  MyObject : public ApiJsonObject
@@ -212,7 +213,9 @@ TEST(JsonObjectTest, notifyParamsChanged)
 
     MyObject obj;
     obj.setStorePath("../test/jsonObjectTest");
-    obj.processApi(ApiRequest("", "subscribe"));
+    ApiRequest sub("", "subscribe");
+    sub.client = new VoidClient();
+    obj.processApi(sub);
 
     obj.s = "test";
     obj.i = 12345;

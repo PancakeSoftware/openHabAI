@@ -5,6 +5,7 @@
 #include <ApiRoute.h>
 #include <util/TaskManager.h>
 #include <Chart.h>
+#include <server/ApiSeasocksServer.h>
 
 /*
  * students in course
@@ -102,9 +103,8 @@ int main()
   rootRoute.restore();                 // restore object-tree from previous run
 
   Catflow::setApiRootRoute(rootRoute);
-  Catflow::start(
-      5555, // webSocket port
-      8050  // http port, serve web app
+  Catflow::start<ApiSeasocksServer>(
+      5555 // webSocket port
   );
 
   // start blocking taskManager, use for chart updates

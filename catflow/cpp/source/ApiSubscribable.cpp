@@ -4,6 +4,7 @@
  */
 
 #include "ApiSubscribable.h"
+#include <server/ApiServer.h>
 
 Log ApiSubscribable::l("ApiSubscribable");
 
@@ -15,14 +16,19 @@ ApiSubscribable::ApiSubscribable() {
 ApiRespond *ApiSubscribable::processApi(ApiRequest request) {
     ApiRespond *processible =  ApiProcessible::processApi(request);
 
+    if (request.client == nullptr) {
+      l.err("can't add subscriber without knowing client");
+      return processible;
+    }
+
     // subscribe
     if (request.what == "subscribe") {
         subscribers.insert(request.client);
-        l.info("("+routeString+") new subscriber " + request.client.toString() + " (subscribers: "+to_string(subscribers.size())+")");
+        l.info("("+routeString+") new subscriber " + request.client->toString() + " (subscribers: "+to_string(subscribers.size())+")");
     }
     if (request.what == "unsubscribe") {
       subscribers.erase(request.client);
-      l.info("("+routeString+") remove subscriber " + request.client.toString() + " (subscribers: "+to_string(subscribers.size())+")");
+      l.info("("+routeString+") remove subscriber " + request.client->toString() + " (subscribers: "+to_string(subscribers.size())+")");
     }
 
     return processible;
@@ -30,14 +36,14 @@ ApiRespond *ApiSubscribable::processApi(ApiRequest request) {
 
 void ApiSubscribable::sendToSubscribers(ApiRequest request) {
     for (auto sub : subscribers) {
-        Catflow::send(request, sub);
+        Catflow::send(request, *sub);
     }
 }
 
-void ApiSubscribable::sendToSubscribers(ApiRequest request, Client skipSendUpdateTo)
+void ApiSubscribable::sendToSubscribers(ApiRequest request, Client &skipSendUpdateTo)
 {
     for (auto sub : subscribers) {
-        if (sub.websocket != skipSendUpdateTo.websocket)
-            Catflow::send(request, sub);
+        if (sub != &skipSendUpdateTo)
+            Catflow::send(request, *sub);
     }
 }

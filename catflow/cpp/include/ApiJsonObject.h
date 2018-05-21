@@ -255,7 +255,7 @@ class ApiJsonObject : protected virtual Log, public virtual ApiSubscribable, pub
      * @see JsonObject::params()
      * @return vector of changed param names
      */
-    vector<string> fromJson(Json params, Client skipSendUpdateTo);
+    vector<string> fromJson(Json params, Client &skipSendUpdateTo);
 
 
     /**

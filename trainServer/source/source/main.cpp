@@ -7,6 +7,7 @@
 #include "Catflow.h"
 #include <ApiRoot.h>
 #include <util/TaskManager.h>
+#include <server/ApiSeasocksServer.h>
 
 using namespace std;
 
@@ -41,9 +42,8 @@ int main(int argc, char *argv[])
   apiRoot.setStorePath("./");
   apiRoot.restore();
   Catflow::setApiRootRoute(apiRoot);
-  Catflow::start(
-      5555, // webSocket port
-      8050  // http port
+  Catflow::start<ApiSeasocksServer>(
+      5555 // webSocket port
   );
 
   // start blocking taskManager

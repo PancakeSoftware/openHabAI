@@ -13,6 +13,7 @@
 #include <ApiMessage.h>
 #include <queue>
 #include "ApiProcessible.h"
+#include <server/ApiServer.h>
 
 using namespace std;
 using namespace seasocks;
@@ -23,10 +24,21 @@ class Catflow
   public:
     /**
      * start catflow
-     * @param portWebsocket listen for incoming api connections at this port
-     * @param portHttp host web-App at this port
+     * @param port listen for incoming api connections at this port
      */
-    static void start(int portWebsocket, int portHttp);
+    template <class SERVER>
+    static void start(int port) {
+      if (Catflow::apiRoot == nullptr)
+        l.warn("you have to set apiRoute!");
+
+      Catflow::port = port;
+
+      // create server
+      server = new SERVER();
+
+      // connect
+      server->start();
+    }
 
     /**
      * set api root object
@@ -40,14 +52,25 @@ class Catflow
     static void sendData(Json data);
     static void send(ApiRespond message);
     static void send(ApiRequest message);
-    static void send(ApiRespond message, Client destination);
-    static void send(ApiRequest message, Client destination);
+    static void send(ApiRespond message, Client &destination);
+    static void send(ApiRequest message, Client &destination);
+
+    static void onClientConnect(Client &client);
+    static void onClientDisconnect(Client &client);
+    static void onData(Client &sender, string data);
 
     /**
      * @param list always is subset of connected websockets
      */
-    static void registerClientList(set<Client> &list);
-    static void unRegisterClientList(set<Client> &list);
+    static void registerClientList(set<Client*> &list);
+    static void unRegisterClientList(set<Client*> &list);
+
+
+
+
+
+
+
 
     /**
      * @deprecated use Chart from Chart.h
@@ -74,70 +97,61 @@ class Catflow
     /* track packages to send, for testing
      * pair<destination for message, message>
      */
-    static list<pair<Client, ApiRequest>> requestsToSend;
-    static list<pair<Client, ApiRespond>> responsesToSend;
+    static list<pair<Client*, ApiRequest>> requestsToSend;
+    static list<pair<Client*, ApiRespond>> responsesToSend;
+    static int port;
 
 
   private:
     static ApiProcessible* apiRoot;
+    static ApiServer* server;
 
     static Log l;
-    struct WebSocketHandler : WebSocket::Handler
-    {
-        void onConnect(WebSocket *socket) override;
-        void onData(WebSocket *, const char *data) override;
-        void onDisconnect(WebSocket *socket) override;
-    };
 
-    static Server serverWebsocket;
-    static Server serverHttp;
-
-    static set<WebSocket *> webSockConnections;
-    static set<set<Client>*> linkedWebSockConnections;
-
-    static void serverWebsocketThreadFunction();
-    static void serverHttpThreadFunction();
-    static int port;
-    static int portHtml;
-
-
+    static set<Client *> webSockConnections;
+    static set<set<Client*>*> linkedWebSockConnections;
 };
 
-/**
- * own logger for seaSocks
- */
-class SeasocksLogger : public seasocks::Logger {
-  public:
-    SeasocksLogger(string name, Level _minLevelToLog = Level::DEBUG)
-        : Logger(),
-          minLevelToLog(_minLevelToLog)
-    {
-      l.setLogName(name);
+
+
+
+
+struct PacketIdentifier {
+    virtual void sendDone() {};
+};
+template <typename T>
+struct PacketIdentifierT: public PacketIdentifier {
+    T packId;
+
+    PacketIdentifierT(T packId) {
+      this->packId = packId;
     }
-
-    ~SeasocksLogger() = default;
-
-    virtual void log(Level level, const char* message) {
-      if (level >= minLevelToLog)
-      {
-        if (level == Level::DEBUG)
-          l.debug(message);
-        if (level == Level::INFO)
-          l.info(message);
-        if (level == Level::ACCESS)
-          l.info("ACCESS: " + string(message));
-        if (level == Level::WARNING)
-          l.warn(message);
-        if (level == Level::ERROR)
-          l.err(message);
-        if (level == Level::SEVERE)
-          l.info("SEVERE: " + string(message));
-      }
-    }
-
-    Level minLevelToLog;
-    Log l;
+    virtual void sendDone() {}
 };
 
+template <>
+struct PacketIdentifierT<list<pair<Client*, ApiRespond>>::const_iterator>: public PacketIdentifier
+{
+    list<pair<Client*, ApiRespond>>::const_iterator packId;
+    PacketIdentifierT(list<pair<Client*, ApiRespond>>::const_iterator packId) {
+      this->packId = packId;
+    }
+
+    void sendDone() {
+      Catflow::responsesToSend.erase(packId);
+    }
+};
+
+template <>
+struct PacketIdentifierT<list<pair<Client*, ApiRequest>>::const_iterator>: public PacketIdentifier  {
+    list<pair<Client*, ApiRequest>>::const_iterator packId;
+    PacketIdentifierT(list<pair<Client*, ApiRequest>>::const_iterator packId) {
+      this->packId = packId;
+    }
+
+    void sendDone() {
+      Catflow::requestsToSend.erase(packId);
+    }
+};
 
 #endif //CATFLOW_H

@@ -4,7 +4,7 @@
  *
  */
 #include "ApiJsonObject.h"
-#include "Chart.h"
+#include <server/ApiServer.h>
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
@@ -39,7 +39,7 @@ vector<string> ApiJsonObject::fromJson(Json params)
   return changedParams;
 }
 
-vector<string> ApiJsonObject::fromJson(Json params, Client skipSendUpdateTo)
+vector<string> ApiJsonObject::fromJson(Json params, Client &skipSendUpdateTo)
 {
   vector<string> changedParams = JsonObject::fromJson(params);
 
@@ -117,7 +117,7 @@ ApiRespond *ApiJsonObject::processApi(ApiRequest request)
   {
     try {
       // update own params by json, fromJson() will send update to subscribers but will skip sender
-      this->fromJson(request.data, request.client);
+      this->fromJson(request.data, *request.client);
     } catch (JsonObjectException &e) {
       return new ApiRespondError(e.what(), request, route.get());
     }

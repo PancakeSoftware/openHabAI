@@ -13,6 +13,7 @@
 using Json = nlohmann::json;
 using namespace std;
 using namespace seasocks;
+class Client;
 
 /**
  * parses route
@@ -96,31 +97,6 @@ class ApiMessageRoute {
     }
 };
 
-/**
- * identifier for client who send a request
- */
-class Client {
-  public:
-    Client() {}
-    Client(WebSocket* webSocket) {
-        this->websocket = webSocket;
-    }
-    WebSocket* websocket = nullptr;
-    WebSocket* getWebsocket() const {
-        return websocket;
-    }
-
-    string toString() {
-        if (websocket != nullptr)
-            return string(inet_ntoa(websocket->getRemoteAddress().sin_addr)) + ":" + to_string(websocket->getRemoteAddress().sin_port);
-        else
-            return "??";
-    }
-
-    bool operator<(const Client &other) const {
-        return websocket < other.websocket;
-    }
-};
 
 class ApiMessage
 {
@@ -140,7 +116,7 @@ class ApiRequest: public ApiMessage
     string what;
     Json data;
     int  respondId = -1;
-    Client client;
+    Client *client = nullptr;
 
     ApiRequest(){}
     ApiRequest(ApiMessageRoute route, string what)

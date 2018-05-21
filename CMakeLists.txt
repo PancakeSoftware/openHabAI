@@ -89,7 +89,7 @@ link_directories(
         ${DEPENDENCIES_MXNET_DIR}
         ${DEPENDENCIES_UWEBSOCKETS_DIR}
 )
-
+message(STATUS ${DEPENDENCIES_UWEBSOCKETS_DIR})
 
 # default headers, libs
 set(DEFAULT_INCLUDE_DIRECTORIES
@@ -113,7 +113,7 @@ set(DEFAULT_LIBRARIES
 
 set(DEFAULT_DEPENDENCIES
         mxnet_external
-        uWebSockets
+        uWebSockets_external
         seasocks_external
         )
 

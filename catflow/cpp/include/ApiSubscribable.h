@@ -28,11 +28,11 @@ class ApiSubscribable: public virtual ApiProcessible
      * @param request
      * @param skipSendUpdateTo not send update to this client
      */
-    void sendToSubscribers(ApiRequest request, Client skipSendUpdateTo);
+    void sendToSubscribers(ApiRequest request, Client &skipSendUpdateTo);
 
 
   protected:
-    set<Client> subscribers;
+    set<Client*> subscribers;
     static Log l;
 };
 

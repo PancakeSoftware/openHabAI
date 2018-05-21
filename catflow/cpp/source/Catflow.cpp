@@ -4,69 +4,69 @@
 
 #include <arpa/inet.h>
 #include "Catflow.h"
+#include <server/ApiServer.h>
 
 using namespace seasocks;
 
 // static
 ApiProcessible* Catflow::apiRoot = nullptr;
+ApiServer* Catflow::server = nullptr;
 
 Log Catflow::l("FRONTEND");
-set<WebSocket *> Catflow::webSockConnections;
-set<set<Client>*> Catflow::linkedWebSockConnections;
+set<Client *> Catflow::webSockConnections;
+set<set<Client*>*> Catflow::linkedWebSockConnections;
 
 int Catflow::port;
-int Catflow::portHtml;
-list<pair<Client, ApiRequest>> Catflow::requestsToSend;
-list<pair<Client, ApiRespond>> Catflow::responsesToSend;
+list<pair<Client*, ApiRequest>> Catflow::requestsToSend;
+list<pair<Client*, ApiRespond>> Catflow::responsesToSend;
 
-
-Server Catflow::serverWebsocket(make_shared<SeasocksLogger>( "ServerWebsocket", Logger::Level::INFO));
-Server Catflow::serverHttp(make_shared<SeasocksLogger>("ServerHttp", Logger::Level::INFO));
 
 /*
  * -- Communication
  */
+void Catflow::sendData(Json data)
+{
+  server->sendBroadcast(data);
+}
 
 void Catflow::send(ApiRequest message)
 {
-  if (message.client.websocket == nullptr)
+  if (message.client == nullptr)
     sendData(message.toJson());
   else
-    send(message, message.client.websocket);
+    send(message, *message.client);
 }
 
 void Catflow::send(ApiRespond message)
 {
-  if (!message.requestValid || message.request.client.websocket == nullptr)
+  if (!message.requestValid || message.request.client == nullptr)
     sendData(message.toJson());
   else
-    send(message, message.request.client.websocket);
+    send(message, *message.request.client);
 }
 
-void Catflow::send(ApiRespond message, Client destination)
+void Catflow::send(ApiRespond message, Client &destination)
 {
   // push to queue and store iterator
-  responsesToSend.push_back(make_pair(destination, message));
+  responsesToSend.push_back(make_pair(&destination, message));
   auto const messageIterator = prev(responsesToSend.end());
-
-  serverWebsocket.execute([=]() mutable {
-    //l.info("send ApiRespond to " + string(inet_ntoa(destination->getRemoteAddress().sin_addr)) + ":" + to_string(destination->getRemoteAddress().sin_port));
-    destination.websocket->send(message.toJson().dump());
-    responsesToSend.erase(messageIterator);
-  });
+  auto packId = PacketIdentifierT<list<pair<Client*, ApiRespond>>::const_iterator>(messageIterator);
+  if (server != nullptr)
+    server->send(message.toJson(), destination, packId);
+  else
+    l.err("cant't send ApiRespond because sever is not NULL, please call Catflow::start() first!");
 }
 
-void Catflow::send(ApiRequest message, Client destination)
+void Catflow::send(ApiRequest message, Client &destination)
 {
     // push to queue and store iterator
-  requestsToSend.push_back(make_pair(destination, message));
+  requestsToSend.push_back(make_pair(&destination, message));
   auto const messageIterator = prev(requestsToSend.end());
-
-  serverWebsocket.execute([=]() mutable {
-    //l.info("send ApiRequest to " + string(inet_ntoa(destination->getRemoteAddress().sin_addr)) + ":" + to_string(destination->getRemoteAddress().sin_port));
-    destination.websocket->send(message.toJson().dump());
-    requestsToSend.erase(messageIterator);
-  });
+  auto packId = PacketIdentifierT<list<pair<Client*, ApiRequest>>::const_iterator>(messageIterator);
+  if (server != nullptr)
+    server->send(message.toJson(), destination, packId);
+  else
+    l.err("cant't send ApiRespond because sever is not NULL, please call Catflow::start() first!");
 }
 
 /* --------------------------------------------------------------------------
@@ -148,61 +148,14 @@ Catflow::Chart &Catflow::getChart(string name)
 
 
 
-
-// -- start
-void Catflow::start(int portWebsocket, int portHtml)
-{
-  if (Catflow::apiRoot == nullptr)
-    l.warn("you have to set apiRoute!");
-
-  Catflow::portHtml = portHtml;
-  Catflow::port = portWebsocket;
-
-  // start server threads
-  thread serverWebsocketThread(serverWebsocketThreadFunction);
-  serverWebsocketThread.detach();
-  l.ok("created serverWebsocket thread");
-
-  thread serverHttpThread(serverHttpThreadFunction);
-  serverHttpThread.detach();
-  l.ok("created serverHttp thread");
-}
-
-
-void Catflow::serverWebsocketThreadFunction()
-{
-  serverWebsocket.addWebSocketHandler("/", make_shared<WebSocketHandler>());
-  l.ok("listen for webSocket connection on port " + to_string(port));
-  serverWebsocket.serve("", port);
-  l.info("stop listening to webSocket on port " + to_string(port) + "  [stopped serverWebsocketThread]");
-}
-
-void Catflow::serverHttpThreadFunction()
-{
-  l.info("listen for http connection on port " + to_string(portHtml));
-  serverHttp.serve("../../frontend-angular/dist", portHtml);
-  l.info("stop listening to http on port " + to_string(portHtml) + "  [stopped serverHttpThread]");
-}
-
-/* -- WEBSOCKET -------------------------------------*/
-void Catflow::WebSocketHandler::onConnect(WebSocket *socket)
-{
-  webSockConnections.insert(socket);
-  l.info("new connection from '" + socket->getRequestUri() + "'");
-}
-
-
-void Catflow::sendData(Json data)
-{
-  serverWebsocket.execute([=]() {
-    for (auto s : webSockConnections)
-      s->send(data.dump());
-  });
-}
+/* -- SOCKET COMMUNICATION -------------------------------------*/
 
 
 
-void Catflow::WebSocketHandler::onData(WebSocket *sock, const char *data)
+
+
+
+void Catflow::onData(Client &sender, string data)
 {
   //l.debug("got" + string(data));
   if (Catflow::apiRoot == nullptr) {
@@ -225,7 +178,7 @@ void Catflow::WebSocketHandler::onData(WebSocket *sock, const char *data)
     try
     {
       ApiRequest request(ApiMessageRoute(j["route"].get<string>()), j["what"]);
-      request.client.websocket = sock;
+      request.client = &sender;
       if (j.find("data") != j.end())
         request.data = j["data"];
       if (j.find("respondId") != j.end())
@@ -244,23 +197,31 @@ void Catflow::WebSocketHandler::onData(WebSocket *sock, const char *data)
   }
 }
 
-void Catflow::WebSocketHandler::onDisconnect(WebSocket *socket)
+
+// -- mange clients
+void Catflow::onClientConnect(Client &client)
 {
-  webSockConnections.erase(socket);
+  webSockConnections.insert(&client);
+  l.info("new connection from '" + client.toString() + "'");
+}
+void Catflow::onClientDisconnect(Client &client)
+{
+  webSockConnections.erase(&client);
+  l.info("connection gone '" + client.toString() + "'");
 
   // remove socket form each linkedWebSockConnections set
   for (auto el: linkedWebSockConnections)
-      for(auto removeCandidate = el->begin(); removeCandidate != el->end();) {
-          if (removeCandidate->websocket == socket)
-              removeCandidate = el->erase(removeCandidate);
-          else
-              removeCandidate++;
-      }
+    for(auto removeCandidate = el->begin(); removeCandidate != el->end();) {
+      if (*removeCandidate == &client)
+        removeCandidate = el->erase(removeCandidate);
+      else
+        removeCandidate++;
+    }
 }
 
-void Catflow::registerClientList(set<Client> &list) {
+void Catflow::registerClientList(set<Client*> &list) {
   linkedWebSockConnections.insert(&list);
 }
-void Catflow::unRegisterClientList(set<Client> &list) {
+void Catflow::unRegisterClientList(set<Client*> &list) {
   linkedWebSockConnections.erase(&list);
 }
