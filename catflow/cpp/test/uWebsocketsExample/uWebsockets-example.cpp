@@ -1,6 +1,8 @@
 #include <uWS.h>
 #include <iostream>
 #include <fstream>
+#include <thread>
+
 using namespace std;
 
 /*
@@ -14,7 +16,7 @@ int main()
   string indexHtml;
   try
   {
-    ifstream infile{"index.html"};
+    ifstream infile{"../../catflow/cpp/test/uWebsocketsExample/index.html"};
     string str{istreambuf_iterator<char>(infile), istreambuf_iterator<char>()};
     indexHtml = str;
   } catch (exception &e) {
@@ -23,6 +25,7 @@ int main()
 
 
   uWS::Hub h;
+  uWS::WebSocket<uWS::SERVER> *client1 = nullptr;
 
   h.onMessage([](uWS::WebSocket<uWS::SERVER> *ws, char *message, size_t length, uWS::OpCode opCode) {
     // on webSocket receive
@@ -30,12 +33,13 @@ int main()
     ws->send(message, length, opCode);
   });
 
-  h.onConnection([](uWS::WebSocket<uWS::SERVER> *ws, uWS::HttpRequest request){
+  h.onConnection([&client1](uWS::WebSocket<uWS::SERVER> *ws, uWS::HttpRequest request){
     // on webSocket new connection
     cout << "new webSocket-connection  IP-addr: " << ws->getAddress().address << "     Port: " << ws->getAddress().port << "    url:" << request.getUrl().toString() << endl;
     // send hello
     string msg = "hello from c++";
-    ws->send(msg.data(), msg.size(), uWS::TEXT /* send type: Text */);
+    //ws->send(msg.data(), msg.size(), uWS::TEXT /* send type: Text */);
+    client1 = ws;
   });
 
   h.onDisconnection([](uWS::WebSocket<uWS::SERVER> *ws, int code, char *message, size_t length){
@@ -58,10 +62,28 @@ int main()
   });
 
 
-  if (h.listen(3000)) {
-    // run is blocking
-    h.run();
+  thread serverThread([&h](){
+    if (h.listen(3000)) {
+      // run is blocking
+      h.run();
+    }
+  });
+
+  cout << "will start loop" << endl;
+
+  int i=0;
+  while (true) {
+    sleep(1);
+    if (client1 != nullptr) {
+      string msg = "hello: " + to_string(i);
+      //cout << "send to " << client1->getAddress().address << endl;
+      client1->send(msg.data(), msg.size(), uWS::TEXT);
+    }
+
+    i++;
   }
+
+  serverThread.join();
 
   // on exit
   return EXIT_SUCCESS;

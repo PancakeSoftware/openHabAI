@@ -72,8 +72,15 @@ set(DEPENDENCIES_EXPRTK_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/exprtk PARENT_SCOPE)
 #        )
 
 
+
+
 # -- websocket: uWebSockets -----------------------------------------------
 if (OPTION_BUILD_DEPS)
+    IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        set(LIB_SUFIX dylib)
+    elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+        set(LIB_SUFIX so)
+    endif()
     ExternalProject_Add(uWebSockets_external
             GIT_REPOSITORY https://github.com/uNetworking/uWebSockets.git
             GIT_TAG v0.14.8
@@ -82,12 +89,23 @@ if (OPTION_BUILD_DEPS)
             BUILD_IN_SOURCE 1
             CONFIGURE_COMMAND ""
             BUILD_COMMAND ${MAKE}
-            INSTALL_COMMAND ""
+            INSTALL_COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/uWebSockets/src/uWebSockets_external/libuWS.${LIB_SUFIX} ${OUTPUT_BIN}
             )
 else()
     # empty dummy target
     add_custom_target(uWebSockets_external)
 endif ()
-set(DEPENDENCIES_UWEBSOCKETS_LIB uWS pthread ssl crypto z uv PARENT_SCOPE)
-set(DEPENDENCIES_UWEBSOCKETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/uWebSockets/src/uWebSockets_external PARENT_SCOPE)
-set(DEPENDENCIES_UWEBSOCKETS_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/uWebSockets/src/uWebSockets_external/src PARENT_SCOPE)
+
+set(DEPENDENCIES_UWEBSOCKETS_LIB
+        uWS pthread ssl crypto z uv
+        PARENT_SCOPE)
+set(DEPENDENCIES_UWEBSOCKETS_DIR
+        ${CMAKE_CURRENT_SOURCE_DIR}/uWebSockets/src/uWebSockets_external
+        /usr/local/opt/openssl/lib
+        /usr/local/opt/libuv/lib
+        PARENT_SCOPE)
+set(DEPENDENCIES_UWEBSOCKETS_INCLUDE
+        ${CMAKE_CURRENT_SOURCE_DIR}/uWebSockets/src/uWebSockets_external/src
+        /usr/local/opt/openssl/include
+        /usr/local/opt/libuv/include
+        PARENT_SCOPE)

@@ -33,7 +33,7 @@ export class AppMainComponent {
     });
 
     // this.document.location.hostname
-    ApiConnection.connect("192.168.2.102", 5555);
+    ApiConnection.connect(this.document.location.hostname, 5555);
   }
 
   onRouteChange($event) {

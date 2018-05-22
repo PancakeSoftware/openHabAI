@@ -32,8 +32,9 @@ project(${META_PROJECT_NAME})
 
 # ------------------------------------
 # -- Project options
-option(OPTION_TESTS "do tests." ON)
-option(OPTION_BUILD_DEPS  "Build dependencies." ON)
+option(OPTION_TESTS         "do tests." ON)
+option(OPTION_BUILD_DEPS    "Build dependencies." ON)
+option(OPTION_USE_SEASOCKS  "use seasocks lib for websocket comunication" ON)
 
 
 # -----------------------------
@@ -88,11 +89,8 @@ link_directories(
         ${DEPENDENCIES_TENSORFLOW_DIR}
         ${DEPENDENCIES_MXNET_DIR}
         ${DEPENDENCIES_UWEBSOCKETS_DIR}
-        /usr/local/opt/openssl/lib
-        /usr/local/opt/libuv/lib
-
 )
-message(STATUS ${DEPENDENCIES_UWEBSOCKETS_DIR})
+
 
 # default headers, libs
 set(DEFAULT_INCLUDE_DIRECTORIES
@@ -102,8 +100,6 @@ set(DEFAULT_INCLUDE_DIRECTORIES
         ${OUTPUT_INCLUDE}
         ${DEPENDENCIES_EXPRTK_INCLUDE}
         ${DEPENDENCIES_UWEBSOCKETS_INCLUDE}
-        /usr/local/opt/openssl/include
-        /usr/local/opt/libuv/include
         )
 
 set(DEFAULT_LIBRARIES
@@ -119,7 +115,7 @@ set(DEFAULT_LIBRARIES
 set(DEFAULT_DEPENDENCIES
         mxnet_external
         uWebSockets_external
-        seasocks_external
+        ${DEPENDENCIES_SEASOCKS_LIB_EXTERNAL}
         )
 
 
