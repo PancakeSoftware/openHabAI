@@ -8,11 +8,9 @@
 
 #include <json.hpp>
 #include <string>
-#include <seasocks/WebSocket.h>
 #include <arpa/inet.h>
 using Json = nlohmann::json;
 using namespace std;
-using namespace seasocks;
 class Client;
 
 /**
@@ -253,9 +251,5 @@ class ApiRespondOk : public ApiRespond
       this->what = "ok";
     }
 };
-
-inline string to_string(WebSocket *socket) {
-  return string(inet_ntoa(socket->getRemoteAddress().sin_addr)) + ":" + to_string(socket->getRemoteAddress().sin_port);
-}
 
 #endif //OPENHABAI_APIMESSAGE_H

@@ -6,17 +6,15 @@
 #define CATFLOW_H
 
 #include <thread>
-#include <seasocks/Server.h>
-#include <seasocks/PrintfLogger.h>
 #include <json.hpp>
 #include <util/Log.h>
 #include <ApiMessage.h>
 #include <queue>
 #include "ApiProcessible.h"
 #include <server/ApiServer.h>
+#include <set>
 
 using namespace std;
-using namespace seasocks;
 using Json = nlohmann::json;
 
 class Catflow

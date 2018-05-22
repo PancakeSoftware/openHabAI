@@ -6,7 +6,6 @@
 #include "Catflow.h"
 #include <server/ApiServer.h>
 
-using namespace seasocks;
 
 // static
 ApiProcessible* Catflow::apiRoot = nullptr;
