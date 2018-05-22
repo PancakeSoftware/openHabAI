@@ -88,6 +88,9 @@ link_directories(
         ${DEPENDENCIES_TENSORFLOW_DIR}
         ${DEPENDENCIES_MXNET_DIR}
         ${DEPENDENCIES_UWEBSOCKETS_DIR}
+        /usr/local/opt/openssl/lib
+        /usr/local/opt/libuv/lib
+
 )
 message(STATUS ${DEPENDENCIES_UWEBSOCKETS_DIR})
 
@@ -99,6 +102,8 @@ set(DEFAULT_INCLUDE_DIRECTORIES
         ${OUTPUT_INCLUDE}
         ${DEPENDENCIES_EXPRTK_INCLUDE}
         ${DEPENDENCIES_UWEBSOCKETS_INCLUDE}
+        /usr/local/opt/openssl/include
+        /usr/local/opt/libuv/include
         )
 
 set(DEFAULT_LIBRARIES

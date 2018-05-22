@@ -17,6 +17,7 @@ target_include_directories(uWebsockets-example
 
 # Libraries
 target_link_libraries(uWebsockets-example
+
         ${DEPENDENCIES_UWEBSOCKETS_LIB})
 
 add_dependencies(uWebsockets-example

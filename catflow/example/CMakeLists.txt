@@ -9,6 +9,11 @@ add_executable(
         catflow-example
         ${SRC_FILES})
 
+# c++11
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+
 # Include directories
 target_include_directories(catflow-example
         #PRIVATE

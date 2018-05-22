@@ -31,7 +31,9 @@ export class AppMainComponent {
     ApiConnection.onGetError.subscribe(msg => {
       toastErr("<div><h6 class='toastRoute'>from:  " + msg.route+"</h6><p> "+ msg.message+ "</p></div>");
     });
-    ApiConnection.connect(this.document.location.hostname, 5555);
+
+    // this.document.location.hostname
+    ApiConnection.connect("192.168.2.102", 5555);
   }
 
   onRouteChange($event) {

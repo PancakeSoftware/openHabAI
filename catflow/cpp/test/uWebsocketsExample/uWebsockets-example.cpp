@@ -14,7 +14,7 @@ int main()
   string indexHtml;
   try
   {
-    ifstream infile{"../../catflow/cpp/test/uWebsocketsExample/index.html"};
+    ifstream infile{"index.html"};
     string str{istreambuf_iterator<char>(infile), istreambuf_iterator<char>()};
     indexHtml = str;
   } catch (exception &e) {
