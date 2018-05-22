@@ -6,6 +6,7 @@
 #include <util/TaskManager.h>
 #include <Chart.h>
 #include <server/ApiSeasocksServer.h>
+#include <server/ApiuWebsocketsServer.h>
 
 /*
  * students in course
@@ -103,7 +104,7 @@ int main()
   rootRoute.restore();                 // restore object-tree from previous run
 
   Catflow::setApiRootRoute(rootRoute);
-  Catflow::start<ApiSeasocksServer>(
+  Catflow::start<ApiuWebsocketsServer>(
       5555 // webSocket port
   );
 

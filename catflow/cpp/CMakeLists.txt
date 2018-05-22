@@ -59,14 +59,21 @@ if (OPTION_TESTS)
     #
     target_link_libraries(catflow-test
             ${DEPENDENCIES_SEASOCKS_LIB}
+            ${DEPENDENCIES_UWEBSOCKETS_LIB}
             pthread
             Boost::filesystem
             Boost::system
             GTest::main
             )
 
+    target_compile_definitions(catflow-test
+            PUBLIC
+            ${DEFAUT_DEFINITIONS})
+
     if (${OPTION_BUILD_DEPS})
-        add_dependencies(catflow-test ${DEFAULT_DEPENDENCIES})
+        add_dependencies(catflow-test
+                uWebSockets_external
+                ${DEPENDENCIES_SEASOCKS_LIB_EXTERNAL})
     endif ()
 endif ()
 

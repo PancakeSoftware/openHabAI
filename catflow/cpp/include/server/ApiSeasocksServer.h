@@ -6,6 +6,8 @@
 
 #include <Catflow.h>
 #include "ApiServer.h"
+
+#ifdef USE_SEASOCKS
 #include <seasocks/Server.h>
 #include <seasocks/PrintfLogger.h>
 
@@ -95,7 +97,7 @@ class ApiSeasocksServer: public ApiServer
     }
     void startBlocking() override
     {
-        ok("will start serverWebsocket non-blocking");
+        ok("will start serverWebsocket blocking");
         serverWebsocketThreadFunction(this);
     }
     void send(Json packet, Client &destination, PacketIdentifier &packetIdentifier) override
@@ -155,4 +157,5 @@ class ApiSeasocksServer: public ApiServer
     };
 };
 
+#endif
 #endif //OPENHABAI_APISEASOCKSSERVER_H

@@ -8,6 +8,7 @@
 #include <ApiRoot.h>
 #include <util/TaskManager.h>
 #include <server/ApiSeasocksServer.h>
+#include <server/ApiuWebsocketsServer.h>
 
 using namespace std;
 
@@ -42,7 +43,7 @@ int main(int argc, char *argv[])
   apiRoot.setStorePath("./");
   apiRoot.restore();
   Catflow::setApiRootRoute(apiRoot);
-  Catflow::start<ApiSeasocksServer>(
+  Catflow::start<ApiuWebsocketsServer>(
       5555 // webSocket port
   );
 

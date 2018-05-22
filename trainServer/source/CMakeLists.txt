@@ -48,6 +48,11 @@ target_include_directories(${TARGET}
 target_link_libraries(${TARGET}
         ${DEFAULT_LIBRARIES}
         )
+
+target_compile_definitions(catflow-test
+        PUBLIC
+        ${DEFAUT_DEFINITIONS})
+
 if (${OPTION_BUILD_DEPS})
     add_dependencies(${TARGET} ${DEFAULT_DEPENDENCIES})
 endif ()

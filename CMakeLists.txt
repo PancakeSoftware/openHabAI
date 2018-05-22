@@ -34,7 +34,7 @@ project(${META_PROJECT_NAME})
 # -- Project options
 option(OPTION_TESTS         "do tests." ON)
 option(OPTION_BUILD_DEPS    "Build dependencies." ON)
-option(OPTION_USE_SEASOCKS  "use seasocks lib for websocket comunication" ON)
+option(OPTION_USE_SEASOCKS  "use seasocks lib for websocket comunication" OFF)
 
 
 # -----------------------------
@@ -118,6 +118,8 @@ set(DEFAULT_DEPENDENCIES
         ${DEPENDENCIES_SEASOCKS_LIB_EXTERNAL}
         )
 
+set(DEFAUT_DEFINITIONS
+        ${DEPENDENCIES_SEASOCKS_DEFINITIONS})
 
 
 

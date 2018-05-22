@@ -34,20 +34,28 @@ set(DEPENDENCIES_MXNET_INCLUDE
 
 
 # -- SEASOCKS -------------------------------------------------
-if (OPTION_BUILD_DEPS)
-    ExternalProject_Add(seasocks_external
-            GIT_REPOSITORY https://github.com/mattgodbolt/seasocks.git
-            PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/seasocks"
-            #BUILD_IN_SOURCE 1
+if (OPTION_USE_SEASOCKS)
+    if (OPTION_BUILD_DEPS)
+        ExternalProject_Add(seasocks_external
+                GIT_REPOSITORY https://github.com/mattgodbolt/seasocks.git
+                PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/seasocks"
+                #BUILD_IN_SOURCE 1
 
-            CMAKE_ARGS
-            "-DCMAKE_INSTALL_PREFIX=${OUTPUT}"
-            "-DUNITTESTS=OFF"
-            )
-    add_library(seasocks SHARED IMPORTED)
+                CMAKE_ARGS
+                "-DCMAKE_INSTALL_PREFIX=${OUTPUT}"
+                "-DUNITTESTS=OFF"
+                )
+        add_library(seasocks SHARED IMPORTED)
+    endif ()
+
+    set(DEPENDENCIES_SEASOCKS_LIB seasocks z PARENT_SCOPE)
+    set(DEPENDENCIES_SEASOCKS_LIB_EXTERNAL seasocks_external PARENT_SCOPE)
+    set(DEPENDENCIES_SEASOCKS_DEFINITIONS USE_SEASOCKS PARENT_SCOPE)
+    message(STATUS "will use Seasocks")
+else()
+    # empty dummy target
+    add_custom_target(seasocks_external)
 endif ()
-
-set(DEPENDENCIES_SEASOCKS_LIB seasocks z PARENT_SCOPE)
 
 
 # -- JSON -------------------------------------------------

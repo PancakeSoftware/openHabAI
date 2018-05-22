@@ -29,9 +29,19 @@ target_include_directories(catflow-example
 
 # Libraries
 target_link_libraries(catflow-example
-        ${DEFAULT_LIBRARIES})
+        ${DEPENDENCIES_SEASOCKS_LIB}
+        ${DEPENDENCIES_UWEBSOCKETS_LIB}
+        pthread
+        Boost::filesystem
+        Boost::system)
 
-#add_dependencies(
-#        catflow-example
-#
-#)
+target_compile_definitions(catflow-example
+        PUBLIC
+        ${DEFAUT_DEFINITIONS})
+
+
+if (${OPTION_BUILD_DEPS})
+    add_dependencies(catflow-example
+            uWebSockets_external
+            ${DEPENDENCIES_SEASOCKS_LIB_EXTERNAL})
+endif ()
