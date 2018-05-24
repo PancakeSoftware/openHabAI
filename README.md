@@ -12,6 +12,8 @@ First **install** these packages:
     * npm
 * For **trainServer**
     * zlib1g-dev
+    * openssl-devel
+    * zlib-devel
     * for **mxnet**
         * libopenblas-dev 
         * liblapack-dev
@@ -26,7 +28,7 @@ cmake ../
 make 
 ```
 The compiled trainSever executable can be found in build/bin. <br>
-To run frontend: ```make frontendRun``` or see in [README of frontend](frontend/README.md)
+To run frontend: ```make frontendRun``` or see in [README of frontend](frontend-angular/README.md)
 
  
 #### Protocol

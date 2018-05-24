@@ -34,6 +34,9 @@ class ApiRoute : public virtual ApiProcessible, protected virtual Log
     ApiRoute();
 
     /**
+     * @deprecated
+     * @warning this crashes if object that is inserted into routes in not fully constructed
+     * @note use setSubRoutes() instead
      * @param subRoutes set 'static' sub routes
      * @see setSubRoutes(vector<ApiRoute*>& routes)
      */
@@ -73,6 +76,9 @@ class ApiRouteJson: public ApiRoute, public ApiJsonObject
     ApiRouteJson() : ApiRoute(){}
 
     /**
+     * @deprecated
+     * @warning this crashes if object that is inserted into routes in not fully constructed
+     * @note use setSubRoutes() instead
      * @param subRoutes set 'static' sub routes
      * @see setSubRoutes(vector<ApiRoute*>& routes)
      */

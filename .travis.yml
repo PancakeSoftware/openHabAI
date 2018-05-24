@@ -6,6 +6,7 @@ dist: trusty
 cache:
     directories:
         - ${TRAVIS_BUILD_DIR}/deps/cmake
+        - ${TRAVIS_BUILD_DIR}/trainServer/dependencies/mxnet
 
 addons:
   apt:
@@ -26,7 +27,7 @@ before_install:
 
 install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
-  - sudo apt-get install -qq zlib1g-dev libopenblas-dev liblapack-dev cmake npm nodejs
+  - sudo apt-get install -qq zlib1g-dev libopenblas-dev liblapack-dev cmake npm nodejs libuv1-dev
   - if [[ "$CXX" == clang* ]]; then export CXXFLAGS="-stdlib=libc++"; fi
   - JOBS=2
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"

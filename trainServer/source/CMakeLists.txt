@@ -49,7 +49,7 @@ target_link_libraries(${TARGET}
         ${DEFAULT_LIBRARIES}
         )
 
-target_compile_definitions(catflow-test
+target_compile_definitions(${TARGET}
         PUBLIC
         ${DEFAUT_DEFINITIONS})
 

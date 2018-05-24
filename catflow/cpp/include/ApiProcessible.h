@@ -24,7 +24,7 @@ class ApiProcessible
 {
   public:
     /**
-     * progress first route-object in route list
+     * progress ApiRequest, will forward request to children if necessary
      * @param request.route defines something similar to rest url, in this example you want to access
      * @param request.what  defines action to perform, allowed values depend on route
      * @param request.data  contains data that is necessary to perform action
