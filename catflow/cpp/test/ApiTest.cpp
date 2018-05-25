@@ -38,14 +38,14 @@ class Person: public ApiJsonObject
 class UniversityCourse : public ApiRouteJson
 {
   public:
-    JsonList<Person> students;
-    int studentsIdAutoIncrement = 0;
+    JsonList<Person> students{};
 
     string courseName;
     int id; // <courseId>
 
-    UniversityCourse(): students(studentsIdAutoIncrement), // @TODO set path
-                        ApiRouteJson({{"students", &students}}) {}
+    UniversityCourse() {
+      setSubRoutes({{"students", &students}});
+    }
 
     void params() override {JsonObject::params();
       param("courseName", courseName);
@@ -62,15 +62,13 @@ class UniversityCourse : public ApiRouteJson
 class RootRoute : public ApiRoute
 {
   public:
-    JsonList<UniversityCourse> courses;
+    JsonList<UniversityCourse> courses{};
 
-    int coursesIdAutoIncrement = 0;
-
-    RootRoute() :
-        courses(coursesIdAutoIncrement),
-        ApiRoute({  // set sub routes
-                     {"courses", &courses} // /courses/
-                 }) {}
+    RootRoute() {
+      setSubRoutes({  // set sub routes
+                       {"courses", &courses} // /courses/
+                   });
+    }
 };
 
 
@@ -81,7 +79,6 @@ TEST(ApiRouteTest, progressListAddGetRemove)
   RootRoute root;
   root.setStorePath("../test/apiTest/");
 
-  //return;
   /*
    * Add tow courses: SystemParallelProgramming, and Math1
    */

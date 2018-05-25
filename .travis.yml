@@ -3,6 +3,9 @@ language: cpp
 sudo: required
 dist: trusty
 
+notifications:
+  slack: pancakesoftware:CGasYWILEycD9hFQ8G2EllhR
+
 cache:
     directories:
         - ${TRAVIS_BUILD_DIR}/deps/cmake

@@ -13,13 +13,16 @@ JsonList<T>::JsonList(): JsonList(defaultIdAutoIncrement)
 {}
 template<class T>
 JsonList<T>::JsonList(int &idAutoIncrement)
-    : idAutoIncrement(idAutoIncrement)
+    : ApiJsonObject(),
+      idAutoIncrement(idAutoIncrement)
 {
   setLogName("JsonList");
 }
 template<class T>
 ApiRespond* JsonList<T>::processApi(ApiRequest request)
 {
+  ApiRespond *respond = nullptr;
+
   // action to one entity
   bool destEntity = !request.route.isEmpty();
 
@@ -29,9 +32,10 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
 
   //info("at " + component + "/" + entityIdString);
 
-  // to int
+  // if for list item
   if (destEntity)
   {
+    // to int
     try
     {
       entityId = stoi(entityIdString);
@@ -41,6 +45,13 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
       destEntity = false;
       return new ApiRespondError("entity's id is not a number '" +string(e.what())+"'", request);
     }
+  }
+  else // for me
+  {
+    // processed by ApiJsonObject part
+    respond = ApiJsonObject::processApi(request);
+    if (respond != nullptr)
+      return respond;
   }
 
 
@@ -103,6 +114,13 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
           n->setRoute(nRoute);
           n->store();
         }
+
+        // subscriber update
+        ApiMessageRoute removedRoute = route.is_initialized() ? route.get() : ApiMessageRoute("");
+        removedRoute.push(to_string(idAutoIncrement));
+        sendToSubscribers(ApiRequest(removedRoute, "add", n->toJson()),
+                          *request.client);
+
         idAutoIncrement++;
         return new ApiRespondOk(n->toJson(), request);
       }
@@ -140,6 +158,13 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
         info("removed item " + route.get().toStringStorePath());
         items.erase(item);
         delete item->second;
+
+        // subscriber update
+        ApiMessageRoute removedRoute = route.is_initialized() ? route.get() : ApiMessageRoute("");
+        removedRoute.push(entityIdString);
+        sendToSubscribers(ApiRequest(removedRoute, "remove"),
+                          *request.client);
+
         return new ApiRespondOk(request);
       }
     }
@@ -147,7 +172,9 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
 
 
   // the what commands goal is item
-  return callProcessApiOfItem();
+  if (destEntity)
+    return callProcessApiOfItem();
+  return respond; // is nullptr
 }
 
 
@@ -155,6 +182,61 @@ template<class T>
 T &JsonList<T>::get(int id)
 {
   return *(*items.find(id)).second;
+}
+
+template<class T>
+void JsonList<T>::set(int id, T element)
+{
+  T *n = new T(element);
+  n->fromJson(Json{{"id", id}});
+  items.insert({id, n});
+  if (route.is_initialized() && is_base_of<ApiJsonObject, T>::value)
+  {
+    ApiMessageRoute nRoute = this->route.get_value_or(ApiMessageRoute());
+    nRoute.push(to_string(idAutoIncrement)); // set entity id in its route
+    n->setRoute(nRoute);
+    n->store();
+  }
+  idAutoIncrement++;
+}
+
+template<class T>
+void JsonList<T>::add(T element)
+{
+  T *n = new T(element);
+  n->fromJson(Json{{"id", idAutoIncrement}});
+  items.insert({idAutoIncrement, n});
+  if (route.is_initialized() && is_base_of<ApiJsonObject, T>::value)
+  {
+    ApiMessageRoute nRoute = this->route.get_value_or(ApiMessageRoute());
+    nRoute.push(to_string(idAutoIncrement)); // set entity id in its route
+    n->setRoute(nRoute);
+    n->store();
+  }
+
+  // subscriber update
+  ApiMessageRoute removedRoute = route.is_initialized() ? route.get() : ApiMessageRoute("");
+  removedRoute.push(to_string(idAutoIncrement));
+  sendToSubscribers(ApiRequest(removedRoute, "add", n->toJson()));
+
+  idAutoIncrement++;
+}
+
+template<class T>
+bool JsonList<T>::remove(int id)
+{
+  auto it = items.find(id);
+  if (it != items.end()) {
+    items.erase(it);
+
+    // subscriber update
+    ApiMessageRoute removedRoute = route.is_initialized() ? route.get() : ApiMessageRoute("");
+    removedRoute.push(to_string(id));
+    sendToSubscribers(ApiRequest(removedRoute, "remove"));
+
+    return true;
+  }
+  return false;
 }
 
 template<class T>
@@ -278,4 +360,5 @@ JsonList<T>::~JsonList()
     delete item.second;
   items.clear();
 }
+
 

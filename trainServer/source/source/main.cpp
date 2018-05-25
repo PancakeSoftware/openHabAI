@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
   // start frontend, load saved
   NeuralNetwork::init(new Context(DeviceType::kCPU, 0));
 
+  ApiRoot apiRoot;
   apiRoot.setStorePath("./");
   apiRoot.restore();
   Catflow::setApiRootRoute(apiRoot);

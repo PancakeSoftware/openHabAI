@@ -83,11 +83,10 @@ class RootRoute : public ApiRoute
   public:
     JsonList<UniversityCourse> courses;
 
-    RootRoute():
-        ApiRoute({  // set sub routes
-                     {"courses", &courses} // mount JsonList<UniversityCourse> at 'courses/'
-                 })
-    {
+    RootRoute() {
+      setSubRoutes({  // set sub routes
+        {"courses", &courses} // mount JsonList<UniversityCourse> at 'courses/'
+      });
     }
 };
 

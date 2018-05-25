@@ -9,7 +9,10 @@
 #include <Catflow.h>
 #include "ApiProcessible.h"
 
-
+/**
+ * provides api command: 'subscribe' and 'unsubscribe'
+ * @warning do not create object of this class before the main function, because the ApiSubscribable constructor calls a static function of Catflow (its static members have to be constructed before)
+ */
 class ApiSubscribable: public virtual ApiProcessible
 {
   public:

@@ -229,6 +229,9 @@ TEST(JsonObjectTest, notifyParamsChanged)
                     {"i", 12345}
             }).toJson(),
             Catflow::requestsToSend.back().second.toJson()));
+
+  // cleanup
+  Catflow::requestsToSend.clear();
 }
 
 

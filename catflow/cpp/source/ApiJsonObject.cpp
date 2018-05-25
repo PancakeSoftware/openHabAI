@@ -119,7 +119,7 @@ ApiRespond *ApiJsonObject::processApi(ApiRequest request)
       // update own params by json, fromJson() will send update to subscribers but will skip sender
       this->fromJson(request.data, *request.client);
     } catch (JsonObjectException &e) {
-      return new ApiRespondError(e.what(), request, route.get());
+      return new ApiRespondError(e.what(), request, routeString);
     }
   }
   if (request.what == "get")

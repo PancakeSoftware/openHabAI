@@ -19,5 +19,4 @@ class JsonObjectException: public std::exception {
     }
 };
 
-
 #endif //OPENHABAI_UTIL_H

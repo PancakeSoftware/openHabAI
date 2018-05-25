@@ -16,7 +16,7 @@ ApiSubscribable::ApiSubscribable() {
 ApiRespond *ApiSubscribable::processApi(ApiRequest request) {
     ApiRespond *processible =  ApiProcessible::processApi(request);
 
-    if (request.client == nullptr) {
+    if (request.client == nullptr && (request.what == "subscribe" || request.what == "unsubscribe")) {
       l.err("can't add subscriber without knowing client");
       return processible;
     }

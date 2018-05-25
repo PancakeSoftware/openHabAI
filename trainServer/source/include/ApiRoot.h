@@ -23,14 +23,13 @@ class DataStructure;
 class ApiRoot: public ApiRoute
 {
   public:
-    JsonList<DataStructure> datastructures;
+    JsonList<DataStructure> datastructures{};
 
-    ApiRoot() :ApiRoute({{"dataStructures", &datastructures}})
+    ApiRoot()
     {
+      setSubRoutes({{"dataStructures", &datastructures}});
       datastructures.setCreateItemFunction(DataStructure::create);
     }
 };
-
-extern ApiRoot apiRoot;
 
 #endif //APIROOT_H

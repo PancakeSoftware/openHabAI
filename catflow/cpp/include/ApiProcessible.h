@@ -48,7 +48,7 @@ class ApiProcessible
     virtual void store() {};
 
     /**
-     * removes saved data of self and subObjects
+     * removes all persistent saved data of this object and subObjects
      */
     virtual void remove() {};
 

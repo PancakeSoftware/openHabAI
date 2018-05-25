@@ -61,7 +61,7 @@ class Client {
 class VoidClient: public Client {
   public:
     virtual string toString() override {
-      return "Void dummy client";
+      return "Void-dummy-client";
     };
 
     virtual bool operator<(const Client &other) const override {

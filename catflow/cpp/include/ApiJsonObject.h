@@ -160,6 +160,8 @@ class JsonObject
         } catch (Json::type_error &e) {
           l.err("can't set jsonObject key '" + key +"' : " + e.what());
           throw JsonObjectException("can't set jsonObject key '" + key +"' because of wrong type : " + e.what());
+        } catch (JsonObjectException &e) {
+          throw JsonObjectException("can't set jsonObject key '" + key +"' because of JsonObjectException : " + e.what());
         }
       }
       return changed;
