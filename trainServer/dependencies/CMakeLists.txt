@@ -5,9 +5,19 @@ include("../cmake/HunterGate.cmake")
 
 # -- MXNET -------------------------------------------------
 if (OPTION_BUILD_DEPS)
+    IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") # apple
+        message(STATUS "[Dependency] will use 'mxnet' on APPLE")
+        set(MXNET_USE_BLAS apple)
+        set(MXNET_USE_OPENMP 0)
+    elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+        message(STATUS "[Dependency] will use 'mxnet' on LINUX")
+        set(MXNET_USE_BLAS openblas)
+        set(MXNET_USE_OPENMP 1)
+    endif()
+
     ExternalProject_Add(mxnet_external
             GIT_REPOSITORY https://github.com/dmlc/mxnet
-            GIT_TAG 1.2.0.rc3
+            GIT_TAG 1.2.0
 
             PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/mxnet"
             BUILD_IN_SOURCE 1
@@ -17,19 +27,12 @@ if (OPTION_BUILD_DEPS)
             -DCMAKE_INSTALL_PREFIX=${OUTPUT}
             -DTESTS=OFF
             -DUSE_CPP_PACKAGE=ON
-            -DUSE_BLAS=apple
+            -DUSE_BLAS=${MXNET_USE_BLAS}
             -DUSE_CUDA=0
             -DUSE_OPENCV=0
-            -DUSE_OPENMP=(NOT APPLE)
+            -DUSE_OPENMP=${MXNET_USE_OPENMP}
             -DUSE_MXNET_LIB_NAMING=1
-            -USE_MKLML_MKL=ON IF USE_MKL_IF_AVAILABLE AND UNIX AND (NOT APPLE)
-            -USE_MKLDNN=ON IF USE_MKL_IF_AVAILABLE AND UNIX AND (NOT APPLE)
             )
-
-    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        # using regular Clang or AppleClang
-        set(BEGIN_WHOLE_ARCHIVE -Wl,-force_load)
-    endif()
 
     add_library(mxnet SHARED IMPORTED)
 endif ()
@@ -60,7 +63,7 @@ if (OPTION_USE_SEASOCKS)
     set(DEPENDENCIES_SEASOCKS_LIB seasocks z PARENT_SCOPE)
     set(DEPENDENCIES_SEASOCKS_LIB_EXTERNAL seasocks_external PARENT_SCOPE)
     set(DEPENDENCIES_SEASOCKS_DEFINITIONS USE_SEASOCKS PARENT_SCOPE)
-    message(STATUS "will use Seasocks")
+    message(STATUS "[Dependency] will use 'Seasocks'")
 else()
     # empty dummy target
     add_custom_target(seasocks_external)
@@ -68,6 +71,7 @@ endif ()
 
 
 # -- JSON -------------------------------------------------
+message(STATUS "[Dependency] will use 'nlohmann/json'")
 if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/json/json.hpp")
     file(DOWNLOAD "https://github.com/nlohmann/json/releases/download/v3.1.2/json.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/json/json.hpp")
 endif()
@@ -75,6 +79,7 @@ set(DEPENDENCIES_JSON_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/json PARENT_SCOPE)
 
 
 # -- EXPRTK -----------------------------------------------
+message(STATUS "[Dependency] will use 'exprtk'")
 if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/exprtk/exprtk.hpp")
     file(DOWNLOAD "https://raw.githubusercontent.com/ArashPartow/exprtk/master/exprtk.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/exprtk/exprtk.hpp")
 endif()
@@ -93,6 +98,7 @@ set(DEPENDENCIES_EXPRTK_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/exprtk PARENT_SCOPE)
 
 # -- websocket: uWebSockets -----------------------------------------------
 if (OPTION_BUILD_DEPS)
+    message(STATUS "[Dependency] will use 'uWebSockets'")
     IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         set(LIB_SUFIX dylib)
     elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
