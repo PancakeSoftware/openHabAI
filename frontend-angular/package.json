@@ -31,6 +31,7 @@
     "materialize-css": "^0.100.2",
     "ng2-rx-componentdestroyed": "^2.1.0",
     "ngx-auto-scroll": "^1.1.0",
+    "npm": "^6.1.0",
     "prismjs": "^1.13.0",
     "protractor": "latest",
     "rxjs": "^5.5.6",

@@ -7,7 +7,7 @@ include("../cmake/HunterGate.cmake")
 if (OPTION_BUILD_DEPS)
     ExternalProject_Add(mxnet_external
             GIT_REPOSITORY https://github.com/dmlc/mxnet
-            GIT_TAG 1.0.0.rc1
+            GIT_TAG 1.2.0.rc3
 
             PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/mxnet"
             BUILD_IN_SOURCE 1
@@ -17,10 +17,19 @@ if (OPTION_BUILD_DEPS)
             -DCMAKE_INSTALL_PREFIX=${OUTPUT}
             -DTESTS=OFF
             -DUSE_CPP_PACKAGE=ON
-            -DUSE_BLAS=openblas
+            -DUSE_BLAS=apple
             -DUSE_CUDA=0
             -DUSE_OPENCV=0
+            -DUSE_OPENMP=(NOT APPLE)
+            -DUSE_MXNET_LIB_NAMING=1
+            -USE_MKLML_MKL=ON IF USE_MKL_IF_AVAILABLE AND UNIX AND (NOT APPLE)
+            -USE_MKLDNN=ON IF USE_MKL_IF_AVAILABLE AND UNIX AND (NOT APPLE)
             )
+
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        # using regular Clang or AppleClang
+        set(BEGIN_WHOLE_ARCHIVE -Wl,-force_load)
+    endif()
 
     add_library(mxnet SHARED IMPORTED)
 endif ()
@@ -29,7 +38,7 @@ set(DEPENDENCIES_MXNET_LIB mxnet PARENT_SCOPE)
 set(DEPENDENCIES_MXNET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/ PARENT_SCOPE)
 set(DEPENDENCIES_MXNET_INCLUDE
         ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/cpp-package/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/nnvm/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/3rdparty/nnvm/include
         ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/include PARENT_SCOPE)
 
 
