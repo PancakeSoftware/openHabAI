@@ -10,6 +10,7 @@
 #include <ApiRoute.h>
 #include <dataStructures/DataStructure.h>
 #include "Catflow.h"
+#include "Settings.h"
 
 using namespace std;
 using Json = nlohmann::json;
@@ -24,10 +25,14 @@ class ApiRoot: public ApiRoute
 {
   public:
     JsonList<DataStructure> datastructures{};
+    Settings settings{};
 
     ApiRoot()
     {
-      setSubRoutes({{"dataStructures", &datastructures}});
+      setSubRoutes({
+                       {"dataStructures", &datastructures},
+                       {"settings", &settings}
+      });
       datastructures.setCreateItemFunction(DataStructure::create);
     }
 };

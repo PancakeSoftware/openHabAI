@@ -17,6 +17,7 @@ export class ApiConnection {
   static onReady: EventEmitter<undefined> = new EventEmitter();
   static onGetError: ReplaySubject<{route: string, message: string}> = new ReplaySubject();
   static connectionStatus: ReplaySubject<CONNECTION_STATUS> = new ReplaySubject<CONNECTION_STATUS>();
+  static onDisconnect: () => void = null;
 
   static connect(host: string, port: number) {
     // -- connection ------------------------------------------------------------
@@ -25,6 +26,11 @@ export class ApiConnection {
     this.sock.onerror = (error) => {
       console.error("can't connect to server");
       this.connectionStatus.next(CONNECTION_STATUS.NOT_CONNECTED);
+    };
+
+    this.sock.onclose = (ev: CloseEvent) => {
+      if (this.onDisconnect != null)
+        this.onDisconnect();
     };
 
     this.sock.onopen = (p1) => {

@@ -1,0 +1,10 @@
+<div *ngIf="settings != undefined">
+    <div  *ngFor="let set of settingsKeys">
+        <label>
+            Setting: {{set}}
+        </label>
+        <input *ngIf="!isObject(set)" (change)="update(set, $event.target.value)" type="{{ isNumber(set) ? 'number' : 'text' }}" value="{{settings[set]}}">
+        <app-selection-view *ngIf="isObject(set)" [optionObject]="settings[set]" [key]="set">
+        </app-selection-view>
+    </div>
+</div>

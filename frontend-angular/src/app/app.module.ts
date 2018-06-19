@@ -18,6 +18,8 @@ import { NetworkTrainComponent } from './network-train/network-train.component';
 import {Api} from "@catflow/Api";
 import {ApiChart} from "@catflow/extensions/Chart";
 import {KeysPipe} from "@catflow/Utils";
+import { SettingsComponent } from './settings/settings.component';
+import { SelectionViewComponent } from './settings/selection-view/selection-view.component';
 
 
 
@@ -31,7 +33,9 @@ import {KeysPipe} from "@catflow/Utils";
     NetworksComponent,
     NetworkTrainComponent,
     ApiChart,
-    KeysPipe
+    KeysPipe,
+    SettingsComponent,
+    SelectionViewComponent
   ],
   imports: [
     BrowserModule,

@@ -1,7 +1,7 @@
 import {Component, Inject, NgModule} from '@angular/core';
 import {ActivatedRoute, Router, RouterModule, Routes} from "@angular/router";
 import {DatastructureAndSettingsComponent} from "@frontend/datastructure-and-settings/datastructure-and-settings.component";
-import {ApiConnection} from "@catflow/ApiConnection";
+import {ApiConnection, CONNECTION_STATUS} from "@catflow/ApiConnection";
 import {NetworksAndTrainComponent} from "../networks-and-train/networks-and-train.component";
 import {toastErr, toastInfo} from "../util/Log";
 import {DOCUMENT} from "@angular/common";
@@ -20,6 +20,7 @@ export class AppMainComponent {
   routedComponent: string;
   networkID: number;
   structureID: number;
+  alreadyTriedToConnect: boolean = false;
 
   // test list
   listTest: BehaviorSubject<any[]>;
@@ -34,6 +35,8 @@ export class AppMainComponent {
 
     // this.document.location.hostname
     ApiConnection.connect(this.document.location.hostname, 5555);
+
+    ApiConnection.onDisconnect = () => ApiConnection.connect(this.document.location.hostname, 5555);
   }
 
   onRouteChange($event) {

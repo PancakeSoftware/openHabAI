@@ -185,7 +185,7 @@ void NeuralNetwork::train()
   vector<float> ys;
   graphValues["label"].SyncCopyToCPU(&ys, batchSize);
   graphValues["x"].SyncCopyToCPU(&xs, batchSize);
-  chartShape.setGraphData("real",  xs, ys).changeApply();
+  //chartShape.setGraphData("real",  xs, ys).changeApply();
 
 
   //vector<float> xs{1,2,3};
@@ -210,13 +210,13 @@ void NeuralNetwork::train()
     {
       cout << "Y: " << exe->outputs[0] << exe->outputs[0].At(0,0) << endl;
 
-      chartProgress.setGraphData("error", {iteration}, {exe->outputs[0].At(0,0)}).addApply();
+      //chartProgress.setGraphData("error", {iteration}, {exe->outputs[0].At(0,0)}).addApply();
 
       vector<float> xs;
       vector<float> ys;
       exe->outputs[0].SyncCopyToCPU(&ys, batchSize);
       graphValues["x"].SyncCopyToCPU(&xs, batchSize);
-      chartShape.setGraphData("network",  xs, ys).changeApply();
+      //chartShape.setGraphData("network",  xs, ys).changeApply();
     }
 
 

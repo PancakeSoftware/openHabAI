@@ -49,7 +49,7 @@ class DataStructure : public ApiRouteJson
 
 
     // create label data from input
-    virtual vector<float> getDataBatch(vector<float> input) {return vector<float>();};
+    virtual vector<float> getDataBatch(vector<float> input) { return vector<float>(); };
 };
 
 

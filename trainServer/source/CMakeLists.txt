@@ -8,6 +8,7 @@ file(GLOB SRC_FILES
         ${SOURCE_DIR}*/*.cpp
         ${SOURCE_DIR}*.cpp
         ${CATFLOW_SRC}
+        ${INCLUDE_DIR}*.h
         ${INCLUDE_DIR}*/*.h)
 
 

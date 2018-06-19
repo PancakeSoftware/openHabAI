@@ -1,6 +1,6 @@
 ## Frontend
 #### Build
-Install nodejs, than:
+Install nodejs, then:
 ```bash
 npm install
 ```
