@@ -210,12 +210,15 @@ void Catflow::onClientDisconnect(Client &client)
 
   // remove socket form each linkedWebSockConnections set
   for (auto el: linkedWebSockConnections)
-    for(auto removeCandidate = el->begin(); removeCandidate != el->end();) {
+  {
+    for (auto removeCandidate = el->begin(); removeCandidate != el->end();)
+    {
       if (*removeCandidate == &client)
         removeCandidate = el->erase(removeCandidate);
       else
         removeCandidate++;
     }
+  }
 }
 
 void Catflow::registerClientList(set<Client*> &list) {

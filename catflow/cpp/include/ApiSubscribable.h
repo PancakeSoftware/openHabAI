@@ -18,6 +18,10 @@ class ApiSubscribable: public virtual ApiProcessible
   public:
     ApiSubscribable();
 
+    ~ApiSubscribable() {
+        Catflow::unRegisterClientList(this->subscribers);
+    }
+
     ApiRespond *processApi(ApiRequest request) override;
 
     /**
