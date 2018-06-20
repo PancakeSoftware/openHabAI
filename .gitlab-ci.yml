@@ -1,0 +1,25 @@
+image: ubuntu:16.04
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+# cache dependencies
+cache:
+  paths:
+    - trainServer/dependencies/mxnet
+
+build:
+  stage: build
+  before_script: 
+    - apt update
+    - apt-get install -qq zlib1g-dev libopenblas-dev liblapack-dev cmake npm nodejs libuv-dev build-essential git
+    - cmake --version
+  script: 
+    - cmake .
+    - make
+
+# run tests
+test:
+  stage: test
+  script:
+    - ./build/bin/catflow-test
