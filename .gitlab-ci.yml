@@ -3,32 +3,61 @@ image: ubuntu:16.04
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
+
+stages:
+  - build
+  - test
+
 # cache dependencies
 cache:
+  key: deps
   paths:
-    - /root/.hunter
+    - cmake-build
     - trainServer/dependencies/mxnet
     - trainServer/dependencies/seasocks
 
+# build all
 build:
   stage: build
   before_script:
     - apt update -qq
-    - apt-get install -qq wget
+    - apt-get install -qq wget software-properties-common
+
     # install cmake 3.10
     - wget -q https://cmake.org/files/v3.10/cmake-3.10.0-rc4-Linux-x86_64.sh
     - mkdir /opt/cmake
     - sh cmake-3.10.0-rc4-Linux-x86_64.sh --skip-license --prefix=/opt/cmake
     - ln -s /opt/cmake/bin/cmake /usr/bin/cmake
+
     # install other deps
-    - apt-get install -qq zlib1g-dev libopenblas-dev liblapack-dev libuv-dev build-essential libssl-dev git
+    - apt-get install -qq zlib1g-dev libopenblas-dev liblapack-dev libuv-dev build-essential libssl-dev git python
+
+    # install gcc 7
+    - add-apt-repository ppa:ubuntu-toolchain-r/test
+    - apt-get update
+    - apt install -qq -y g++-7
+    - update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60  --slave /usr/bin/g++ g++ /usr/bin/g++-7
+    - update-alternatives --config gcc
+
+    # tool versions
     - cmake --version
-  script: 
-    - cmake .
-    - make mxnet_external
+    - g++ --version
+
+  script:
+    - mkdir -p cmake-build
+    - cd cmake-build
+    - cmake ..
+    - make -j $(nproc)
+  artifacts:
+    paths:
+      - build/
+
+
 
 # run tests
 test:
   stage: test
+  dependencies:
+    - build
   script:
     - ./build/bin/catflow-test
