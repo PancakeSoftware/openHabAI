@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {ApiConnection, CONNECTION_STATUS} from "@catflow/ApiConnection";
+import {SettingsService} from "@frontend/settings/settings.service";
 
 @Component({
   selector: 'app-backend-console',
@@ -14,7 +15,7 @@ export class BackendConsoleComponent implements OnInit {
   CONNECTION_STATUS = CONNECTION_STATUS;
 
 
-  constructor() {
+  constructor(private settings:SettingsService) {
     ApiConnection.onReceive.subscribe(data => {
       this.log.push({direction: 'got', message: data});
       if (this.log.length > 50)

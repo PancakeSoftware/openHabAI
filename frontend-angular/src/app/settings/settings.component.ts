@@ -1,6 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {Api} from "@catflow/Api";
 import {ApiObject} from "@catflow/ApiObject";
+import {toastOk} from "@frontend/util/Log";
+import {SettingsService} from "@frontend/settings/settings.service";
 
 @Component({
     selector: 'app-settings',
@@ -12,7 +14,7 @@ export class SettingsComponent implements OnInit {
     settings: any = undefined;
     settingsKeys: any[] = [];
 
-    constructor(private api: Api) {
+    constructor(private api: Api, settingsServ:SettingsService) {
         api.object("/settings/").subscribe();
         api.object("/settings/").object().subscribe(value => {
             if (value == null)
@@ -21,6 +23,7 @@ export class SettingsComponent implements OnInit {
             this.settings = value;
             this.settingsKeys = Object.keys(this.settings);
             console.info("object changed!  ", this.settings)
+            settingsServ.settings = this.settings;
         });
     }
 
@@ -41,6 +44,13 @@ export class SettingsComponent implements OnInit {
     isObject(setting: string)
     {
         return typeof this.settings[setting] === "object"
+    }
+
+    onTriggerStopServer() {
+        this.api.object("/settings/").action("stopServer")
+            .then( () => {
+                toastOk("Stopped Server");
+        });
     }
 
     ngOnInit() {

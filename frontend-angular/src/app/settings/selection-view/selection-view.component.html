@@ -1,5 +1,3 @@
-<label>{{optionObject.name}}</label>
-{{selectedOption}}
 <select (change)="onChange($event.target.value)" materialize="material_select" [(ngModel)]="selectedOption">
   <option value="{{i}}" *ngFor="let option of optionObject.options; let i = index" [attr.selected]="i">{{option}}</option>
 </select>

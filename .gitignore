@@ -7,6 +7,8 @@ cmake-build-debug
 .classpath
 .project
 
-# inteijj
+# Jetbrains
 .idea/*
 
+# angular
+package-lock.json

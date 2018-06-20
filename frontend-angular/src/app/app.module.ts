@@ -20,6 +20,7 @@ import {ApiChart} from "@catflow/extensions/Chart";
 import {KeysPipe} from "@catflow/Utils";
 import { SettingsComponent } from './settings/settings.component';
 import { SelectionViewComponent } from './settings/selection-view/selection-view.component';
+import {SettingsService} from "@frontend/settings/settings.service";
 
 
 
@@ -47,7 +48,8 @@ import { SelectionViewComponent } from './settings/selection-view/selection-view
     ReactiveFormsModule
   ],
   providers: [
-    Api
+    Api,
+    SettingsService
     /*{provide: RouteReuseStrategy, useClass: CustomReuseStrategy}*/
   ],
   bootstrap: [AppMainComponent]
