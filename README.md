@@ -5,7 +5,7 @@ OpenHabAI provides a fast c++ backend
 
 To see api documentation look at: [catflow/README.md](catflow/README.md)
 
-## Build [![Build Status](https://travis-ci.org/PancakeSoftware/openHabAI.svg?branch=master)](https://travis-ci.org/PancakeSoftware/openHabAI)
+## Build [![pipeline status](https://gitlab.com/PancakeSoftware/openHabAI/badges/master/pipeline.svg)](https://gitlab.com/PancakeSoftware/openHabAI/commits/master)
 First **install** these packages:
 * For **frontend**
     * nodejs
