@@ -8,13 +8,6 @@ stages:
   - build
   - test
 
-# cache dependencies
-cache:
-  key: deps
-  paths:
-    - cmake-build
-    - trainServer/dependencies/mxnet
-    - trainServer/dependencies/seasocks
 
 # build all
 build:
@@ -48,6 +41,15 @@ build:
     - cd cmake-build
     - cmake ..
     - make -j $(nproc)
+
+  # cache dependencies
+  cache:
+    key: deps
+    paths:
+      - cmake-build
+      - trainServer/dependencies/mxnet
+      - trainServer/dependencies/seasocks
+
   artifacts:
     paths:
       - build/
