@@ -7,6 +7,7 @@
 
 #include <string>
 #include <ApiJsonObject.h>
+#include <util/TaskManager.h>
 #include "SelectorView.h"
 
 using namespace std;
@@ -14,21 +15,26 @@ using namespace std;
 class Settings : public ApiJsonObject
 {
   public:
-    int trainRefreshRate{1000};         // The rate of how often the terminal will output the learn Progress
+    int trainRefreshRate{1000};   // The rate of how often the terminal will output the learn Progress
     SelectorView logLevel;        // The level of log
     SelectorView computingTarget; // Where the computation should run (CPU/GPU)
+    SelectorView showConsole;     // show network console in frontend
 
     Settings() :
-        computingTarget("Computing Target", { "CPU", "GPU" }),
-        logLevel("Log Level", {"none", "all", "debug", "error", "fatal", "info", "ok", "trace", "warning"})
+        computingTarget({ "CPU", "GPU" }),
+        logLevel({"all", "trace", "info", "debug", "ok", "warning", "error", "fatal"}),
+        showConsole({"show", "hide"})
+
     {
-      addAction("stopServer", [](ApiRequest request) {
-        exit(0);
+      setLogName("Settings");
+
+      addAction("stopServer", [this](ApiRequest request) {
+        info("Stopping server...");
+        TaskManager::stop(); // stop app
         return new ApiRespondOk(request);
       });
 
       logLevel.onSelectionChange([&](vector<bool> values, vector<bool> changedValues) {
-        cout<<"Changed Value";
         setLogFilter(values);
       });
 
@@ -41,8 +47,7 @@ class Settings : public ApiJsonObject
       param("trainRefreshRate", trainRefreshRate);
       param("computingTarget", computingTarget);
       param("logLevel", logLevel);
-
-      setLogFilter(logLevel.getCurrentValues());
+      param("showConsole", showConsole);
     }
 
     void setLogFilter(vector<bool> values) {
@@ -55,34 +60,32 @@ class Settings : public ApiJsonObject
           break;
         }
       }
-      cout<<"Index: "<< index;
+      info("set log level to: " + to_string(index));
+
       switch (index) {
         case 0:
-          Log::setLogLevel(Log::LOG_LEVEL_FATAL);
-          break;
-        case 1:
           Log::setLogLevel(Log::LOG_LEVEL_ALL);
           break;
-        case 2:
-          Log::setLogLevel(Log::LOG_LEVEL_DEBUG);
-          break;
-        case 3:
-          Log::setLogLevel(Log::LOG_LEVEL_ERROR);
-          break;
-        case 4:
-          Log::setLogLevel(Log::LOG_LEVEL_FATAL);
-          break;
-        case 5:
-          Log::setLogLevel(Log::LOG_LEVEL_INFORMATION);
-          break;
-        case 6:
-          Log::setLogLevel(Log::LOG_LEVEL_OK);
-          break;
-        case 7:
+        case 1:
           Log::setLogLevel(Log::LOG_LEVEL_TRACE);
           break;
-        case 8:
+        case 2:
+          Log::setLogLevel(Log::LOG_LEVEL_INFORMATION);
+          break;
+        case 3:
+          Log::setLogLevel(Log::LOG_LEVEL_DEBUG);
+          break;
+        case 4:
+          Log::setLogLevel(Log::LOG_LEVEL_OK);
+          break;
+        case 5:
           Log::setLogLevel(Log::LOG_LEVEL_WARNING);
+          break;
+        case 6:
+          Log::setLogLevel(Log::LOG_LEVEL_ERROR);
+          break;
+        case 7:
+          Log::setLogLevel(Log::LOG_LEVEL_FATAL);
           break;
         default:
           Log::setLogLevel(Log::LOG_LEVEL_ALL);

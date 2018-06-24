@@ -18,10 +18,9 @@ class SelectorView : public ApiJsonObject
 
     SelectorView() = default;
 
-    SelectorView(string label, vector<string> options) :
+    SelectorView(vector<string> options) :
         options(options),
-        optionsValue(options.size()),
-        name(label)
+        optionsValue(options.size())
     {
       // Is already set somewhere (implemented for radio buttons)
       bool hasValue = false;
@@ -38,8 +37,13 @@ class SelectorView : public ApiJsonObject
       ApiJsonObject::params();
       param("options", options);
       param("optionValues", optionsValue);
-      param("name", name);
     }
+
+    void onParamsChanged(vector<string> params) override {
+      if (onChange != nullptr && find(params.begin(), params.end(), "optionValues") != params.end())
+        onChange(optionsValue, optionsValue);
+    }
+
 
     /**
      * A function to trigger a on change function for the selection view
@@ -58,7 +62,6 @@ class SelectorView : public ApiJsonObject
 
   private:
     vector<bool> optionsValue;
-    string name;
     function<void(vector<bool>, vector<bool>)> onChange = nullptr;
 
 };

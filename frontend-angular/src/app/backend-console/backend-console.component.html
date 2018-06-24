@@ -1,7 +1,6 @@
 <div class="fixedbutton row card" *ngIf="settings.settings != undefined">
-  <div class="card-content" *ngIf="settings.settings.logLevel.optionValues[0] != true">
+  <div class="card-content" *ngIf="settings.settings.showConsole.optionValues[0] == true">
     <div class="card-title">Debug console</div>
-    {{settings.settings | json}}
     <div class="col s12 card-content">
       <div class="col s6">
 
