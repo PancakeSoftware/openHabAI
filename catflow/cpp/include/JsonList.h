@@ -109,7 +109,7 @@ class JsonList : public ApiJsonObject, public __JsonList
     int &idAutoIncrement;
     function<T *(Json params)> createItemFunc = [](Json params) -> T *
     {
-      T *t = new T();
+      auto *t = new T();
       t->fromJson(params);
       return t;
     };

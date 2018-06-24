@@ -109,4 +109,4 @@ class ApiJsonObject : protected virtual Log, public virtual ApiSubscribable, pub
 
 
 
-#endif OPENHABAI_APIJSONOBJECT_H
+#endif // OPENHABAI_APIJSONOBJECT_H

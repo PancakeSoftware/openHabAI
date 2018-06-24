@@ -23,8 +23,7 @@ class ApiMessageRoute {
     vector<string> route;
     vector<string> routeAbsolute; // not effected by pop and push
 
-    ApiMessageRoute() {
-    }
+    ApiMessageRoute() = default;
 
     ApiMessageRoute(string routeUrl) {
       fromString(routeUrl);
@@ -60,7 +59,7 @@ class ApiMessageRoute {
      * @return toSting with pathPrefix before
      */
     string toStringStorePath() const {
-      if (pathPrefix.size() == 0)
+      if (pathPrefix.empty())
         return "." + toString();
       else {
         if (pathPrefix.back() == '/')
@@ -116,7 +115,8 @@ class ApiRequest: public ApiMessage
     int  respondId = -1;
     Client *client = nullptr;
 
-    ApiRequest(){}
+    ApiRequest() = default;
+
     ApiRequest(ApiMessageRoute route, string what)
     {
       this->route = route;
@@ -144,7 +144,7 @@ class ApiRequest: public ApiMessage
         : ApiRequest(ApiMessageRoute(route), what, data, respondId) {}
 
 
-    virtual Json toJson() override
+    Json toJson() override
     {
       // @TODO route.toString in Request.toString
       string r = route.toString().size() <= 1 ? route.toStringAbsolute() : route.toString();

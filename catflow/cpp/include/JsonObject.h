@@ -32,6 +32,7 @@ namespace internal
     public:
       virtual Json toJson() const {};
       virtual void fromJson(Json j) {};
+      virtual bool isPrimitive(){ return true; };
   };
 
   template <class T>
@@ -57,6 +58,8 @@ namespace internal
       ~JsonParam() {
         //cout << "[JsonParam] ("<< key << ": " << ") " <<"delete: "<< counter << endl;
       }
+
+      bool isPrimitive() override;
   };
 
   template <class T>
@@ -72,6 +75,8 @@ namespace internal
 
       void fromJson(Json j) override
       {}
+
+      bool isPrimitive() override;
   };
 
 
@@ -146,7 +151,19 @@ class JsonObject
        * this is very inefficient but necessary (rebuild whole param list):
        * when the object is copied all param pointers have to be redefined (change pointer address) */
       refreshParams();
+      vector<string> willChange;
       vector<string> changed;
+
+      // filter existing keys   @TODO less redundant
+      for (auto &paramPtr: paramPointers) {
+        const auto &key = paramPtr.first;
+        const auto &memberPtr = paramPtr.second;
+        if (params.find(key) == params.end() && memberPtr->isPrimitive())
+          continue;
+        willChange.push_back(key);
+      }
+      onParamsChange(willChange);
+
 
       for (auto &paramPtr: paramPointers) {
         const auto &key = paramPtr.first;
@@ -157,14 +174,18 @@ class JsonObject
         try {
           //cout << "=fromJson= param " << key << ": " << params[key].dump() << endl;
           memberPtr->fromJson(params[key]);
-          changed.push_back(key);
-        } catch (Json::type_error &e) {
+          if (memberPtr->isPrimitive())
+            changed.push_back(key);
+        }
+        catch (Json::type_error &e) {
           l.err("can't set jsonObject key '" + key +"' : " + e.what());
           throw JsonObjectException("can't set jsonObject key '" + key +"' because of wrong type : " + e.what());
         } catch (JsonObjectException &e) {
           throw JsonObjectException("can't set jsonObject key '" + key +"' because of JsonObjectException : " + e.what());
         }
       }
+
+      onParamsChanged(changed);
       return changed;
     };
 
@@ -204,6 +225,20 @@ class JsonObject
      */
     virtual void params() {
     };
+
+
+    /**
+     * called when params change, before new value is applied to class member
+     * -> you can compare old and new value
+     * @param params the changed params
+     */
+    virtual void onParamsChange(vector<string> params) {};
+
+    /**
+     * called after params change, after new value is applied to class member
+     * @param params the changed params
+     */
+    virtual void onParamsChanged(vector<string> params) {};
 
 
     ~JsonObject() {

@@ -25,6 +25,7 @@ class Log
     Log(string nameShort);
 
     static void setLogLevel(char log_level_mask);
+    static void setLogMask(char log_mask);
     static void setUseLongLogNames(bool use);
     static void setUseColor(bool use);
 

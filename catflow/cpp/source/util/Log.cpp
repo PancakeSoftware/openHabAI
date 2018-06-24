@@ -5,6 +5,7 @@
   */
 #include <Catflow.h>
 #include <cstdio>
+#include <bitset>
 #include "util/Log.h"
 
 
@@ -43,9 +44,39 @@ void Log::setLogName(string nameShort, string nameLong)
 
 void Log::setLogLevel(char log_levelMask)
 {
-  logLevelMask = log_levelMask;
+  char log_level = 0;
+  switch(log_levelMask)
+  {
+    case LOG_LEVEL_ALL:
+      log_level = LOG_LEVEL_ALL;
+      break;
+    case LOG_LEVEL_TRACE:
+      log_level |= LOG_LEVEL_TRACE;
+    case LOG_LEVEL_INFORMATION:
+      log_level |= LOG_LEVEL_INFORMATION;
+    case LOG_LEVEL_DEBUG:
+      log_level |= LOG_LEVEL_DEBUG;
+    case LOG_LEVEL_OK:
+      log_level |= LOG_LEVEL_OK;
+    case LOG_LEVEL_WARNING:
+      log_level |= LOG_LEVEL_WARNING;
+    case LOG_LEVEL_ERROR:
+      log_level |= LOG_LEVEL_ERROR;
+    case LOG_LEVEL_FATAL:
+      log_level |= LOG_LEVEL_FATAL;
+      break;
+    default:
+      log_level = LOG_LEVEL_ALL;
+      break;
+  }
+  setLogMask(log_level);
+  // cout << "set log level: " << bitset<8>(logLevelMask) << endl;
 }
 
+void Log::setLogMask(char log_mask)
+{
+  logLevelMask = log_mask;
+}
 
 void Log::setUseLongLogNames(bool use)
 {
