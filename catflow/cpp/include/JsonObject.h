@@ -24,17 +24,34 @@ using namespace std;
 using Json = nlohmann::json;
 using namespace std;
 
+
+
+class AJsonParam
+{
+  public:
+    virtual Json toJson() const {};
+    virtual void fromJson(Json j) {};
+    virtual bool isPrimitive(){ return true; };
+
+    /**
+     * called when param change, before new value is applied to class member
+     * -> you can compare old and new value
+     */
+    void onChange(function<void ()> callback)
+    {this->onChanceFunc = callback;};
+
+    /**
+     * called after params change, after new value is applied to class member
+     */
+    void onChanged(function<void ()> callback)
+    {this->onChancedFunc = callback;};
+
+    function<void ()> onChanceFunc = nullptr;
+    function<void ()> onChancedFunc = nullptr;
+};
+
 namespace internal
 {
-
-  class AJsonParam
-  {
-    public:
-      virtual Json toJson() const {};
-      virtual void fromJson(Json j) {};
-      virtual bool isPrimitive(){ return true; };
-  };
-
   template <class T>
   class JsonParam: public AJsonParam{
     public:
@@ -161,6 +178,9 @@ class JsonObject
         if (params.find(key) == params.end() && memberPtr->isPrimitive())
           continue;
         willChange.push_back(key);
+
+        if (memberPtr->onChanceFunc != nullptr)
+          memberPtr->onChanceFunc();
       }
       onParamsChange(willChange);
 
@@ -174,8 +194,11 @@ class JsonObject
         try {
           //cout << "=fromJson= param " << key << ": " << params[key].dump() << endl;
           memberPtr->fromJson(params[key]);
-          if (memberPtr->isPrimitive())
+          if (memberPtr->isPrimitive()) {
             changed.push_back(key);
+            if (memberPtr->onChancedFunc != nullptr)
+              memberPtr->onChancedFunc();
+          }
         }
         catch (Json::type_error &e) {
           l.err("can't set jsonObject key '" + key +"' : " + e.what());
@@ -195,8 +218,10 @@ class JsonObject
      * @see defineParams()
      */
     template <class T>
-    void param(string key, T &value) {
-      paramPointers.emplace(key, make_shared<internal::JsonParam<T>>(value, key)); // unique_ptr -> deletes JsonParam when JsonObject is deleted
+    AJsonParam& param(string key, T &value) {
+      auto param = make_shared<internal::JsonParam<T>>(value, key);
+      paramPointers.emplace(key, param); // unique_ptr -> deletes JsonParam when JsonObject is deleted
+      return *param;
     }
 
     /**
@@ -206,8 +231,10 @@ class JsonObject
      * @see defineParams()
      */
     template <class T>
-    void paramReadOnly(string key, T &value) {
-      paramPointers.emplace(key, make_shared<internal::JsonParamReadOnly<T>>(value, key)); // unique_ptr -> deletes JsonParam when JsonObject is deleted
+    AJsonParam paramReadOnly(string key, T &value) {
+      auto param = make_shared<internal::JsonParamReadOnly<T>>(value, key);
+      paramPointers.emplace(key, param); // unique_ptr -> deletes JsonParam when JsonObject is deleted
+      return *param;
     }
 
     /**
@@ -246,7 +273,7 @@ class JsonObject
     }
 
   private:
-    map<string, shared_ptr<internal::AJsonParam>> paramPointers;
+    map<string, shared_ptr<AJsonParam>> paramPointers;
     static Log l;
 
     void refreshParams() const {

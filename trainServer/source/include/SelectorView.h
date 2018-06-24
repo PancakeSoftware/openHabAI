@@ -36,12 +36,10 @@ class SelectorView : public ApiJsonObject
     {
       ApiJsonObject::params();
       param("options", options);
-      param("optionValues", optionsValue);
-    }
-
-    void onParamsChanged(vector<string> params) override {
-      if (onChange != nullptr && find(params.begin(), params.end(), "optionValues") != params.end())
-        onChange(optionsValue, optionsValue);
+      param("optionValues", optionsValue).onChanged([this] () {
+        if (onChange != nullptr)
+          onChange(optionsValue, optionsValue);
+      });
     }
 
 

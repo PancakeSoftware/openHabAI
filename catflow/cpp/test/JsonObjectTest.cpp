@@ -17,10 +17,19 @@ class  MyObject : public ApiJsonObject
     string s = "";
     bool b = false;
 
+    bool iChanged = false, sChanged = false, bChanged = false;
+
     void params() override {JsonObject::params();
-      param("i", i);
+      param("i", i).onChanged([this]() {iChanged = true;} );
       param("s", s);
       param("b", b);
+    }
+
+    void onParamsChanged(vector<string> params) override {
+      if (find(params.begin(), params.end(), "s") != params.end())
+        sChanged = true;
+      if (find(params.begin(), params.end(), "b") != params.end())
+        bChanged = true;
     }
 };
 
@@ -296,4 +305,27 @@ TEST(JsonObjectTest, paramWithFunction)
               {2, "second"},
           }}
       }, objWithFunction.toJson()));
+}
+
+TEST(JsonObjectTest, onParamChanged)
+{
+  MyObject myObject;
+  EXPECT_EQ(myObject.sChanged, false);
+  EXPECT_EQ(myObject.iChanged, false);
+  EXPECT_EQ(myObject.bChanged, false);
+
+  myObject.fromJson( Json{
+      {"i", 20},
+      {"b", true},
+  });
+  EXPECT_EQ(myObject.sChanged, false);
+  EXPECT_EQ(myObject.iChanged, true);
+  EXPECT_EQ(myObject.bChanged, true);
+
+  myObject.fromJson( Json{
+      {"s", "lol"}
+  });
+  EXPECT_EQ(myObject.sChanged, true);
+  EXPECT_EQ(myObject.iChanged, true);
+  EXPECT_EQ(myObject.bChanged, true);
 }

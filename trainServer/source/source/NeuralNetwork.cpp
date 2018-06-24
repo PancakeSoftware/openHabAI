@@ -305,4 +305,6 @@ ApiRespond *NeuralNetwork::processApi(ApiRequest request)
       return new ApiRespondError("not supported", request);
     }
   }
+
+  return respond;
 }
