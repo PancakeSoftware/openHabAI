@@ -20,6 +20,7 @@ export class NetworkTrainComponent implements OnInit {
   private network: ApiObject<any>;
 
   @ViewChild('dataChart') dataChart;
+  @ViewChild('networkChart') networkChart;
   private dataChartInited: boolean = false;
 
   constructor(private router: ActivatedRoute,
@@ -58,6 +59,7 @@ export class NetworkTrainComponent implements OnInit {
 
     if (!this.dataChartInited) {
       this.dataChart.apiObject = this.api.object('/dataStructures/' + this.structureID + '/dataChart/');
+      this.networkChart.apiObject = this.api.object('/dataStructures/' + this.structureID + '/networks/' + this.networkID + '/charts/progress/');
       this.dataChartInited = true;
     }
 
@@ -71,6 +73,17 @@ export class NetworkTrainComponent implements OnInit {
 
     // store self
     this.network = this.api.object(`/dataStructures/${this.structureID}/networks/${this.networkID}/`);
+    // on change
+    this.network.object().subscribe(net => {
+      if (net == null)
+        return;
+
+      this.trainParams.setValue({
+        optimizer: net.optimizer,
+        learnRate: net.learnRate
+      })
+    });
+
 
     if (this.dataChart != undefined) {
       this.dataChart.apiObject = this.api.object('/dataStructures/' + this.structureID + '/dataChart/');
@@ -126,5 +139,10 @@ export class NetworkTrainComponent implements OnInit {
     else {
       this.network.action('stopTrain').then(() => toastOk('stopped train'));
     }
+  }
+
+
+  onTriggerResetModel() {
+    this.network.action("resetModel").then(value => toastOk("all trained data overwritten"))
   }
 }

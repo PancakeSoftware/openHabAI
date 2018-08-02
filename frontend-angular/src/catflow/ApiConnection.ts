@@ -6,7 +6,7 @@ import {ApiRoute} from "./Utils";
 
 export class ApiConnection {
 
-  private static sock: WebSocket;
+  private static sock: WebSocket = null;
   private static respondCounter: number;
   private static respondCallbacks: any[] = [];
   private static actionCallbacks: any[] = [];
@@ -22,6 +22,14 @@ export class ApiConnection {
   static connect(host: string, port: number) {
     // -- connection ------------------------------------------------------------
     console.info('will connect to: ' + 'ws://'+host+':'+port);
+
+    if (this.sock != null) {
+      this.sock.onerror = undefined;
+      this.sock.onclose = undefined;
+      this.sock.onopen = undefined;
+      this.sock.onmessage = undefined;
+    }
+
     this.sock = new WebSocket('ws://'+host+':'+port);
     this.sock.onerror = (error) => {
       console.error("can't connect to server");
@@ -139,8 +147,8 @@ export class ApiConnection {
 }
 
 export enum CONNECTION_STATUS {
-  CONNECTED,
-  NOT_CONNECTED
+  NOT_CONNECTED,
+  CONNECTED
 }
 
 

@@ -51,8 +51,6 @@ class NeuralNetwork : public ApiRouteJson
 
     void stopTrain();
 
-    ApiRespond *processApi(ApiRequest request) override;
-
     /*
      * charts */
     ApiRoute        charts;

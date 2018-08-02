@@ -1,7 +1,11 @@
 <!-- Navigation ------------------------------------ -->
 <nav class="nav-extended">
     <div class="nav-wrapper">
-        <!-- <a href="#" class="brand-logo right">Logo</a> -->
+
+        <ul class="right hide-on-med-and-down">
+            <li><a [ngClass]="connected ? 'green-text' : 'red-text'" class="btn white btn-flat no-select">{{connected ? 'connected' : 'not connected'}}
+                <i [ngClass]="connected ? 'green-text' : 'red-text'" class="material-icons red-text right">{{connected ? 'wifi' : 'wifi_off'}}</i></a></li>
+        </ul>
         <div class="col s12" id="nav-at" style="margin-left: 20px">
             <a class="breadcrumb no-select" id="home"><i routerLink="/" class="material-icons">home</i></a>
         </div>

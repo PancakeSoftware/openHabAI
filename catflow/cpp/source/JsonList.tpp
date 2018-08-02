@@ -318,13 +318,9 @@ void JsonList<T>::restore()
 template<class T>
 void JsonList<T>::setRoute(ApiMessageRoute route)
 {
-  info("setStorePath");
   ApiProcessible::setRoute(route);
-  info("myPath: " + routeString);
   for (auto i: items) {
     ApiMessageRoute n = route;
-    //if (n.at(n.size()-1))
-    info("path size " + to_string(n.route.size()));
     n.push(to_string(i.first)); // set entity id
     i.second->setRoute(n);
   }

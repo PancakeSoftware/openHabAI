@@ -3,11 +3,9 @@
     <div class="card" [formGroup]="trainParams">
       <div class="card-content">
         <div class="row s12">
-          <a id="bt-startTrain" class="waves-effect waves-light btn green" (click)="onTriggerTrain(true)"><i
-                  class="material-icons right">play_arrow</i>start train</a>
-          <a id="bt-stopTrain" class="waves-effect waves-light btn red"    (click)="onTriggerTrain(false)"><i
-                  class="material-icons right">stop</i>stop
-            train</a>
+          <a id="bt-startTrain" class="waves-effect waves-light btn green" (click)="onTriggerTrain(true)"><i class="material-icons right">play_arrow</i>start train</a>
+          <a id="bt-stopTrain" class="waves-effect waves-light btn orange"    (click)="onTriggerTrain(false)"><i class="material-icons right">stop</i>stop train</a>
+          <a class="waves-effect waves-light btn red"    (click)="onTriggerResetModel()"><i class="material-icons right">delete_forever</i>reset model</a>
         </div>
 
         <div class="row s12">
@@ -36,7 +34,7 @@
 
         <div class="row">
           <div class="col s12 m6">
-            <canvas id="chart-learnRate"></canvas>
+            <chart-range #networkChart></chart-range>
           </div>
 
           <div class="col s12 m6">
@@ -44,6 +42,7 @@
                     <!--[inputs]="[ {id: 0, name: 'x'}, {id: 10, name: 'y'}, {id: 2, name: 'z'}, {id: 3, name: 'u'} ]"
                     [outputs]="[{id: 0, name: 'f(x, y, z, u)'}]">-->
             </chart-range>
+
           </div>
         </div>
 

@@ -37,11 +37,29 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
    */
   addAction("startTrain", [this](ApiRequest request) {
       trainInNewThread();
+      //TaskManager::addTaskRepeating([this]{ info("train from task ..."); });
       return new ApiRespondOk(request);
   });
   addAction("stopTrain", [this](ApiRequest request) {
       stopTrain();
       return new ApiRespondOk(request);
+  });
+  addAction("resetModel", [this](ApiRequest request) {
+
+    TaskManager::addTaskOnceOnly([this] {
+    // -- INIT ALL random  ----
+    auto initializer = Uniform(0.01);
+      for (auto& arg : graphValues) {
+        // arg.first is parameter name, and arg.second is the value
+        initializer(arg.first, &arg.second);
+        //arg.second = 1;
+      }
+
+      // re display
+      // chartProgressT.recalcData(); // @TODO: non blocking
+    });
+
+    return new ApiRespondOk(request);
   });
 
   /*
@@ -155,7 +173,7 @@ void NeuralNetwork::train()
   Optimizer *optimizer = OptimizerRegistry::Find("sgd");
   optimizer
       ->SetParam("rescale_grad", 1.0)
-      ->SetParam("lr", 0.005)           // learn rate
+      ->SetParam("lr", learnrate)       // learn rate
       ->SetParam("wd", 0.01);           // weight decay
 
 
@@ -285,26 +303,4 @@ void NeuralNetwork::shutdown()
 {
   // exit
   MXNotifyShutdown();
-}
-
-ApiRespond *NeuralNetwork::processApi(ApiRequest request)
-{
-  ApiRespond* respond = ApiRouteJson::processApi(request);
-  if (respond != nullptr || request.route.isEmpty())
-    return respond;
-
-  /*
-   * Networks Api */
-  if (request.what == "do") {
-    if (request.data["do"] == "startTrain") {
-      TaskManager::addTaskOnceOnly([this]{ info("train from task ..."); });
-      //chartProgressT.pushUpdate();
-      //return new ApiRespondError("not supported", request);
-    }
-    else if (request.data["do"] == "stopTrain") {
-      return new ApiRespondError("not supported", request);
-    }
-  }
-
-  return respond;
 }

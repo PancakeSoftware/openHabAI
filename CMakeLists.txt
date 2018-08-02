@@ -94,7 +94,6 @@ link_directories(
 
 # default headers, libs
 set(DEFAULT_INCLUDE_DIRECTORIES
-        ${DEPENDENCIES_TENSORFLOW_INCLUDE}
         ${DEPENDENCIES_JSON_INCLUDE}
         ${DEPENDENCIES_MXNET_INCLUDE}
         ${OUTPUT_INCLUDE}

@@ -24,6 +24,7 @@ export class AppMainComponent {
 
   // test list
   listTest: BehaviorSubject<any[]>;
+  connected: boolean = false;
 
   constructor(
     route: ActivatedRoute,
@@ -35,8 +36,12 @@ export class AppMainComponent {
 
     // this.document.location.hostname
     ApiConnection.connect(this.document.location.hostname, 5555);
-
-    ApiConnection.onDisconnect = () => ApiConnection.connect(this.document.location.hostname, 5555);
+    ApiConnection.connectionStatus.subscribe(status => this.connected = (status == CONNECTION_STATUS.CONNECTED));
+    ApiConnection.onDisconnect = () => {
+      setTimeout(() => {
+        ApiConnection.connect(this.document.location.hostname, 5555);
+      }, 1000);
+    }
   }
 
   onRouteChange($event) {

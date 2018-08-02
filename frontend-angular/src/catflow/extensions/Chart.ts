@@ -97,7 +97,7 @@ export class ApiChart implements OnInit, OnDestroy
 
 
   private refreshObject() {
-    console.info('\n\n refreshObject --------');
+    console.info('\n\n refreshObject -------- ' + this.object.route);
 
     // update chart on data change
     this.object.onAction()
