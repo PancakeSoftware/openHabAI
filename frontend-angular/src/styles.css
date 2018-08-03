@@ -63,3 +63,11 @@
     padding: 4px;
     border-radius: 2px;
 }
+
+tr td {
+    padding: 4px;
+}
+
+td input{
+    margin-bottom: 0px;
+}

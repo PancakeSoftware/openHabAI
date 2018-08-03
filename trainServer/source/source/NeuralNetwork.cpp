@@ -56,7 +56,7 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
       }
 
       // re display
-      // chartProgressT.recalcData(); // @TODO: non blocking
+      chartProgressT.recalcData(); // @TODO: non blocking
     });
 
     return new ApiRespondOk(request);
@@ -69,8 +69,10 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
 
   /*
    * charts update functions */
+  chartProgressT.setInputOutputNames({"x"}, {"y"});
   chartProgressT.setUpdateFunction([this] (const map<int, float> &inputValues, const vector<int> &outputIds) {
     map<int, float> out;
+    out.emplace(0, inputValues.find(0)->second);
     //for (int id: outputIds)
     //  out[id] = inputValues[0]+inputValues[1]+inputValues[2]+inputValues[3] * id;
     return out;
@@ -208,6 +210,31 @@ void NeuralNetwork::train()
 
   //vector<float> xs{1,2,3};
   //chartShape.setGraphData("real",  xs, structure.getDataBatch(xs)).changeApply();
+  chartProgressT.setUpdateFunction([this] (const map<int, float> &inputValues, const vector<int> &outputIds) {
+    Executor* exeChart = symLossOut.SimpleBind(*ctx, graphValues, map<std::string, NDArray>()); //, graphGradientOps);
+
+    map<int, float> out;
+
+    vector<float> x;
+
+    for (float i = 0; i < batchSize; i++)
+    {
+      x.push_back(inputValues.find(0)->second);
+    }
+
+    graphValues["x"].SyncCopyFromCPU(x);
+    exeChart->Forward(false);
+
+
+    vector<float> ys;
+    exeChart->outputs[0].SyncCopyToCPU(&ys, batchSize);
+    out.emplace(0, ys[0]);
+
+    //chartShape.setGraphData("network",  xs, ys).changeApply();
+    delete exeChart;
+
+    return out;
+  });
 
 
   /* --------------------
@@ -234,6 +261,9 @@ void NeuralNetwork::train()
       vector<float> ys;
       exe->outputs[0].SyncCopyToCPU(&ys, batchSize);
       graphValues["x"].SyncCopyToCPU(&xs, batchSize);
+
+      chartProgressT.recalcData();
+      graphValues["x"].SyncCopyFromCPU(x);
       //chartShape.setGraphData("network",  xs, ys).changeApply();
     }
 

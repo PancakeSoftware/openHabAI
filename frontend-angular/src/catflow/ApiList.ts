@@ -67,7 +67,7 @@ export class ApiList<T> extends ApiRouteContainig
 
           lastItems.push(data);
           this.onChangeItems.next(lastItems);
-          resolve(data.id);
+          resolve(data);
         }
         else if (status == 'error')
           reject(data.message);

@@ -51,30 +51,49 @@
             <!-- Tab new Functions -->
             <div id="tab-newD-function" class="col s12">
                 <div class="row">
-                    <div class="col s12 m4">
+                    <div class="col s12 m9">
                         <div class="input-field col s12">
                             <i class="material-icons prefix">functions</i>
                             <input formControlName="function" value="x^3" id="txt-func" type="text">
                             <label for="txtSendTest">Function</label>
                         </div>
-                        <div class="input-field col s12">
-                            <i class="material-icons prefix">settings_input_component</i>
-                            <input formControlName="inputNames" value="x" type="text">
-                            <label>Inputs(separate space)</label>
-                        </div>
-                        <div class="input-field col s6">
-                            <i class="material-icons prefix">drag_handle</i>
-                            <input formControlName="range_from" value="-10" id="num-from" type="number">
-                            <label for="num-from">From</label>
-                        </div>
-                        <div class="input-field col s6">
-                            <input formControlName="range_to" value="10" id="num-to" type="number">
-                            <label for="num-to">To</label>
+
+                        <!-- Inputs List -->
+                        <div class="col s12">
+                            <br>
+                            <h6>Inputs</h6>
+                            <table class="col s12 m12">
+                                <tbody>
+                                <tr *ngFor="let input of formNewInputsList; let last = last">
+                                    <td>
+                                        <label>Name: </label>
+                                        <input type="text" [(ngModel)]="input.name" [ngModelOptions]="{standalone: true}"/>
+                                    </td>
+
+                                    <td>
+                                        <label>From: </label>
+                                        <input style="width: 3em;" type="number"
+                                               [(ngModel)]="input.from" [ngModelOptions]="{standalone: true}"/>
+                                        <label> To: </label>
+                                        <input style="width: 3em;" type="number"
+                                               [(ngModel)]="input.to" [ngModelOptions]="{standalone: true}"/>
+                                        <label> Steps: </label>
+                                        <input style="width: 3em;" type="number"
+                                               [(ngModel)]="input.steps" [ngModelOptions]="{standalone: true}"/>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <a class="btn waves-effect btn-small right green lighten-1" (click)="formNewInputsListAddNew()">New Input<i class="material-icons left">add</i></a>
+                            <br>
+                            {{formNewInputsList | json}}
                         </div>
                     </div>
+                    <!--
                     <div class="col s12 m8">
                         <canvas id="chart-function"></canvas>
                     </div>
+                    -->
                 </div>
             </div>
         </div>

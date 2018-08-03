@@ -1,7 +1,7 @@
 import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, ViewChild, ViewChildren} from '@angular/core';
 import {MaterializeAction} from "angular2-materialize";
 import {FormBuilder, FormGroup} from "@angular/forms";
-import {toastErr, toastOk} from "../util/Log";
+import {toastErr, toastInfo, toastOk} from "../util/Log";
 import {Observable} from "rxjs/Observable";
 import {Tabs} from "../util/Helper";
 import {Api} from "@catflow/Api";
@@ -18,11 +18,12 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
   modalActions = new EventEmitter<string|MaterializeAction>();
 
 
-  dataStructuresList: ApiList<DataStructure>;
-  dataStructures: Observable<DataStructure[]>;
+  dataStructuresList: ApiList<any>;
+  dataStructures: Observable<any[]>;
 
   formNew: FormGroup;
   formNewTypeTabs: Tabs;
+  formNewInputsList: {name: string, from: number, to: number, steps: number}[];
 
 
   /* setup all
@@ -33,7 +34,7 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
     private api: Api)
   {
     // get data
-    this.dataStructuresList = api.list<DataStructure>("/dataStructures");
+    this.dataStructuresList = api.list<any>("/dataStructures");
     this.dataStructures = this.dataStructuresList.items();
 
 
@@ -45,10 +46,12 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
       name: 'MyDataStructure',
       type: '',
       function: 'x^3 + y^2',
-      inputNames: 'x y',
-      range_from: -10,
-      range_to: 10
     });
+    this.formNewInputsList = [
+      {name: 'x', from: -1, to: 1, steps: 10},
+      {name: 'y', from: -1, to: 1, steps: 10}
+      ];
+
     // get data
     /*
     ApiConnection.sendRequest([{"dataStructures": ""}], "getAll", (what, data) => {
@@ -56,6 +59,10 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
         this.dataStructures = data;  //data.map(item => this.dataStructures.push(item));
     });
     */
+  }
+
+  formNewInputsListAddNew(){
+    this.formNewInputsList.push({name: 'x', from: -1, to: 1, steps: 10})
   }
 
   ngOnInit() {
@@ -68,22 +75,27 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
   createNew() {
     // set type by tabs
     this.formNew.value.type = "function";//this.formNewTypeTabs.active;
-    this.formNew.value.inputNames = this.formNew.value.inputNames.split(' ');
     this.formNew.value.outputNames = ['function'];
     //toastInfo('New DataStructure: ', this.formNew.value);
 
-    this.dataStructuresList.add(this.formNew.value)
-      .then(value => toastOk('Added dataStructure (id: ' + value + ')'))
+    this.dataStructuresList.add({
+      ...this.formNew.value,
+      ...{
+        inputRanges: this.formNewInputsList.map(input => {return {from: input.from, to: input.to, steps: input.steps}; }),
+        inputNames: this.formNewInputsList.map(input => input.name)
+      }
+    }).then(value => toastOk('Added dataStructure (id: ' + value.id + '). Created  <b>' + value.dataRecords + 'data-records</b> ', 5000))
       .catch(reason => toastErr("can't add dataStructure: " + reason));
 
     this.formNew.reset({
       name: 'MyDataStructure',
       type: '',
       function: 'x^3 + y^2',
-      inputNames: 'x y',
-      range_from: -10,
-      range_to: 10
     });
+    this.formNewInputsList = [
+      {name: 'x', from: -1, to: 1, steps: 10},
+      {name: 'y', from: -1, to: 1, steps: 10}
+      ];
   }
 
   removeStruc(struc: DataStructure) {

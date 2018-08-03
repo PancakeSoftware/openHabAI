@@ -5,6 +5,7 @@ import {toastInfo, toastOk} from "../util/Log";
 import {Api} from "@catflow/Api";
 import {ApiList} from "@catflow/ApiList";
 import {FormBuilder, FormGroup} from "@angular/forms";
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
 
 @Component({
   selector: 'app-networks',
@@ -18,6 +19,7 @@ export class NetworksComponent implements OnInit
 
   networks: Observable<Network[]>;
   private networksList: ApiList<Network>;
+  private dataStructure: BehaviorSubject<any>;
 
   constructor(
     fb: FormBuilder,
@@ -50,6 +52,7 @@ export class NetworksComponent implements OnInit
    */
   updateSelf() {
     // get data
+    this.dataStructure = this.api.object(`/dataStructures/${this.structureID}`).object();
     this.networksList = this.api.list(`/dataStructures/${this.structureID}/networks`);
     this.networks =this.networksList.items();
   }
@@ -66,6 +69,14 @@ export class NetworksComponent implements OnInit
       hidden: 2,
       neuronsPerHidden: 10
     });
+  }
+
+  getNamesOf(item: any) {
+    return item.map(el => el[1] + ' ');
+  }
+
+  getInputnameById(id: number) {
+    return this.dataStructure.getValue().inputNames.filter(i => i[0] == id)[0][1];
   }
 }
 

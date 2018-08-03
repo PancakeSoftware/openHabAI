@@ -13,15 +13,15 @@ export function toast(msg, time) {
 }
 
 
-export function toastOk(msg: string) {
-  Materialize.toast('<i class="material-icons left circle green">done</i>' + msg, 1500);
+export function toastOk(msg: string, time: number = 1500) {
+  Materialize.toast('<i class="material-icons left circle green">done</i>' + msg, time);
 }
 
-export function toastInfo(msg: string, obj: Object = null) {
+export function toastInfo(msg: string, obj: Object = null, time: number = 5000) {
   if (obj == null)
     Materialize.toast('<i class="material-icons left circle blue">info_outline</i>' + msg, 1500);
   else
-    Materialize.toast(`<i class="material-icons left circle blue">info_outline</i><div> ${msg}` + `<pre><ngx-prism [language] = "'json'"> ${JSON.stringify(obj, null, 2)} </ngx-prism></pre></div>`, 5000);
+    Materialize.toast(`<i class="material-icons left circle blue">info_outline</i><div> ${msg}` + `<pre><ngx-prism [language] = "'json'"> ${JSON.stringify(obj, null, 2)} </ngx-prism></pre></div>`, time);
 }
 
 export function toastWarn(msg: string) {

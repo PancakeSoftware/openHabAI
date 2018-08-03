@@ -11,6 +11,7 @@
 #include <ApiJsonObject.h>
 #include <JsonList.h>
 #include <ApiRoute.h>
+#include <util/util.h>
 #include "NeuralNetwork.h"
 using namespace std;
 
@@ -48,8 +49,37 @@ class DataStructure : public ApiRouteJson
     inline bool operator == (const DataStructure &other) const;
 
 
-    // create label data from input
-    virtual vector<float> getDataBatch(vector<float> input) { return vector<float>(); };
+    /**
+     * get data-batch (list of (input Values - output Values) pairs)
+     * @param indexBegin first data-record index
+     * @param indexEnd   last  data-record index
+     * @return [ [one data-record: [inputValues: ], [outputValues]],
+     *          ...]
+     * @note less effective because copy is made
+     */
+    virtual vector<pair<vector<float>, vector<float>>> getDataBatch(int indexBegin, int indexEnd) {
+        return vector<pair<vector<float>, vector<float>>>(data.begin()+indexBegin, data.begin()+indexEnd);
+    };
+
+    /**
+     * get data-batch (list of (input Values - output Values) pairs)
+     * @return [ [one data-record: [inputValues: ], [outputValues]],
+     *          ...]
+     */
+    virtual vector<pair<vector<float>, vector<float>>>& getDataBatch() {
+      return data;
+    };
+
+    /**
+     * get amount of data-records
+     * -> index can be passed into getDataBatch(index)
+     * @return max index of data-record
+     */
+    virtual int getDataBatchIndices()
+    { return data.size(); };
+
+  protected:
+    vector<pair<vector<float>, vector<float>>> data;
 };
 
 
@@ -60,15 +90,17 @@ class FunctionDataStructure : public DataStructure
 {
   public:
     string function;
+    vector<Range> inputRanges;
 
     /* Json keys */
     void params() override { DataStructure::params();
         param("function", function);
+        param("inputRanges", inputRanges);
     }
 
     FunctionDataStructure();
+    void onParamsChanged(vector<string> params) override;
 
-    virtual vector<float> getDataBatch(vector<float> input) override;
 };
 
 

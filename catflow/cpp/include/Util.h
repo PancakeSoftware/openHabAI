@@ -3,8 +3,8 @@
  * Author: Joshua Johannson
  *
   */
-#ifndef OPENHABAI_UTIL_H
-#define OPENHABAI_UTIL_H
+#ifndef OPENHABAI_CATFLOW_UTIL_H
+#define OPENHABAI_CATFLOW_UTIL_H
 #include <exception>
 #include <string>
 
@@ -19,4 +19,4 @@ class JsonObjectException: public std::exception {
     }
 };
 
-#endif //OPENHABAI_UTIL_H
+#endif //OPENHABAI_CATFLOW_UTIL_H

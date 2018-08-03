@@ -16,6 +16,48 @@
     </div>
   </div>
 </div>
+<br><br><hr>
+
+<!-- DataStructure Params -->
+<div class="col s12 networks list" >
+  <div class="card" *ngIf="dataStructure.getValue() != undefined" style="cursor: auto">
+    <div class="card-content">
+      <span class="card-title">{{dataStructure.getValue().name}}</span>
+      <p>Data-records: <b>{{dataStructure.getValue().dataRecords}}</b></p>
+      <p>Outputs: {{getNamesOf(dataStructure.getValue().outputNames)}}</p>
+
+      <div *ngIf="dataStructure.getValue().type == 'function'">
+        <p>Function:  <b>{{dataStructure.getValue().function}}</b></p>
+        <br>
+        <h6>Inputs:</h6>
+        <table class="col s12 m12">
+          <tbody>
+          <tr *ngFor="let input of dataStructure.getValue().inputRanges; let index = index">
+            <td>
+              <label>Name: </label>
+              <p>{{getInputnameById(index)}}</p>
+            </td>
+
+            <td>
+              <label>From: </label>
+              <input style="width: 3em; margin-bottom: 0px;" type="number"
+                     [(ngModel)]="input.from" />
+              <label> To: </label>
+              <input style="width: 3em; margin-bottom: 0px;" type="number"
+                     [(ngModel)]="input.to"/>
+              <label> Steps: </label>
+              <input style="width: 3em; margin-bottom: 0px;" type="number" disabled
+                     [(ngModel)]="input.steps"/>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <!--{{dataStructure.getValue() | json}}-->
+    </div>
+
+    </div>
+  </div>
+</div>
 
 <!-- Modal new Network -->
 <div id="modal-new-network" class="modal" materialize="modal">

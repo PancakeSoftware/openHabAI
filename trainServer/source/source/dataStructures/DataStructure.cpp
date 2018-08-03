@@ -5,7 +5,9 @@
   */
 
 #include <json.hpp>
+#include <util/util.h>
 #include <dataStructures/DataStructure.h>
+#include <Chart.h>
 #include <NeuralNetwork.h>
 #include <exprtk.hpp>
 
@@ -28,36 +30,36 @@ DataStructure::DataStructure()
 
   // setup chart
   dataChart.setInputOutputNames({"x", "someInput", "otherInput"}, {"y"});
-  dataChart.setUpdateFunction([this] (const map<int, float> &inputValues, const vector<int> &outputIds) {
-    // @TODO ineffective
-    auto maxInputId = std::max_element(inputValues.begin(), inputValues.end(),
-                              [](const pair<int, float>& p1, const pair<int, float>& p2) {
-                                return p1.first < p2.first; });
-    maxInputId->first;
+  dataChart.setUpdateFunctionRanged([this] (const vector<RangeParam> &inputRanges, vector<ValueParam> fixedInputs, const vector<int> &outputIds) {
+    map<int, vector<ChartDataPoint>> result;
 
-    // input Vector index=id
-    //debug("inputs: " + Json(inputValues).dump(2));
-    vector<float> in;
-    for (int j = 0; j <= maxInputId->first; ++j) {
-      //debug("insert ... " + to_string(j));
-      in.push_back((inputValues.find(j) != inputValues.end()) ? inputValues.find(j)->second : 0);
+    // filter records
+    // @TODO filter by steps
+    for (pair<vector<float>, vector<float>> record : data)
+    {
+      // if inputs in range
+      bool inRange = true;
+      for (RangeParam rangeParam : inputRanges) {
+        inRange &= (rangeParam.from <= record.first[rangeParam.id]) && (record.first[rangeParam.id] <= rangeParam.to);
+        if (!inRange)
+          break;
+      }
+      for (ValueParam fixedParam : fixedInputs) {
+        inRange &= (fixedParam.value -fixedParam.tolerance <= record.first[fixedParam.id]) && (record.first[fixedParam.id] <= fixedParam.value + fixedParam.tolerance);
+        if (!inRange)
+          break;
+      }
+      if (!inRange)
+        continue;
+
+      // add requested outputs
+      for (int outputId : outputIds) {
+        if (result.find(outputId) == result.end())
+          result.emplace(outputId, vector<ChartDataPoint>{});
+        result[outputId].push_back(ChartDataPoint(record.second[outputId], record.first));
+      }
     }
-    /*)
-    for (auto i: inputValues) {
-      in[i.first] = i.second;
-      //in.insert(in.begin() + i.first, i.second);
-    }*/
-
-    // get data point
-    vector<float> out = getDataBatch(in);
-
-    // convert back to id map
-    map<int, float> outPut;
-    for (auto id: outputIds) {
-      if (out.size() >= id)
-      outPut.emplace(id, out[id]);
-    }
-    return outPut;
+    return result;
   });
 }
 
@@ -130,6 +132,9 @@ void DataStructure::params()
                       dataChart.setOutputNames(outputNames);
                     },
                     [this] () { return outputNames;});
+
+  // data-records amount
+  paramWithFunction("dataRecords", [](Json j) {}, [this]() { return getDataBatchIndices();});
 }
 
 
@@ -142,40 +147,57 @@ FunctionDataStructure::FunctionDataStructure()
 {
 }
 
-vector<float> FunctionDataStructure::getDataBatch(vector<float> input)
+
+void FunctionDataStructure::onParamsChanged(vector<string> params)
 {
-  //cout << "get Batch: " << this->function << endl;
+  // re-calc if function or ranges changed
+  if (contains(params, {"function", "inputRanges"}))
+  {
+    debug("("+to_string(id)+") recalc function: " + function);
 
-  typedef exprtk::symbol_table<double> symbol_table_t;
-  typedef exprtk::expression<double>     expression_t;
-  typedef exprtk::parser<double>             parser_t;
+    // get list with all input combinations
+    vector<vector<float>> inputGrid = createInputDataGrid(inputRanges);
 
 
-  vector<float> result;
+    // compile and bind to input vector
+    typedef exprtk::symbol_table<float> symbol_table_t;
+    typedef exprtk::expression<float>     expression_t;
+    typedef exprtk::parser<float>             parser_t;
 
-  vector<double > inputs;
-  // copy input values
-  for (float val : input)
-    inputs.push_back(val);
+    vector<float> inputValues(inputNames.size());
 
-  // Register all inputs in the symbol_table
-  symbol_table_t symbol_table;
-  for (auto in : inputNames) {
-    symbol_table.add_variable(in.second, inputs[in.first]);
+    // Register all inputs in the symbol_table
+    symbol_table_t symbol_table;
+    for (auto in : inputNames) {
+      symbol_table.add_variable(in.second, inputValues[in.first]);
+      // inputPoint index and inputNames.id have to match!
+    }
+
+    // Instantiate expression and register symbol_table
+    expression_t expression;
+    expression.register_symbol_table(symbol_table);
+
+    // Instantiate parser and compile the expression
+    parser_t parser;
+    if (!parser.compile(function, expression)) {
+      err("compile function '" + function + "': " + parser.error().c_str());
+      Catflow::send(ApiRespondError("DataStrucure("+ to_string(id) +"): compile function error '" + function + "': " + parser.error().c_str()));
+    }
+
+    // clear old data
+    data.clear();
+
+    // for each inputPoint
+    for (vector<float> inputPoint : inputGrid)
+    {
+      // copy values
+      for (int i = 0; i < inputPoint.size(); ++i)
+        inputValues[i] = inputPoint[i];
+
+      // re-evaluate and add data-record
+      data.push_back(make_pair(inputPoint, vector<float>{expression.value()}));
+    }
+    info("created " + to_string(getDataBatchIndices()) + " data-records");
+    info(Json{data}.dump(2));
   }
-
-  // Instantiate expression and register symbol_table
-  expression_t expression;
-  expression.register_symbol_table(symbol_table);
-
-  // Instantiate parser and compile the expression
-  parser_t parser;
-  parser.compile(function, expression);
-
-
-  // evaluate
-  result.push_back(expression.value());
-
-  return result;
 }
-

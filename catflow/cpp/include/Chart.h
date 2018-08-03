@@ -93,6 +93,21 @@ class ParameterChart: public Chart
       this->updateFunc = func;
     }
 
+    /**
+     * set the function for generating chart data
+     * @param func returns outputValues( map<outputID, value> ) by given ranges
+     * @note input and outputId represented by index
+     */
+    void setUpdateFunctionRanged(function<map<int, vector<ChartDataPoint>> (const vector<RangeParam> &inputRanges, vector<ValueParam> &fixedInputs, const vector<int> &outputIds)> func) {
+      this->updateFuncRanged = func;
+    }
+
+    /**
+     * execute update function
+     * @note blocking
+     */
+    void recalcData();
+
     ApiRespond *processApi(ApiRequest request) override;
 
   private:
@@ -104,7 +119,8 @@ class ParameterChart: public Chart
     vector<int> outputs;
     map<int, vector<ChartDataPoint>> data;
 
-    function<map<int, float> (const map<int, float> &inputValue, const vector<int> &outputIds)> updateFunc;
+    function<map<int, float> (const map<int, float>    &inputValue, const vector<int> &outputIds)> updateFunc{nullptr};
+    function<map<int, vector<ChartDataPoint>> (const vector<RangeParam> &inputRanges, vector<ValueParam> &fixedInputs, const vector<int> &outputIds)> updateFuncRanged{nullptr};
 };
 
 
@@ -138,10 +154,12 @@ class ValueParam: public JsonObject{
   public:
     int id;
     float value;
+    float tolerance;
 
     void params() override {
       param("id", id);
       param("value", value);
+      param("tolerance", tolerance);
     }
 };
 
@@ -151,6 +169,13 @@ class ChartDataPoint: public JsonObject{
     map<int, float> inputs;
 
     ChartDataPoint(float value, map<int, float> inputs) : value(value), inputs(inputs) {}
+    ChartDataPoint(float value, vector<float> inputsVec) : value(value), inputs() {
+      int i=0;
+      for (auto input = inputsVec.begin(); input != inputsVec.end(); input++) {
+        inputs.emplace(i, *input);
+        i++;
+      }
+    }
 
     void params() override {
       param("value", value);

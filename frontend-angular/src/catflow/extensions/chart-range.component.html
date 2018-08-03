@@ -30,9 +30,16 @@
             <ng-container *ngIf="inputValues[input.id].boundTo == ''">
                 <td>
                     <div>
-                        <label>Value: </label>
-                        <input style="width: 100%;" type="range" step="0.1" [(ngModel)]="inputValues[input.id].valueFixed" (change)="onInputsChanged()"/>
-                        <input style="width: 3em; float: right;" type="number" step="0.1" [(ngModel)]="inputValues[input.id].valueFixed" (change)="onInputsChanged()" />
+                        <tr style="border: none">
+                        <label style="float:  left">Value: </label>
+                        <input style="width: 50%; float:  right;" type="range" step="0.1" [(ngModel)]="inputValues[input.id].valueFixed" (change)="onInputsChanged()"/>
+                        <input style="width: 3em; float: right; margin-left: 1em" type="number" step="0.1" [(ngModel)]="inputValues[input.id].valueFixed" (change)="onInputsChanged()" />
+                        </tr>
+                        <tr style="border: none">
+                        <label style="float:  left">Tolerance: </label>
+                        <input style="width: 50%; float:  right;" type="range" step="0.02" [(ngModel)]="inputValues[input.id].valueFixedTolerance" (change)="onInputsChanged()"/>
+                        <input style="width: 3em; float: right; margin-left: 1em" type="number" step="0.1" [(ngModel)]="inputValues[input.id].valueFixedTolerance" (change)="onInputsChanged()" />
+                        </tr>
                     </div>
                 </td>
             </ng-container>

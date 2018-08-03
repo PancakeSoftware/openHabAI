@@ -82,7 +82,7 @@ export class ApiChart implements OnInit, OnDestroy
         continue;
 
       if (this.inputValues[id].boundTo == '')
-        fixedInputs.push({id: Number(id), value: this.inputValues[id].valueFixed});
+        fixedInputs.push({id: Number(id), value: this.inputValues[id].valueFixed, tolerance: this.inputValues[id].valueFixedTolerance});
       else
         rangeInputs.push({id: Number(id), ...this.inputValues[id].valueRange});
     }
@@ -108,9 +108,15 @@ export class ApiChart implements OnInit, OnDestroy
 
         // test data
         let outList = value.data[0];
+        if (outList == undefined) {
+          this.chart.data.datasets[0].data = [];
+          this.chart.update();
+          return;
+        }
+
         //{
          // console.info( 'outList: ', outList[1]);
-          console.log('chart DATA update: ' + this.object.route, this.chart.chart.data);
+          console.log('chart DATA update: ' + this.object.route, outList);
 
           let boundToXId = Object.keys(this.inputValues).filter((id, index) => this.inputValues[id].boundTo == 'x')[0];
           if (boundToXId == undefined) {
@@ -170,6 +176,7 @@ export class ApiChart implements OnInit, OnDestroy
               id: input.id,
               boundTo: '',
               valueFixed: input.value,
+              valueFixedTolerance: input.tolerance,
               valueRange: {
                 from: -5,
                 to: 5,
@@ -184,6 +191,7 @@ export class ApiChart implements OnInit, OnDestroy
               id: input.id,
               boundTo: 'x',
               valueFixed: 0,
+              valueFixedTolerance: 0.1,
               valueRange: {
                 from: input.from,
                 to: input.to,
@@ -278,6 +286,7 @@ class ChartInput {
   id: number = 0;
   boundTo = "";
   valueFixed: number = 0;
+  valueFixedTolerance: number = 0.1;
   valueRange = {
     from: -5,
     to: 5,

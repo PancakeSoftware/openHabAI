@@ -25,7 +25,8 @@ list<pair<Client*, ApiRespond>> Catflow::responsesToSend;
  */
 void Catflow::sendData(Json data)
 {
-  server->sendBroadcast(data);
+  if (server != nullptr)
+    server->sendBroadcast(data);
 }
 
 void Catflow::send(ApiRequest message)
