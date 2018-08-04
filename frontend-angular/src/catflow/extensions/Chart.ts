@@ -124,8 +124,8 @@ export class ApiChart implements OnInit, OnDestroy
           }
           else {
             this.chart.data.datasets[outList[0]].data = outList[1].reduce((dataPoints, point) => dataPoints.concat({
-              x: point.inputs[boundToXId] [1],
-              y: point.value
+              x: this.round( point.inputs[boundToXId] [1] ),
+              y: this.round( point.value )
             }), []);
           }
 
@@ -277,6 +277,10 @@ export class ApiChart implements OnInit, OnDestroy
     this.objectUnsubscribe.complete();
   }
 
+
+  round(num: number): number {
+    return Math.round(num * 100000) / 100000
+  }
 
 }
 

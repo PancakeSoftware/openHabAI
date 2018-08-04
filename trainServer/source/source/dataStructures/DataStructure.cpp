@@ -29,7 +29,6 @@ DataStructure::DataStructure()
   });
 
   // setup chart
-  dataChart.setInputOutputNames({"x", "someInput", "otherInput"}, {"y"});
   dataChart.setUpdateFunctionRanged([this] (const vector<RangeParam> &inputRanges, vector<ValueParam> fixedInputs, const vector<int> &outputIds) {
     map<int, vector<ChartDataPoint>> result;
 
@@ -39,12 +38,12 @@ DataStructure::DataStructure()
     {
       // if inputs in range
       bool inRange = true;
-      for (RangeParam rangeParam : inputRanges) {
+      for (const RangeParam &rangeParam : inputRanges) {
         inRange &= (rangeParam.from <= record.first[rangeParam.id]) && (record.first[rangeParam.id] <= rangeParam.to);
         if (!inRange)
           break;
       }
-      for (ValueParam fixedParam : fixedInputs) {
+      for (const ValueParam &fixedParam : fixedInputs) {
         inRange &= (fixedParam.value -fixedParam.tolerance <= record.first[fixedParam.id]) && (record.first[fixedParam.id] <= fixedParam.value + fixedParam.tolerance);
         if (!inRange)
           break;
@@ -153,7 +152,7 @@ void FunctionDataStructure::onParamsChanged(vector<string> params)
   // re-calc if function or ranges changed
   if (contains(params, {"function", "inputRanges"}))
   {
-    debug("("+to_string(id)+") recalc function: " + function);
+    //debug("("+to_string(id)+") recalc function: " + function);
 
     // get list with all input combinations
     vector<vector<float>> inputGrid = createInputDataGrid(inputRanges);
@@ -198,6 +197,6 @@ void FunctionDataStructure::onParamsChanged(vector<string> params)
       data.push_back(make_pair(inputPoint, vector<float>{expression.value()}));
     }
     info("created " + to_string(getDataBatchIndices()) + " data-records");
-    info(Json{data}.dump(2));
+    //info(Json{data}.dump(2));
   }
 }

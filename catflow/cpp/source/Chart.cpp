@@ -44,9 +44,17 @@ ApiRespond *ParameterChart::processApi(ApiRequest request)
 
     // update chart data
     // @TODO if calc update is already in tasklist replace it
-    TaskManager::addTaskOnceOnly([this, route = this->route, &data = this->data, outputs = this->outputs, fixedInputs = this->fixedInputs, rangeInputs = this->rangeInputs, &updateFunc = this->updateFunc]() {
-      recalcData();
-    });
+    if (!TaskManager::containsTaskOnceOnly(this))
+    {
+      TaskManager::addTaskOnceOnly([this, route = this->route, &data = this->data, outputs = this->outputs,
+                                       fixedInputs = this->fixedInputs, rangeInputs = this->rangeInputs, &
+                                       updateFunc = this->updateFunc]()
+                                   {
+                                     recalcData();
+                                   }, this);
+    }
+    else
+      warn("task already in! ");
   }
 
   return respond;
@@ -61,10 +69,10 @@ void ParameterChart::recalcData()
   if (updateFunc != nullptr)
   {
     // for each rageInput
-    function<void(vector<RangeParam>::const_iterator, map<int, float>)> createData =
-        [&](vector<RangeParam>::const_iterator input, map<int, float> inputData)
+    function<void(vector<RangeParam>::const_iterator, vector<RangeParam>::const_iterator, map<int, float>)> createData =
+        [&](vector<RangeParam>::const_iterator input,vector<RangeParam>::const_iterator inputsEnd, map<int, float> inputData)
         {
-          if (input == rangeInputs.end())
+          if (input == inputsEnd)
           {
             //debug("create dataPoint at "+ Json{inputData}.dump());
             for (auto i: updateFunc(inputData, outputs))
@@ -86,7 +94,7 @@ void ParameterChart::recalcData()
           {
             map<int, float> nInputData = inputData;
             nInputData.emplace(input->id, i);
-            createData(input + 1, nInputData);
+            createData(input + 1, inputsEnd, nInputData);
             if (step == 0)
               break;
           }
@@ -99,7 +107,7 @@ void ParameterChart::recalcData()
     map<int, float> inputDat;
     for (auto i: fixedInputs) // insert fixedInputs
       inputDat.emplace(i.id, i.value);
-    createData(rangeInputs.begin(), inputDat); // generate data by rangeInputs
+    createData(rangeInputs.begin(), rangeInputs.end(), inputDat); // generate data by rangeInputs
     //debug("will send to Catflow: " + route.get().toString() + "  =   " + to_string(data.size()) + Json(data).dump(2));
   }
   // range update function

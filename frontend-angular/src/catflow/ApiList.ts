@@ -54,9 +54,9 @@ export class ApiList<T> extends ApiRouteContainig
    * @param item
    * @returns {Promise} add done
    */
-  add(item: T): Promise<number>
+  add(item: T): Promise<any>
   {
-    return new Promise<number>((resolve, reject ) => {
+    return new Promise<any>((resolve, reject ) => {
       ApiConnection.sendRequest(this.route, "add", (status, data) => {
         if (status == 'ok')
         {

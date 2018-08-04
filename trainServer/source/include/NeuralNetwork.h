@@ -11,6 +11,7 @@
 #include <Catflow.h>
 #include <ApiRoute.h>
 #include <Chart.h>
+#include <util/TaskManager.h>
 using namespace std;
 using namespace mxnet::cpp;
 class DataStructure;
@@ -22,8 +23,9 @@ class NeuralNetwork : public ApiRouteJson
   public:
     DataStructure &structure;
     int id;
+    TaskId trainTaskId;
 
-    string name, optimizer = "sgd";
+    string name, optimizerType = "sgd";
     float learnrate = 0;
     int hiddenLayers, neuronsPerLayer;
 
@@ -34,7 +36,7 @@ class NeuralNetwork : public ApiRouteJson
         param("hidden", hiddenLayers);
         param("neuronsPerHidden", neuronsPerLayer);
         param("learnRate", learnrate);
-        param("optimizer", optimizer);
+        param("optimizer", optimizerType);
     }
 
     static void init(Context *mxContext);
@@ -74,6 +76,11 @@ class NeuralNetwork : public ApiRouteJson
     // Charts
     Catflow::Chart chartProgress;
     Catflow::Chart chartShape;
+
+    // train
+    Executor* exe{nullptr};
+    Optimizer *optimizer{nullptr};
+    vector<float> trainDataX;
 
 };
 

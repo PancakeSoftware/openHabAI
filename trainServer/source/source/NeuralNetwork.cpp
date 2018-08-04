@@ -35,17 +35,25 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
   /*
    * onw actions
    */
-  addAction("startTrain", [this](ApiRequest request) {
-      trainInNewThread();
-      //TaskManager::addTaskRepeating([this]{ info("train from task ..."); });
+  addAction("startTrain", [this](ApiRequest request) -> ApiRespond*
+  {
+    // not already training
+    if (!trainTaskId.isValid()) {
+      train();
       return new ApiRespondOk(request);
+    }
+    else
+      return new ApiRespondError("training is already running", request);
   });
-  addAction("stopTrain", [this](ApiRequest request) {
-      stopTrain();
+  addAction("stopTrain", [this](ApiRequest request) -> ApiRespond*
+  {
+    if (TaskManager::removeTaskRepeating(trainTaskId))
       return new ApiRespondOk(request);
+    else
+      return new ApiRespondError("can't stop task", request);
   });
-  addAction("resetModel", [this](ApiRequest request) {
-
+  addAction("resetModel", [this](ApiRequest request)
+  {
     TaskManager::addTaskOnceOnly([this] {
     // -- INIT ALL random  ----
     auto initializer = Uniform(0.01);
@@ -57,7 +65,7 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
 
       // re display
       chartProgressT.recalcData(); // @TODO: non blocking
-    });
+    }, this);
 
     return new ApiRespondOk(request);
   });
@@ -169,10 +177,15 @@ void NeuralNetwork::train()
   /* --------------------------------------
   * Train
   */
-  Executor* exe = symLossOut.SimpleBind(*ctx, graphValues, map<std::string, NDArray>()); //, graphGradientOps);
+  if (exe != nullptr)
+    delete exe;
+  if (optimizer != nullptr)
+    delete optimizer;
+
+  exe = symLossOut.SimpleBind(*ctx, graphValues, map<std::string, NDArray>()); //, graphGradientOps);
 
   // setup optimizer
-  Optimizer *optimizer = OptimizerRegistry::Find("sgd");
+  optimizer = OptimizerRegistry::Find("sgd");
   optimizer
       ->SetParam("rescale_grad", 1.0)
       ->SetParam("lr", learnrate)       // learn rate
@@ -183,16 +196,16 @@ void NeuralNetwork::train()
   /* -----------------------------------
    * Generate Train data
    */
-  vector<float> x;
+  trainDataX.clear();
   vector<float> y;
 
   for (float i = 0; i < batchSize/2; i+= 0.5)
   {
-    x.push_back(i);
+    trainDataX.push_back(i);
     y.push_back(sin(i*1)*pow(i+2, 2)*0.012);
   }
 
-  graphValues["x"].SyncCopyFromCPU(x);
+  graphValues["x"].SyncCopyFromCPU(trainDataX);
   graphValues["label"].SyncCopyFromCPU(y);
 
   cout << endl;
@@ -244,7 +257,7 @@ void NeuralNetwork::train()
   trainEnable = true;
 
 
-  while (trainEnable)
+  trainTaskId = TaskManager::addTaskRepeating([this]
   {
     exe->Forward(true);
 
@@ -263,7 +276,8 @@ void NeuralNetwork::train()
       graphValues["x"].SyncCopyToCPU(&xs, batchSize);
 
       chartProgressT.recalcData();
-      graphValues["x"].SyncCopyFromCPU(x);
+      // set old data
+      graphValues["x"].SyncCopyFromCPU(trainDataX);
       //chartShape.setGraphData("network",  xs, ys).changeApply();
     }
 
@@ -281,7 +295,7 @@ void NeuralNetwork::train()
     }
 
     iteration++;
-  }
+  });
 
 
   cout << endl;
