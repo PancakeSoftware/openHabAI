@@ -11,6 +11,7 @@
 class RangeParam;
 class ValueParam;
 class ChartDataPoint;
+class ChartDataPointSimple;
 
 
 /*
@@ -24,33 +25,8 @@ class Chart: public ApiJsonObject
     /*
      * Json keys */
     void params() override { ApiJsonObject::params();
-    }
-
-    ApiRespond *processApi(ApiRequest request) override;
-
-    /**
-     * send change data to subscribers
-     */
-    void pushUpdate();
-};
-
-/*
- * chart for multidimensional data
- * all is updated
- */
-class ParameterChart: public Chart
-{
-  public:
-    ParameterChart();
-
-    /*
-     * Json keys */
-    void params() override { Chart::params();
       paramReadOnly("inputNames", inputNames);
       paramReadOnly("outputNames", outputNames);
-      param("fixedInputs", fixedInputs);
-      param("rangeInputs", rangeInputs);
-      param("outputs", outputs);
     }
 
     /**
@@ -85,6 +61,35 @@ class ParameterChart: public Chart
         this->outputNames.emplace(i++, name);
     }
 
+    ApiRespond *processApi(ApiRequest request) override;
+
+    /**
+     * send change data to subscribers
+     */
+    void pushUpdate();
+
+  protected:
+    map<int, string> inputNames;
+    map<int, string> outputNames;
+};
+
+/*
+ * chart for multidimensional data
+ * all is updated
+ */
+class ParameterChart: public Chart
+{
+  public:
+    ParameterChart();
+
+    /*
+     * Json keys */
+    void params() override { Chart::params();
+      param("fixedInputs", fixedInputs);
+      param("rangeInputs", rangeInputs);
+      param("outputs", outputs);
+    }
+
     /**
      * set the function for generating chart data
      * @param func generates for given inputValue( map<inputID, value> ) outputValue( map<outputID, value> )
@@ -111,9 +116,6 @@ class ParameterChart: public Chart
     ApiRespond *processApi(ApiRequest request) override;
 
   private:
-    map<int, string> inputNames;
-    map<int, string> outputNames;
-
     vector<ValueParam> fixedInputs;
     vector<RangeParam> rangeInputs;
     vector<int> outputs;
@@ -131,6 +133,33 @@ class ParameterChart: public Chart
  */
 class SeriesChart: public Chart
 {
+  public:
+    SeriesChart();
+
+    /**
+     * add dataPoint to chart
+     * @param outputId
+     * @param inputValues
+     * @param outputValue
+     */
+    void addDataPoint(int outputId, vector<float> inputValues, float outputValue);
+
+    /**
+     * add dataPoint to chart
+     * @param outputName
+     * @param inputValues
+     * @param outputValue
+     */
+    void addDataPoint(string outputName, vector<float> inputValues, float outputValue);;
+
+    /**
+     * delete all data form chart
+     */
+    void clearData();
+
+  protected:
+    map<int, vector<ChartDataPointSimple>> data;
+
 
 };
 
@@ -183,5 +212,17 @@ class ChartDataPoint: public JsonObject{
     }
 };
 
+class ChartDataPointSimple: public JsonObject{
+  public:
+    float value;
+    vector<float> inputs;
+
+    ChartDataPointSimple(float value, vector<float> inputs) : value(value), inputs(inputs) {}
+
+    void params() override {
+      param("value", value);
+      paramReadOnly("inputs", inputs);
+    }
+};
 
 #endif //OPENHABAI_CHART_H

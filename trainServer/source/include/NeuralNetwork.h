@@ -58,7 +58,9 @@ class NeuralNetwork : public ApiRouteJson
     /*
      * charts */
     ApiRoute        charts;
-    ParameterChart  chartProgressT;
+    ParameterChart  chartNetworkOutput;
+    SeriesChart     chartNetworkProgress;
+
 
   private:
     map<std::string, NDArray> graphValues;
@@ -74,10 +76,6 @@ class NeuralNetwork : public ApiRouteJson
     bool trainEnable;
 
     void printSymbolShapes(map<string, NDArray> map1);
-
-    // Charts
-    Catflow::Chart chartProgress;
-    Catflow::Chart chartShape;
 
     // train
     Executor* exe{nullptr};

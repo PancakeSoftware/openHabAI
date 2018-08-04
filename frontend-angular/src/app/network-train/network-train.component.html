@@ -33,19 +33,31 @@
   <div class="col s12">
     <div class="card">
       <div class="card-content">
-        <span class="card-title">Network Progress</span>
+        <span class="card-title">Charts</span>
 
         <div class="row">
+          <h6>Loss</h6>
           <div class="col s12 m6">
+            <chart-series #networkProgressChart></chart-series>
+          </div>
+          <div class="col s12 m6">
+            <p>Loss: <b>{{lastProgressValue}}</b></p>
+          </div>
+        </div>
+
+        <div class="row">
+
+          <div class="col s12 m6">
+            <h6>Network output</h6>
             <chart-range #networkChart></chart-range>
           </div>
 
           <div class="col s12 m6">
+            <h6>Training data</h6>
             <chart-range #dataChart>
                     <!--[inputs]="[ {id: 0, name: 'x'}, {id: 10, name: 'y'}, {id: 2, name: 'z'}, {id: 3, name: 'u'} ]"
                     [outputs]="[{id: 0, name: 'f(x, y, z, u)'}]">-->
             </chart-range>
-
           </div>
         </div>
 

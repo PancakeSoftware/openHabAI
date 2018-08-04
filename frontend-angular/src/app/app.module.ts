@@ -21,6 +21,7 @@ import {KeysPipe} from "@catflow/Utils";
 import { SettingsComponent } from './settings/settings.component';
 import { SelectionViewComponent } from './settings/selection-view/selection-view.component';
 import {SettingsService} from "@frontend/settings/settings.service";
+import {ApiSeriesChart} from "@catflow/extensions/Chart-series";
 
 
 
@@ -34,6 +35,7 @@ import {SettingsService} from "@frontend/settings/settings.service";
     NetworksComponent,
     NetworkTrainComponent,
     ApiChart,
+    ApiSeriesChart,
     KeysPipe,
     SettingsComponent,
     SelectionViewComponent

@@ -21,6 +21,8 @@ export class NetworkTrainComponent implements OnInit {
 
   @ViewChild('dataChart') dataChart;
   @ViewChild('networkChart') networkChart;
+  @ViewChild('networkProgressChart') networkProgressChart;
+  lastProgressValue: number = -1;
   private dataChartInited: boolean = false;
 
   constructor(private router: ActivatedRoute,
@@ -60,7 +62,9 @@ export class NetworkTrainComponent implements OnInit {
 
     if (!this.dataChartInited) {
       this.dataChart.apiObject = this.api.object('/dataStructures/' + this.structureID + '/dataChart/');
-      this.networkChart.apiObject = this.api.object('/dataStructures/' + this.structureID + '/networks/' + this.networkID + '/charts/progress/');
+      this.networkChart.apiObject = this.api.object('/dataStructures/' + this.structureID + '/networks/' + this.networkID + '/charts/netOutput/');
+      this.networkProgressChart.apiObject = this.api.object('/dataStructures/' + this.structureID + '/networks/' + this.networkID + '/charts/progress/');
+      this.networkProgressChart.lastValues.subscribe(value => this.lastProgressValue = Math.round(value[0] *100000) /100000);
       this.dataChartInited = true;
     }
 

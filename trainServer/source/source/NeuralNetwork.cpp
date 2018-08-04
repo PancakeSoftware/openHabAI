@@ -25,11 +25,10 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure, Json params)
 
 NeuralNetwork::NeuralNetwork(DataStructure *structure)
     : ApiRouteJson(),
-      chartProgressT(),
+      chartNetworkOutput(),
+      chartNetworkProgress(),
       charts(),
-      structure(*structure),
-      chartProgress(Catflow::getChart("progress")),
-      chartShape(Catflow::getChart("outputShape"))
+      structure(*structure)
 {
   setLogName("NETWORK");
 
@@ -65,7 +64,8 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
       }
 
       // re display
-      chartProgressT.recalcData(); // @TODO: non blocking
+      chartNetworkProgress.clearData();
+      chartNetworkOutput.recalcData(); // @TODO: non blocking
     }, this);
 
     return new ApiRespondOk(request);
@@ -74,22 +74,23 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
   /*
    * mount charts */
   setSubRoutes({{"charts", &charts}});
-  charts.setSubRoutes({{"progress", &chartProgressT}});
+  charts.setSubRoutes({{"netOutput", &chartNetworkOutput},
+                       {"progress", &chartNetworkProgress}});
 
   /*
    * charts update functions */
-  chartProgressT.setInputOutputNames({"x"}, {"y"});
-  chartProgressT.setUpdateFunction([this] (const map<int, float> &inputValues, const vector<int> &outputIds) {
+  chartNetworkOutput.setInputOutputNames({"x"}, {"y"});
+  chartNetworkOutput.setUpdateFunction([this] (const map<int, float> &inputValues, const vector<int> &outputIds) {
     map<int, float> out;
     out.emplace(0, inputValues.find(0)->second);
     //for (int id: outputIds)
     //  out[id] = inputValues[0]+inputValues[1]+inputValues[2]+inputValues[3] * id;
     return out;
   });
-
+  chartNetworkProgress.setInputOutputNames({"iteration"}, {"rmse-loss", "mse-loss"});
 
   // clear display
-  //chartProgress.setGraphData("error",  {}, {}).changeApply();
+
 
 
   /* --------------------------------------
@@ -236,12 +237,9 @@ void NeuralNetwork::train()
   graphValues["x"].SyncCopyToCPU(&xs, batchSize);
   //debug("x: " + Json{xs}.dump());
   //debug("label: " + Json{ys}.dump());
-  //chartShape.setGraphData("real",  xs, ys).changeApply();
 
 
-  //vector<float> xs{1,2,3};
-  //chartShape.setGraphData("real",  xs, structure.getDataBatch(xs)).changeApply();
-  chartProgressT.setUpdateFunction([this] (const map<int, float> &inputValues, const vector<int> &outputIds) {
+  chartNetworkOutput.setUpdateFunction([this] (const map<int, float> &inputValues, const vector<int> &outputIds) {
     Executor* exeChart = symLossOut.SimpleBind(*ctx, graphValues, map<std::string, NDArray>()); //, graphGradientOps);
 
     map<int, float> out;
@@ -261,7 +259,6 @@ void NeuralNetwork::train()
     exeChart->outputs[0].SyncCopyToCPU(&ys, batchSize);
     out.emplace(0, ys[0]);
 
-    //chartShape.setGraphData("network",  xs, ys).changeApply();
     delete exeChart;
 
     return out;
@@ -285,19 +282,37 @@ void NeuralNetwork::train()
      */
     if (iteration% (1000) == 0)
     {
-      cout << "Y: " << exe->outputs[0] << exe->outputs[0].At(0,0) << endl;
+      //cout << "Y: " << exe->outputs[0] << exe->outputs[0].At(0,0) << endl;
 
-      //chartProgress.setGraphData("error", {iteration}, {exe->outputs[0].At(0,0)}).addApply();
+      MSE mse;
+      RMSE rmse;
+      // Forward pass is enough as no gradient is needed when evaluating
+      exe->Forward(false);
 
-      vector<float> xs;
+      // reshape label to 1d
+      auto labelData = graphValues["label"].Reshape( Shape(graphValues["label"].GetShape()[0]) );
+
+      vector<float> labelDataLocal;
       vector<float> ys;
-      exe->outputs[0].SyncCopyToCPU(&ys, batchSize);
-      graphValues["x"].SyncCopyToCPU(&xs, batchSize);
+      exe->outputs[0].SyncCopyToCPU(&ys, exe->outputs[0].Size());
+      graphValues["label"].SyncCopyToCPU(&labelDataLocal, graphValues["label"].Size());
 
-      chartProgressT.recalcData();
+      debug("label: " + Json{labelDataLocal}.dump());
+      debug("real:  " + Json{ys}.dump());
+
+      mse.Update(labelData, exe->outputs[0]);
+      rmse.Update(labelData, exe->outputs[0]);
+
+      chartNetworkProgress.addDataPoint(0, {iteration}, rmse.Get());
+      chartNetworkProgress.addDataPoint(1, {iteration}, mse.Get());
+
+      //info("mse:  " + to_string(mse.Get()));
+      //info("rmse: " + to_string(rmse.Get()));
+
+      chartNetworkOutput.recalcData();
+
       // set old data
       graphValues["x"].SyncCopyFromCPU(trainDataX);
-      //chartShape.setGraphData("network",  xs, ys).changeApply();
     }
 
 

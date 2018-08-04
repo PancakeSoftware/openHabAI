@@ -120,3 +120,46 @@ void ParameterChart::recalcData()
   sendToSubscribers(ApiRequest(route.get(), "updateData", dataOut));
   data = dataOut;
 }
+
+
+
+/**
+ * -- SeriesChart -------------------------------------
+ */
+SeriesChart::SeriesChart()
+{
+  addAction("getAllData", [this](ApiRequest request) {
+    return new ApiRespondOk(data, request);
+  });
+}
+
+void SeriesChart::addDataPoint(int outputId, vector<float> inputValues, float outputValue)
+{
+  if (data.find(outputId) == data.end())
+    data.emplace(outputId, vector<ChartDataPointSimple>());
+
+  ChartDataPointSimple dataPoint = ChartDataPointSimple(outputValue, inputValues);
+  data[outputId].push_back(dataPoint);
+
+  // send data, update data in object
+  if (route.is_initialized())
+    sendToSubscribers(ApiRequest(route.get(), "addDataPoint", Json{
+        {"outputId", outputId},
+        {"dataPoint", dataPoint}
+    }));
+}
+
+void SeriesChart::addDataPoint(string outputName, vector<float> inputValues, float outputValue)
+{
+  for (auto el : outputNames) {
+    if (outputName == el.second)
+      addDataPoint(el.first, inputValues, outputValue);
+  }
+}
+
+void SeriesChart::clearData()
+{
+  for (auto el : data)
+    el.second.clear();
+  sendToSubscribers(ApiRequest(route.get(), "clearData"));
+}
