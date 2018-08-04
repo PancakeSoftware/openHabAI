@@ -58,7 +58,12 @@ class DataStructure : public ApiRouteJson
      * @note less effective because copy is made
      */
     virtual vector<pair<vector<float>, vector<float>>> getDataBatch(int indexBegin, int indexEnd) {
-        return vector<pair<vector<float>, vector<float>>>(data.begin()+indexBegin, data.begin()+indexEnd);
+        if ((indexBegin>= 0) && (indexBegin <= (getDataBatchIndices())) && (indexEnd <= (getDataBatchIndices())) && (indexBegin <= indexEnd))
+            return vector<pair<vector<float>, vector<float>>>(data.begin()+indexBegin, data.begin()+indexEnd);
+        else {
+            err("at getDataBatch(): indexBegin, indexEnd are not in range of " + to_string(getDataBatchIndices()) + " data-records");
+            return vector<pair<vector<float>, vector<float>>>();
+        }
     };
 
     /**

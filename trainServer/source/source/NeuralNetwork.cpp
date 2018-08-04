@@ -1,5 +1,6 @@
 #include <Catflow.h>
 #include <util/TaskManager.h>
+#include <dataStructures/DataStructure.h>
 #include "NeuralNetwork.h"
 
 Context *NeuralNetwork::ctx;
@@ -90,12 +91,11 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
   // clear display
   //chartProgress.setGraphData("error",  {}, {}).changeApply();
 
-  auto numHidden = 40;
-  batchSize = 20;
 
   /* --------------------------------------
    * Graph
    */
+  auto numHidden = 40;
   auto symX       = Symbol::Variable("x");
   auto symLabel   = Symbol::Variable("label");
 
@@ -140,21 +140,27 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
       symLabel
   );
 
+  graphBindIo();
+}
 
+void NeuralNetwork::graphBindIo()
+{
+  // set batch size
+  batchSize = structure.getDataBatchIndices();
 
   /* --------------------------------------
    * Graph Value Arrays
    */
 
   graphValues = {
-      {"x", NDArray(Shape(batchSize, 1), *ctx)},
+      {"x", NDArray(Shape(batchSize /* batch */, 1 /*inputs*/), *ctx)},
       {"label", NDArray(Shape(batchSize, 1), *ctx)}
   };
 
 
   // inter args
   symLossOut.InferArgsMap(*ctx, &graphValues, graphValues);
-  this->graphValueNames = symLossOut.ListArguments();
+  graphValueNames = symLossOut.ListArguments();
 
 
   // -- INIT ALL  ----
@@ -166,9 +172,7 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
   }
 
   printSymbolShapes(graphValues);
-  ok("new net created");
 }
-
 
 
 // -- TRAIN -----------------------------------------
@@ -189,8 +193,7 @@ void NeuralNetwork::train()
   optimizer
       ->SetParam("rescale_grad", 1.0)
       ->SetParam("lr", learnrate)       // learn rate
-      ->SetParam("wd", 0.01);           // weight decay
-
+      ->SetParam("wd", weightDecay);    // weight decay
 
 
   /* -----------------------------------
@@ -199,18 +202,31 @@ void NeuralNetwork::train()
   trainDataX.clear();
   vector<float> y;
 
-  for (float i = 0; i < batchSize/2; i+= 0.5)
+  // get train data
+  auto data = structure.getDataBatch(0, batchSize);
+  debug("data " + Json{data}.dump());
+  for (auto record : data) {
+    trainDataX.push_back(record.first[0]); // first x
+    y.push_back(record.second[0]); // first y
+  }
+  debug("trainDataX size: " + to_string(trainDataX.size()));
+
+  /*
+  int index = 0;
+  for (float i = 0; trainDataX.size() < batchSize; i+= 0.33) // until x=10
   {
     trainDataX.push_back(i);
     y.push_back(sin(i*1)*pow(i+2, 2)*0.012);
-  }
+    index++;
+  }*/
 
+  // copy train-data to compute-device
   graphValues["x"].SyncCopyFromCPU(trainDataX);
   graphValues["label"].SyncCopyFromCPU(y);
 
   cout << endl;
-  cout << "X: " << graphValues["x"] << endl;
-  cout << "L: " << graphValues["label"] << endl;
+  cout << "X("<< graphValues["x"].Size() <<"): " << graphValues["x"] << endl;
+  cout << "L("<< graphValues["label"].Size() <<"): " << graphValues["label"] << endl;
 
 
   // display function
@@ -218,6 +234,8 @@ void NeuralNetwork::train()
   vector<float> ys;
   graphValues["label"].SyncCopyToCPU(&ys, batchSize);
   graphValues["x"].SyncCopyToCPU(&xs, batchSize);
+  //debug("x: " + Json{xs}.dump());
+  //debug("label: " + Json{ys}.dump());
   //chartShape.setGraphData("real",  xs, ys).changeApply();
 
 
@@ -254,6 +272,7 @@ void NeuralNetwork::train()
    * train loop
    */
   cout << endl << "-- Train ----------------" << endl;
+  debug("learnRate: " + to_string(learnrate) + "  weightDecay: " + to_string(weightDecay));
   trainEnable = true;
 
 

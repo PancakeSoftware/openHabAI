@@ -34,7 +34,8 @@ export class NetworkTrainComponent implements OnInit {
       // setup form
       this.trainParams = fb.group({
           optimizer: "sgd",
-          learnRate: 12
+          learnRate: 12,
+          weightDecay: 0.1
         }
       );
 
@@ -80,8 +81,9 @@ export class NetworkTrainComponent implements OnInit {
 
       this.trainParams.setValue({
         optimizer: net.optimizer,
-        learnRate: net.learnRate
-      })
+        learnRate: net.learnRate,
+        weightDecay: net.weightDecay
+      });
     });
 
 
@@ -128,7 +130,7 @@ export class NetworkTrainComponent implements OnInit {
 
   onTriggerTrain(startTrain: boolean) {
     if (startTrain) {
-      toastInfo("start train: ", this.trainParams.value);
+      //toastInfo("start train: ", this.trainParams.value);
       this.network.update(this.trainParams.value);
       this.network.action('startTrain')
         .then(() => toastOk('start train'));

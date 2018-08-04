@@ -11,7 +11,7 @@
 ApiProcessible* Catflow::apiRoot = nullptr;
 ApiServer* Catflow::server = nullptr;
 
-Log Catflow::l("FRONTEND");
+Log Catflow::l("Catflow");
 set<Client *> Catflow::webSockConnections;
 set<set<Client*>*> Catflow::linkedWebSockConnections;
 

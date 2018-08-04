@@ -26,7 +26,8 @@ class NeuralNetwork : public ApiRouteJson
     TaskId trainTaskId;
 
     string name, optimizerType = "sgd";
-    float learnrate = 0;
+    float learnrate = 0.005;
+    float weightDecay = 0.01;
     int hiddenLayers, neuronsPerLayer;
 
     /* Json keys */
@@ -36,6 +37,7 @@ class NeuralNetwork : public ApiRouteJson
         param("hidden", hiddenLayers);
         param("neuronsPerHidden", neuronsPerLayer);
         param("learnRate", learnrate);
+        param("weightDecay", weightDecay);
         param("optimizer", optimizerType);
     }
 
@@ -82,6 +84,7 @@ class NeuralNetwork : public ApiRouteJson
     Optimizer *optimizer{nullptr};
     vector<float> trainDataX;
 
+    void graphBindIo();
 };
 
 

@@ -64,7 +64,7 @@
                             <h6>Inputs</h6>
                             <table class="col s12 m12">
                                 <tbody>
-                                <tr *ngFor="let input of formNewInputsList; let last = last">
+                                <tr *ngFor="let input of formNewInputsList; let index = index">
                                     <td>
                                         <label>Name: </label>
                                         <input type="text" [(ngModel)]="input.name" [ngModelOptions]="{standalone: true}"/>
@@ -81,12 +81,16 @@
                                         <input style="width: 3em;" type="number"
                                                [(ngModel)]="input.steps" [ngModelOptions]="{standalone: true}"/>
                                     </td>
+                                    <td>
+                                        <a class="waves-effect waves-light btn-flat white red-text" style="border: 1px solid"
+                                           (click)="formNewInputsList.splice(index, 1);"> <i class="material-icons small">delete</i> </a>
+                                    </td>
                                 </tr>
                                 </tbody>
                             </table>
                             <a class="btn waves-effect btn-small right green lighten-1" (click)="formNewInputsListAddNew()">New Input<i class="material-icons left">add</i></a>
                             <br>
-                            {{formNewInputsList | json}}
+                            <!--{{formNewInputsList | json}}-->
                         </div>
                     </div>
                     <!--
