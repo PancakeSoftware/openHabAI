@@ -95,7 +95,7 @@ class FunctionDataStructure : public DataStructure
 {
   public:
     string function;
-    vector<Range> inputRanges;
+    vector<RangeParam> inputRanges;
 
     /* Json keys */
     void params() override { DataStructure::params();

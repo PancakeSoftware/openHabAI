@@ -141,7 +141,8 @@ export class ApiSeriesChart implements OnInit, OnDestroy
               label: output[1],
               backgroundColor: color[output[0]],
               borderColor: color[output[0]],
-              fill: false
+              fill: false,
+              pointRadius: 0
             });
           }
           this.chart.update();

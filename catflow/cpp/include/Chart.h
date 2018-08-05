@@ -6,6 +6,7 @@
 #ifndef OPENHABAI_CHART_H
 #define OPENHABAI_CHART_H
 
+#include <util/util.h>
 #include "ApiJsonObject.h"
 #include "Catflow.h"
 class RangeParam;
@@ -163,34 +164,6 @@ class SeriesChart: public Chart
 
 };
 
-
-class RangeParam: public JsonObject{
-  public:
-    float from = 0;
-    float to = 0;
-    int steps = 1;
-    int id;
-
-    void params() override {
-      param("id", id);
-      param("from", from);
-      param("to", to);
-      param("steps", steps);
-    }
-};
-
-class ValueParam: public JsonObject{
-  public:
-    int id;
-    float value;
-    float tolerance;
-
-    void params() override {
-      param("id", id);
-      param("value", value);
-      param("tolerance", tolerance);
-    }
-};
 
 class ChartDataPoint: public JsonObject{
   public:

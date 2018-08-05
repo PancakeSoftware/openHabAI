@@ -81,7 +81,7 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
     this.dataStructuresList.add({
       ...this.formNew.value,
       ...{
-        inputRanges: this.formNewInputsList.map(input => {return {from: input.from, to: input.to, steps: input.steps}; }),
+        inputRanges: this.formNewInputsList.map((input, index) => {return {from: input.from, to: input.to, steps: input.steps, id: index}; }),
         inputNames: this.formNewInputsList.map(input => input.name)
       }
     }).then(value => toastOk('Added dataStructure (id: ' + value.id + '). Created  <b>' + value.dataRecords + 'data-records</b> ', 5000))

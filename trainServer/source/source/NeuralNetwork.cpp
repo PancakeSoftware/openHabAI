@@ -79,17 +79,42 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
 
   /*
    * charts update functions */
-  chartNetworkOutput.setInputOutputNames({"x"}, {"y"});
-  chartNetworkOutput.setUpdateFunction([this] (const map<int, float> &inputValues, const vector<int> &outputIds) {
-    map<int, float> out;
-    out.emplace(0, inputValues.find(0)->second);
-    //for (int id: outputIds)
-    //  out[id] = inputValues[0]+inputValues[1]+inputValues[2]+inputValues[3] * id;
-    return out;
+  chartNetworkOutput.setInputOutputNames(structure->inputNames, structure->outputNames);
+  chartNetworkOutput.setUpdateFunctionRanged([this, structure] (const vector<RangeParam> &inputRanges, vector<ValueParam> fixedInputs, const vector<int> &outputIds) {
+    Executor* exeChart = symLossOut.SimpleBind(*ctx, graphValues, map<std::string, NDArray>());
+    map<int, vector<ChartDataPoint>> result;
+
+    // generate input data
+    auto dataX =  createInputDataGrid(inputRanges, fixedInputs);
+    vector<float> dataXFlatten = flatten2DVec(dataX);
+    //debug("inputValues: " + Json{dataX}.dump());
+    int inputDimensions = structure->inputNames.size();
+    int iterations = ceil((float)dataX.size() / (float)batchSize);
+
+    // iterate throw whole data
+    for (int i = 0; i < iterations; ++i) {
+      // push throw model
+      graphValues["x"].SyncCopyFromCPU(dataXFlatten.data() + i*inputDimensions*batchSize, batchSize*inputDimensions); // @TODO in last iteration data is smaller than batchsize -> Error!?
+      exeChart->Forward(false);
+
+      // sync back
+      vector<float> ys;
+      exeChart->outputs[0].SyncCopyToCPU(&ys, batchSize);
+
+      // add to result
+      for (int j = 0; (j < ys.size()) && (i*batchSize+j < dataX.size()); ++j) {
+        result[0].push_back(ChartDataPoint(ys[j], dataX[i*batchSize+j]));
+        //debug("i: " + to_string(i) + "  j: " + to_string(j)+ "  val: "+ to_string(ys[j]) +"   dataX[i*batchSize+j]: " + Json{dataX[i*batchSize+j]}.dump());
+      }
+    }
+
+    // set old data
+    graphValues["x"].SyncCopyFromCPU(trainDataX);
+
+    delete exeChart;
+    return result;
   });
   chartNetworkProgress.setInputOutputNames({"iteration"}, {"rmse-loss", "mse-loss"});
-
-  // clear display
 
 
 
@@ -154,8 +179,8 @@ void NeuralNetwork::graphBindIo()
    */
 
   graphValues = {
-      {"x", NDArray(Shape(batchSize /* batch */, 1 /*inputs*/), *ctx)},
-      {"label", NDArray(Shape(batchSize, 1), *ctx)}
+      {"x", NDArray(Shape(batchSize /* batch */, structure.inputNames.size() /*inputs*/), *ctx)},
+      {"label", NDArray(Shape(batchSize, structure.outputNames.size()/* outputs */), *ctx)}
   };
 
 
@@ -206,9 +231,14 @@ void NeuralNetwork::train()
   // get train data
   auto data = structure.getDataBatch(0, batchSize);
   debug("data " + Json{data}.dump());
-  for (auto record : data) {
-    trainDataX.push_back(record.first[0]); // first x
-    y.push_back(record.second[0]); // first y
+  for (auto record : data)
+  {
+    for (float inDat : record.first)
+      trainDataX.push_back(inDat); // push inputValues after each other
+
+    // set label data
+    for (float outDat : record.second)
+      y.push_back(outDat);
   }
   debug("trainDataX size: " + to_string(trainDataX.size()));
 
@@ -228,6 +258,7 @@ void NeuralNetwork::train()
   cout << endl;
   cout << "X("<< graphValues["x"].Size() <<"): " << graphValues["x"] << endl;
   cout << "L("<< graphValues["label"].Size() <<"): " << graphValues["label"] << endl;
+  printSymbolShapes(graphValues);
 
 
   // display function
@@ -237,32 +268,6 @@ void NeuralNetwork::train()
   graphValues["x"].SyncCopyToCPU(&xs, batchSize);
   //debug("x: " + Json{xs}.dump());
   //debug("label: " + Json{ys}.dump());
-
-
-  chartNetworkOutput.setUpdateFunction([this] (const map<int, float> &inputValues, const vector<int> &outputIds) {
-    Executor* exeChart = symLossOut.SimpleBind(*ctx, graphValues, map<std::string, NDArray>()); //, graphGradientOps);
-
-    map<int, float> out;
-
-    vector<float> x;
-
-    for (float i = 0; i < batchSize; i++)
-    {
-      x.push_back(inputValues.find(0)->second);
-    }
-
-    graphValues["x"].SyncCopyFromCPU(x);
-    exeChart->Forward(false);
-
-
-    vector<float> ys;
-    exeChart->outputs[0].SyncCopyToCPU(&ys, batchSize);
-    out.emplace(0, ys[0]);
-
-    delete exeChart;
-
-    return out;
-  });
 
 
   /* --------------------
@@ -297,8 +302,8 @@ void NeuralNetwork::train()
       exe->outputs[0].SyncCopyToCPU(&ys, exe->outputs[0].Size());
       graphValues["label"].SyncCopyToCPU(&labelDataLocal, graphValues["label"].Size());
 
-      debug("label: " + Json{labelDataLocal}.dump());
-      debug("real:  " + Json{ys}.dump());
+      //debug("label: " + Json{labelDataLocal}.dump());
+      //debug("real:  " + Json{ys}.dump());
 
       mse.Update(labelData, exe->outputs[0]);
       rmse.Update(labelData, exe->outputs[0]);
@@ -306,13 +311,10 @@ void NeuralNetwork::train()
       chartNetworkProgress.addDataPoint(0, {iteration}, rmse.Get());
       chartNetworkProgress.addDataPoint(1, {iteration}, mse.Get());
 
-      //info("mse:  " + to_string(mse.Get()));
-      //info("rmse: " + to_string(rmse.Get()));
-
       chartNetworkOutput.recalcData();
 
       // set old data
-      graphValues["x"].SyncCopyFromCPU(trainDataX);
+      // graphValues["x"].SyncCopyFromCPU(trainDataX);
     }
 
 
