@@ -1,5 +1,5 @@
 /* 
- * File:   $HEADER_FILENAME
+ * File:   util.h
  * Author: Joshua Johannson
  *
   */
