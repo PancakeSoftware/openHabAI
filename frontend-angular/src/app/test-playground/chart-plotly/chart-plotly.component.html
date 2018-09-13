@@ -1,0 +1,63 @@
+<div #root>
+  <!-- chart canvas -->
+  <!--<canvas #chartElement id="chart-outputShape"></canvas>-->
+  <div #chartPlotlyElement></div>
+  <p (click)="animate();">animate!</p>
+  <p (click)="testAdd();">add!</p>
+
+  <!-- debug inputs list values -->
+  <!--
+  <p *ngFor="let o of inputValues | keys">
+      {{o.key}}
+      {{o.inputValues | json}}
+  </p>
+  -->
+  <!-- <pre style="height: 100px;">{{inputValues | json}}</pre> -->
+
+  <!-- Inputs List -->
+  <table class="col s12 m12">
+    <tbody>
+    <tr *ngFor="let input of inputs">
+      <td class="grey-text lighten-1">{{input.id}}</td>
+      <td class="blue-text bold">{{input.name | uppercase}}</td>
+      <td>
+        <label>
+          <select id="train-optimizer" materialize="material_select" [(ngModel)]="inputValues[input.id].boundTo" [class.green-text]="inputValues[input.id].boundTo != ''" (change)="onInputsChanged()">
+            <option value="" >Fixed</option>
+            <option value="x" >bound to X axis</option>
+            <option value="y" >bound to Y axis</option>
+          </select>
+        </label>
+      </td>
+
+      <ng-container *ngIf="inputValues[input.id].boundTo == ''">
+        <td>
+          <div>
+    <tr style="border: none">
+      <label style="float:  left">Value: </label>
+      <input style="width: 50%; float:  right;" type="range" step="0.1" [(ngModel)]="inputValues[input.id].valueFixed" (change)="onInputsChanged()"/>
+      <input style="width: 3em; float: right; margin-left: 1em" type="number" step="0.1" [(ngModel)]="inputValues[input.id].valueFixed" (change)="onInputsChanged()" />
+    </tr>
+    <tr style="border: none">
+      <label style="float:  left">Tolerance: </label>
+      <input style="width: 50%; float:  right;" type="range" step="0.02" [(ngModel)]="inputValues[input.id].valueFixedTolerance" (change)="onInputsChanged()"/>
+      <input style="width: 3em; float: right; margin-left: 1em" type="number" step="0.1" [(ngModel)]="inputValues[input.id].valueFixedTolerance" (change)="onInputsChanged()" />
+    </tr>
+</div>
+</td>
+</ng-container>
+
+<ng-container *ngIf="inputValues[input.id].boundTo != ''">
+  <td>
+    <label>From: </label>
+    <input style="width: 3em;" type="number" [(ngModel)]="inputValues[input.id].valueRange.from" value="0" (change)="onInputsChanged()" />
+    <label> To: </label>
+    <input style="width: 3em;" type="number" [(ngModel)]="inputValues[input.id].valueRange.to" value="1" (change)="onInputsChanged()" />
+    <label> Steps: </label>
+    <input style="width: 3em;" type="number" [(ngModel)]="inputValues[input.id].valueRange.steps" value="2" (change)="onInputsChanged()" />
+  </td>
+</ng-container>
+</tr>
+</tbody>
+</table>
+</div>

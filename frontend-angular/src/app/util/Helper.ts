@@ -17,3 +17,14 @@ export class Tabs {
 
   }
 }
+
+
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export function intersectsWithRect(pointToCheck: Point, rectUpLeft: Point, rectDownRight: Point) :boolean {
+  return (rectUpLeft.x <= pointToCheck.x) && (pointToCheck.x <= rectDownRight.x) &&
+         (rectUpLeft.y <= pointToCheck.y) && (pointToCheck.y <= rectDownRight.y);
+}

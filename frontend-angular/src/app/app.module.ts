@@ -16,12 +16,19 @@ import { NetworksComponent } from './networks/networks.component';
 import {RouteReuseStrategy} from "@angular/router";
 import { NetworkTrainComponent } from './network-train/network-train.component';
 import {Api} from "@catflow/Api";
-import {ApiChart} from "@catflow/extensions/Chart";
+import {ApiChart} from "@catflow/extensions/Chart-range";
 import {KeysPipe} from "@catflow/Utils";
 import { SettingsComponent } from './settings/settings.component';
 import { SelectionViewComponent } from './settings/selection-view/selection-view.component';
 import {SettingsService} from "@frontend/settings/settings.service";
 import {ApiSeriesChart} from "@catflow/extensions/Chart-series";
+import {AngularResizedEventModule} from "angular-resize-event";
+import { ModelEditorComponent } from './test-playground/model-editor/model-editor.component';
+import {AngularDraggableModule} from "angular2-draggable";
+import { TestPlaygroundComponent } from './test-playground/test-playground.component';
+import { ChartPlotlyComponent } from './test-playground/chart-plotly/chart-plotly.component';
+import { ModelEditorNodeComponent } from './test-playground/model-editor/model-editor-node/model-editor-node.component';
+import { ModelEditorConnectionComponent } from './test-playground/model-editor/model-editor-connection/model-editor-connection.component';
 
 
 
@@ -38,7 +45,12 @@ import {ApiSeriesChart} from "@catflow/extensions/Chart-series";
     ApiSeriesChart,
     KeysPipe,
     SettingsComponent,
-    SelectionViewComponent
+    SelectionViewComponent,
+    ModelEditorComponent,
+    TestPlaygroundComponent,
+    ChartPlotlyComponent,
+    ModelEditorNodeComponent,
+    ModelEditorConnectionComponent
   ],
   imports: [
     BrowserModule,
@@ -47,12 +59,18 @@ import {ApiSeriesChart} from "@catflow/extensions/Chart-series";
     FormsModule,
     ApPrismModule,
     NgxAutoScrollModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    AngularResizedEventModule,
+    AngularDraggableModule
   ],
   providers: [
     Api,
     SettingsService
     /*{provide: RouteReuseStrategy, useClass: CustomReuseStrategy}*/
+  ],
+  entryComponents: [
+    ModelEditorNodeComponent,
+    ModelEditorConnectionComponent
   ],
   bootstrap: [AppMainComponent]
 })

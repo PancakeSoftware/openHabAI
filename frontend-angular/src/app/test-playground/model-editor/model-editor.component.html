@@ -1,0 +1,26 @@
+<div style="">
+  <p>
+    model-editor works!
+  </p>
+
+
+  <div class="backgroundCol" >
+    <div style="" class="blueprintBackground" #editorPanel>
+      <!--<canvas #backCanvas style="position: absolute; height: 300px;"></canvas>-->
+      <div style="position: absolute;">
+        <template #connections></template>
+        <template #nodes></template>
+
+
+      </div>
+
+      <!--<app-model-editor-connection></app-model-editor-connection>-->
+    </div>
+  </div>
+  <div class="btn" (click)="createNode()">Add Layer</div>
+
+  <!--
+  <div #draggable ngDraggable
+          style="height: 200px; width: 200px; background-color: #00acc1"></div>
+  -->
+</div>

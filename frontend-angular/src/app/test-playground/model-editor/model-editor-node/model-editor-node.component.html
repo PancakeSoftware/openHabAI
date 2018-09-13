@@ -1,0 +1,11 @@
+<div class="node" #box>
+  <div class="in-port port" #inPort (mousedown)="portInRemove($event)"></div>
+  <h5>Layer 1</h5>
+  <p>Index: {{index}} ___ Pos: {{pos.x}}, {{pos.y}}</p>
+  <label>
+    Size
+    <input type="number"/>
+  </label>
+  <div class="btn waves-effect" (click)="remove();">Remove</div>
+</div>
+<div class="out-port port" #outPort (mousedown)="portOutAdd($event)"></div>

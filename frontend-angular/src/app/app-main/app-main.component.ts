@@ -6,6 +6,7 @@ import {NetworksAndTrainComponent} from "../networks-and-train/networks-and-trai
 import {toastErr, toastInfo} from "../util/Log";
 import {DOCUMENT} from "@angular/common";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {TestPlaygroundComponent} from "@frontend/test-playground/test-playground.component";
 
 /*
  *-- MainComponent ------------------------------------------------------- */
@@ -58,6 +59,8 @@ export class AppMainComponent {
  *-- Routing ------------------------------------------------------- */
 const routes: Routes = [
   {path: '', component: DatastructureAndSettingsComponent},
+  {path: 'testPlayground', component: TestPlaygroundComponent},
+  {path: 'test', component: TestPlaygroundComponent},
   {path: 'dataStructure/:structureID', component: NetworksAndTrainComponent},
   {path: 'dataStructure/:structureID/network/:networkID', component: NetworksAndTrainComponent},
   {path: 'dataStructure/:structureID/network/:networkID/train', component: NetworksAndTrainComponent}
