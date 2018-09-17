@@ -8,7 +8,14 @@ export class Drag {
   onDrag;
   onEnd;
 
+  funcDown;
+  funcMove;
+  funcUp;
+  static count = 0;
+
   constructor(el, onTranslate, onStart = () => {}, onDrag = () => {}, onEnd = () => {}) {
+    Drag.count++;
+    console.info('Drag: ', Drag.count);
     this.mouseStart = null;
 
     this.el = el;
@@ -17,17 +24,21 @@ export class Drag {
     this.onDrag = onDrag;
     this.onEnd = onEnd;
 
+    this.funcDown = this.down.bind(this);
+    this.funcUp = this.up.bind(this);
+    this.funcMove = this.move.bind(this);
+
     if (el)
-      el.addEventListener('mousedown', this.down.bind(this));
+      el.addEventListener('mousedown', this.funcDown);
     else
-      window.addEventListener('mousedown', this.down.bind(this));
-    window.addEventListener('mousemove', this.move.bind(this));
-    window.addEventListener('mouseup', this.up.bind(this));
+      window.addEventListener('mousedown', this.funcDown);
+    window.addEventListener('mousemove', this.funcMove);
+    window.addEventListener('mouseup', this.funcUp);
 
     if (el) {
-      el.addEventListener('touchstart', this.down.bind(this)); }
-    window.addEventListener('touchmove', this.move.bind(this), false);
-    window.addEventListener('touchend', this.up.bind(this));
+      el.addEventListener('touchstart', this.funcDown); }
+    window.addEventListener('touchmove', this.funcMove, false);
+    window.addEventListener('touchend', this.funcUp);
   }
 
   getCoords(e) {
@@ -84,5 +95,28 @@ export class Drag {
     this.mouseStart = null;
     if (this.onDrag)
       this.onDrag(e);
+  }
+
+  destroy() {
+    if (this.el)
+      this.el.removeEventListener('mousedown', this.funcDown);
+    else
+      window.removeEventListener('mousedown', this.funcDown);
+    window.removeEventListener('mousemove', this.funcMove);
+    window.removeEventListener('mouseup', this.funcUp);
+
+    if (this.el) {
+      this.el.removeEventListener('touchstart', this.funcDown); }
+    window.removeEventListener('touchmove', this.funcMove, false);
+    window.removeEventListener('touchend', this.funcUp);
+
+    // cleanup
+    this.el = null;
+    this.onTranslate = null;
+    this.onStart = null;
+    this.onDrag = null;
+    this.onEnd = null;
+
+    Drag.count--;
   }
 }

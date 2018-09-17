@@ -29,6 +29,7 @@ class NeuralNetwork : public ApiRouteJson
     float learnrate = 0.005;
     float weightDecay = 0.01;
     int hiddenLayers, neuronsPerLayer;
+    Json modelDefinition;
 
     /* Json keys */
     void params() override { JsonObject::params();
@@ -39,6 +40,7 @@ class NeuralNetwork : public ApiRouteJson
         param("learnRate", learnrate);
         param("weightDecay", weightDecay);
         param("optimizer", optimizerType);
+        param("modelDefinition", modelDefinition);
     }
 
     static void init(Context *mxContext);

@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {ModelEditorNodeComponent} from "@frontend/test-playground/model-editor/model-editor-node/model-editor-node.component";
 import {Drag} from "@frontend/test-playground/model-editor/Drag";
 import {Point} from "@frontend/util/Helper";
@@ -16,7 +16,7 @@ import {ModelEditorComponent} from "@frontend/test-playground/model-editor/model
     }
   `]
 })
-export class ModelEditorConnectionComponent implements OnInit, AfterViewInit {
+export class ModelEditorConnectionComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('svg') svg;
   static tension = 0.5;
@@ -123,6 +123,9 @@ export class ModelEditorConnectionComponent implements OnInit, AfterViewInit {
     </svg>`;
   }
 
+  ngOnDestroy() {
+    this.dragOutput.destroy();
+  }
 }
 
 

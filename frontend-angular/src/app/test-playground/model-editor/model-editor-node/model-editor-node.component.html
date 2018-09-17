@@ -1,11 +1,22 @@
-<div class="node" #box>
-  <div class="in-port port" #inPort (mousedown)="portInRemove($event)"></div>
-  <h5>Layer 1</h5>
-  <p>Index: {{index}} ___ Pos: {{pos.x}}, {{pos.y}}</p>
-  <label>
-    Size
-    <input type="number"/>
-  </label>
-  <div class="btn waves-effect" (click)="remove();">Remove</div>
+<div class="node" #box [class.ioPort]="operationType === 'Input' || operationType === 'Label'">
+  <div class="in-port port" #inPort (mousedown)="portInRemove($event)" *ngIf="operationType !== 'Input'"></div>
+  <i class="material-icons small right btn-rm" style="margin-top: 0.82rem;" (click)="remove();" *ngIf="operationType !== 'Input' && operationType !== 'Label'">delete</i>
+  <h5>{{operationType}}</h5>
+  <div>
+    <label *ngIf="operationType !== 'Input' && operationType !== 'Label'">
+      name
+      <input type="text" [(ngModel)]="operationLayerName" (mousedown)="eventPrevent($event)">
+    </label>
+    <ng-container *ngFor="let param of operationParams">
+      <label>
+        {{param.discr ? param.discr : param.name}}
+        <input *ngIf="param.select == undefined" [type]="param.type" [(ngModel)]="param.value" (mousedown)="eventPrevent($event)"/>
+        <select *ngIf="param.select != undefined" materialize="material_select" [(ngModel)]="param.value" (mousedown)="eventPrevent($event)">
+          <option *ngFor="let option of param.select" [value]="option" >{{option}}</option>
+        </select>
+      </label>
+    </ng-container>
+    <p>index: {{index}}</p>
+  </div>
 </div>
-<div class="out-port port" #outPort (mousedown)="portOutAdd($event)"></div>
+<div class="out-port port" #outPort (mousedown)="portOutAdd($event)" *ngIf="operationType !== 'Label'"></div>

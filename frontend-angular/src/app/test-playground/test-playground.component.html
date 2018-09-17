@@ -3,7 +3,8 @@
     <div class="card-content">
         <div class="card-title">app-model-editor</div>
         <div class="col s12 card-content">
-            <app-model-editor></app-model-editor>
+            <div class="btn" (click)="editor.modelFromJson(this.editor.modelJson);">reset</div>
+            <app-model-editor #editorEl></app-model-editor>
         </div>
     </div>
 </div>

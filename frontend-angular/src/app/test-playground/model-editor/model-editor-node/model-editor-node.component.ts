@@ -1,4 +1,14 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {
+  AfterContentChecked, AfterViewChecked,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input, OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import {Drag} from "@frontend/test-playground/model-editor/Drag";
 import {
   ModelEditorConnectionComponent,
@@ -6,13 +16,20 @@ import {
 } from "@frontend/test-playground/model-editor/model-editor-connection/model-editor-connection.component";
 import {ModelEditorComponent} from "@frontend/test-playground/model-editor/model-editor.component";
 import {intersectsWithRect, Point} from "@frontend/util/Helper";
+import {type} from "os";
 
 @Component({
   selector: 'app-model-editor-node',
   templateUrl: './model-editor-node.component.html',
   styleUrls: ['./model-editor-node.component.scss']
 })
-export class ModelEditorNodeComponent implements OnInit, AfterViewInit {
+export class ModelEditorNodeComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  /* Model operation type and params
+   */
+  protected operationType: string = "?";
+  protected operationLayerName: string = "";
+  protected operationParams: OperationParam[] = [];
 
   @Input() editor: ModelEditorComponent;
   @Input() editorPanel;
@@ -87,6 +104,8 @@ export class ModelEditorNodeComponent implements OnInit, AfterViewInit {
   }
 
   inputPortIntersectsWithPos(pos: Point):boolean {
+    if (!this.inPort)
+      return false;
     return intersectsWithRect(pos, {
       x: this.pos.x + this.inPort.nativeElement.offsetLeft,
       y: this.pos.y +this.inPort.nativeElement.offsetTop
@@ -99,19 +118,25 @@ export class ModelEditorNodeComponent implements OnInit, AfterViewInit {
 
 
   calcPortOffsets() {
-    this.inPortOffset = {
-      x: this.inPort.nativeElement.offsetLeft + this.inPort.nativeElement.offsetWidth/2,
-      y: this.inPort.nativeElement.offsetTop + this.inPort.nativeElement.offsetHeight/2
-    };
-    this.outPortOffset = {
-      x: this.outPort.nativeElement.offsetLeft + this.outPort.nativeElement.offsetWidth/2,
-      y: this.outPort.nativeElement.offsetTop + this.outPort.nativeElement.offsetHeight/2
-    };
+    if (this.inPort)
+      this.inPortOffset = {
+        x: this.inPort.nativeElement.offsetLeft + this.inPort.nativeElement.offsetWidth/2,
+        y: this.inPort.nativeElement.offsetTop + this.inPort.nativeElement.offsetHeight/2
+      };
+    if (this.outPort)
+      this.outPortOffset = {
+        x: this.outPort.nativeElement.offsetLeft + this.outPort.nativeElement.offsetWidth/2,
+        y: this.outPort.nativeElement.offsetTop + this.outPort.nativeElement.offsetHeight/2
+      };
+  }
+
+  eventPrevent(event) {
+    event.stopPropagation();
   }
 
   drag: Drag;
   gotSize = false;
-  visibleObersver;
+  visibleObserver;
 
   ngAfterViewInit() {
     this.calcPortOffsets();
@@ -120,16 +145,21 @@ export class ModelEditorNodeComponent implements OnInit, AfterViewInit {
      * when element is visible
      * => reCalc port offests
      */
-    this.visibleObersver = new IntersectionObserver((entries) => {
+    this.visibleObserver = new IntersectionObserver((entries) => {
       if (entries[0].intersectionRatio) {
         this.calcPortOffsets();
         this.refreshConnections();
-        this.visibleObersver.unobserve(this.el.nativeElement);
+        // @TODO ugly workaround for waiting until params are rendered
+        setTimeout(() => {
+          this.calcPortOffsets();
+          this.refreshConnections();
+        },0);
+        this.visibleObserver.unobserve(this.el.nativeElement);
       }
     }, {
       root: document.body
     });
-    this.visibleObersver.observe(this.el.nativeElement);
+    this.visibleObserver.observe(this.el.nativeElement);
 
 
     /**
@@ -152,13 +182,16 @@ export class ModelEditorNodeComponent implements OnInit, AfterViewInit {
       py = py < 0 ? 0 : py;
       py = py > height - this.box.nativeElement.offsetHeight ? height - this.box.nativeElement.offsetHeight : py;
 
-      //console.log(`refreshView(${px}px, ${py}px),  ${x}, ${y}`);
-      this.el.nativeElement.style.transform = `translate(${px}px, ${py}px)`;
-      this.pos = {x:px, y:py};
+      this.setPosition({x: px, y: py});
 
       this.refreshConnections();
     });
     this.refreshConnections();
+  }
+
+  setPosition(pos: Point) {
+    this.pos = pos;
+    this.el.nativeElement.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
   }
 
   refreshConnections() {
@@ -173,4 +206,67 @@ export class ModelEditorNodeComponent implements OnInit, AfterViewInit {
     }
   }
 
+
+  /**
+   * model operation types
+   */
+  setOperationType(type: string) {
+    this.operationType = type;
+    switch (type)
+    {
+      case "FullyConnected":
+        this.operationParams = [
+          {type: "number", name: "num_hidden", discr: "size", value:  0},
+          {type: "text", name: "activationFunction", value: "tanh", select: ["tanh", "relu", "none"]}
+        ];
+        break;
+
+      case "Activation":
+        this.operationParams = [
+          {type: "text", name: "activationFunction", value: "tanh", select: ["tanh", "relu"]}
+        ];
+        break;
+
+      case "Input":
+      case "Label":
+        this.operationParams = [];
+        break;
+    }
+  }
+
+  getOperationType(): string {
+    return this.operationType;
+  }
+
+
+  toJson() {
+    return {
+      operation: this.operationType,
+      name:   this.operationLayerName,
+      params: this.operationParams.reduce((obj, param) => {obj[param.name] = param.value; return obj;}, {}),
+      inputNodes: this.inputConnections.map((con) => this.editor.nodes.indexOf(con.inNode)),
+      editorPosition: [this.pos.x, this.pos.y]
+    }
+  }
+
+  fromJson(json: any) {
+    this.operationLayerName = json.name;
+    for (let p in json.params) {
+      this.operationParams.filter((param) => param.name == p)[0].value = json.params[p];
+    }
+    this.setPosition({x: json.editorPosition[0], y: json.editorPosition[1]});
+  }
+
+  ngOnDestroy() {
+    this.drag.destroy();
+    this.visibleObserver.unobserve(this.el.nativeElement);
+  }
+}
+
+interface OperationParam<T = any> {
+  type: string;
+  name: string;
+  discr?: string;
+  value: T;
+  select?: T[];
 }

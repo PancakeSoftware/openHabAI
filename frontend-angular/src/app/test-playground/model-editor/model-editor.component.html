@@ -4,23 +4,29 @@
   </p>
 
 
-  <div class="backgroundCol" >
-    <div style="" class="blueprintBackground" #editorPanel>
-      <!--<canvas #backCanvas style="position: absolute; height: 300px;"></canvas>-->
-      <div style="position: absolute;">
-        <template #connections></template>
-        <template #nodes></template>
-
-
+  <div class="row s12">
+    <!-- editor panel ------------------------------------------------ -->
+    <div class="col s9 backgroundCol" >
+      <div style="" class="blueprintBackground" #editorPanel>
+        <div style="position: absolute;">
+          <template #connectionsEl></template>
+          <template #nodesEl></template>
+        </div>
       </div>
-
-      <!--<app-model-editor-connection></app-model-editor-connection>-->
     </div>
-  </div>
-  <div class="btn" (click)="createNode()">Add Layer</div>
 
-  <!--
-  <div #draggable ngDraggable
-          style="height: 200px; width: 200px; background-color: #00acc1"></div>
-  -->
+    <!-- side bar ------------------------------------------------ -->
+    <div class="col s3">
+      <h5>Add Layer</h5>
+      <div class="btn waves-effect btn-n-node" (click)="createNode('FullyConnected')">Fully-Connected</div>
+      <div class="btn btn-n-node" (click)="createNode('Activation')">Activation</div>
+      <div style="margin-top: 40px">
+        <div class="btn waves-effect green" (click)="saveModel()">Save Model <i class="material-icons right">save</i></div>
+      </div>
+      <div class="btn waves-effect green" (click)="removeAllNodesAndConnections(); modelToJson();">Clear<i class="material-icons right">delete</i></div>
+      <div class="btn waves-effect green" (click)="modelToJson();">To Jon<i class="material-icons right">refresh</i></div>
+      <pre>{{modelJson | json}}</pre>
+    </div>
+
+  </div>
 </div>

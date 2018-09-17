@@ -55,3 +55,8 @@ $blueBack: #407bff;
     padding: 2px;
     background-image: linear-gradient(to bottom, $blueBack 0%, darken($blueBack , 15%) 100%);
 }
+
+.btn-n-node {
+    width: 100%;
+    margin-top: 10px;
+}

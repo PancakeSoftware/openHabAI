@@ -97,8 +97,10 @@ export class ApiObject<T> extends ApiRouteContainig
   update(params: any): Promise<void> {
     return Promise<void>(((resolve, reject) => {
       ApiConnection.sendRequest(this.route, 'update', (status, data) => {
-        if (status == 'ok')
+        if (status == 'ok') {
           resolve(data);
+          //this.applyChangedObjectKey(data);
+        }
         else
           reject(data);
       }, params);
@@ -146,5 +148,18 @@ export class ApiObject<T> extends ApiRouteContainig
     }
   }
 
+
+  private applyChangedObjectKey(changedObj: T) {
+    // merge
+    let obj = this.onChange.value;
+    for (let key in changedObj)
+      obj[key] = changedObj[key];
+
+    this.onChange.next(obj);
+    this.onChangeKeys.next({
+      object: obj,
+      changedKeys: Object.keys(changedObj)
+    });
+  }
 
 }

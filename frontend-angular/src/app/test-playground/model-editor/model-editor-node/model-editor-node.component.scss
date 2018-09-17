@@ -17,6 +17,14 @@
     left: 0px;
 }
 
+.node input {
+    color: #484848;
+}
+
+.node .select-wrapper input.select-dropdown{
+    color: #484848;
+}
+
 $portWidth: 10px;
 $portHeight: 10px;
 $portLine: 3px;
@@ -43,8 +51,26 @@ $portOffset: -$portHeight - 10px;
     //margin-top: 20px;
 }
 
+.port {
+    cursor: pointer;
+}
+
 .port:hover {
     background-color: #ffce44;
     border-left: #2f2f2f solid 2px;
     border-right: #2f2f2f solid 2px;
+}
+
+.ioPort {
+    background-color: #1b1b1b;
+    color: white;
+}
+
+.btn-rm {
+    margin-top: 0.82rem;
+    cursor: pointer;
+}
+
+.btn-rm:hover {
+    color: #bf4435;
 }

@@ -17,8 +17,9 @@ export class NetworkTrainComponent implements OnInit {
   structureID: number = -1;
   networkID: number = -1;
   trainParams: FormGroup;
-  private network: ApiObject<any>;
+  protected network: ApiObject<any>;
 
+  @ViewChild('modelEditor') modelEditor;
   @ViewChild('dataChart') dataChart;
   @ViewChild('networkChart') networkChart;
   @ViewChild('networkProgressChart') networkProgressChart;
