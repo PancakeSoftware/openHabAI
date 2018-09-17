@@ -1,9 +1,4 @@
 <div style="">
-  <p>
-    model-editor works!
-  </p>
-
-
   <div class="row s12">
     <!-- editor panel ------------------------------------------------ -->
     <div class="col s9 backgroundCol" >
@@ -23,8 +18,6 @@
       <div style="margin-top: 40px">
         <div class="btn waves-effect green" (click)="saveModel()">Save Model <i class="material-icons right">save</i></div>
       </div>
-      <div class="btn waves-effect green" (click)="removeAllNodesAndConnections(); modelToJson();">Clear<i class="material-icons right">delete</i></div>
-      <div class="btn waves-effect green" (click)="modelToJson();">To Jon<i class="material-icons right">refresh</i></div>
       <pre>{{modelJson | json}}</pre>
     </div>
 

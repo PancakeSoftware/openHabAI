@@ -20,7 +20,7 @@ import {ApiChart} from "@catflow/extensions/Chart-range";
 import {KeysPipe} from "@catflow/Utils";
 import { SettingsComponent } from './settings/settings.component';
 import { SelectionViewComponent } from './settings/selection-view/selection-view.component';
-import {SettingsService} from "@frontend/settings/settings.service";
+import {AppState} from "@frontend/settings/app-state.service";
 import {ApiSeriesChart} from "@catflow/extensions/Chart-series";
 import {AngularResizedEventModule} from "angular-resize-event";
 import { ModelEditorComponent } from './test-playground/model-editor/model-editor.component';
@@ -29,6 +29,7 @@ import { TestPlaygroundComponent } from './test-playground/test-playground.compo
 import { ChartPlotlyComponent } from './test-playground/chart-plotly/chart-plotly.component';
 import { ModelEditorNodeComponent } from './test-playground/model-editor/model-editor-node/model-editor-node.component';
 import { ModelEditorConnectionComponent } from './test-playground/model-editor/model-editor-connection/model-editor-connection.component';
+import { ProgressIndicatorComponent } from './util/progress-indicator/progress-indicator.component';
 
 
 
@@ -50,7 +51,8 @@ import { ModelEditorConnectionComponent } from './test-playground/model-editor/m
     TestPlaygroundComponent,
     ChartPlotlyComponent,
     ModelEditorNodeComponent,
-    ModelEditorConnectionComponent
+    ModelEditorConnectionComponent,
+    ProgressIndicatorComponent
   ],
   imports: [
     BrowserModule,
@@ -65,7 +67,7 @@ import { ModelEditorConnectionComponent } from './test-playground/model-editor/m
   ],
   providers: [
     Api,
-    SettingsService
+    AppState
     /*{provide: RouteReuseStrategy, useClass: CustomReuseStrategy}*/
   ],
   entryComponents: [

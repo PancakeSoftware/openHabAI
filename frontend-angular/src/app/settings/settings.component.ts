@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Api} from "@catflow/Api";
 import {ApiObject} from "@catflow/ApiObject";
 import {toastOk} from "@frontend/util/Log";
-import {SettingsService} from "@frontend/settings/settings.service";
+import {AppState} from "@frontend/settings/app-state.service";
 
 @Component({
     selector: 'app-settings',
@@ -14,7 +14,7 @@ export class SettingsComponent implements OnInit {
     settings: any = undefined;
     settingsKeys: any[] = [];
 
-    constructor(private api: Api, settingsServ:SettingsService) {
+    constructor(private api: Api, settingsServ:AppState) {
         api.object("/settings/").subscribe();
         api.object("/settings/").object().subscribe(value => {
             if (value == null)

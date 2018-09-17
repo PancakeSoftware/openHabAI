@@ -5,6 +5,7 @@ import {toastInfo, toastOk} from "../util/Log";
 import {FormBuilder, FormGroup} from "@angular/forms";
 import {ApiObject} from "@catflow/ApiObject";
 import { Chart, ChartData, Point } from 'chart.js';
+import {AppState} from "@frontend/settings/app-state.service";
 
 
 @Component({
@@ -26,9 +27,11 @@ export class NetworkTrainComponent implements OnInit {
   lastProgressValue: number = -1;
   private dataChartInited: boolean = false;
 
-  constructor(private router: ActivatedRoute,
-              private fb: FormBuilder,
-              public api: Api)
+  constructor(
+    private appState: AppState,
+    private router: ActivatedRoute,
+    private fb: FormBuilder,
+    public api: Api)
   {
 
 
@@ -66,6 +69,7 @@ export class NetworkTrainComponent implements OnInit {
       this.networkChart.apiObject = this.api.object('/dataStructures/' + this.structureID + '/networks/' + this.networkID + '/charts/netOutput/');
       this.networkProgressChart.apiObject = this.api.object('/dataStructures/' + this.structureID + '/networks/' + this.networkID + '/charts/progress/');
       this.networkProgressChart.lastValues.subscribe(value => this.lastProgressValue = Math.round(value[0] *100000) /100000);
+      //this.modelEditor.networkObject = this.network;
       this.dataChartInited = true;
     }
 
@@ -138,13 +142,17 @@ export class NetworkTrainComponent implements OnInit {
       //toastInfo("start train: ", this.trainParams.value);
       this.network.update(this.trainParams.value);
       this.network.action('startTrain')
-        .then(() => toastOk('start train'));
-
-
-
+        .then(() => {
+          this.appState.training = true;
+          toastOk('start train');
+        });
     }
     else {
-      this.network.action('stopTrain').then(() => toastOk('stopped train'));
+      this.network.action('stopTrain')
+        .then(() => {
+          this.appState.training = false;
+          toastOk('stopped train');
+        });
     }
   }
 

@@ -1,11 +1,21 @@
 <!-- Navigation ------------------------------------ -->
 <nav class="nav-extended">
     <div class="nav-wrapper">
-
-        <ul class="right hide-on-med-and-down">
+        <!-- connection indicator -->
+        <ul class="right">
             <li><a [ngClass]="connected ? 'green-text' : 'red-text'" class="btn white btn-flat no-select">{{connected ? 'connected' : 'not connected'}}
                 <i [ngClass]="connected ? 'green-text' : 'red-text'" class="material-icons red-text right">{{connected ? 'wifi' : 'wifi_off'}}</i></a></li>
         </ul>
+
+        <ul class="right" *ngIf="appState.training">
+            <li>
+                <a class="green-text btn white btn-flat no-select">
+                    Training
+                    <app-progress-indicator class="right" style="margin-top: 5px; margin-left: 10px;"></app-progress-indicator>
+                </a>
+            </li>
+        </ul>
+
         <div class="col s12" id="nav-at" style="margin-left: 20px">
             <a class="breadcrumb no-select" id="home"><i routerLink="/" class="material-icons">home</i></a>
         </div>

@@ -22,7 +22,6 @@ export class ModelEditorConnectionComponent implements OnInit, AfterViewInit, On
   static tension = 0.5;
   dragOutput: Drag;
   static dragging: boolean = false;
-
   @Input() editor: ModelEditorComponent;
   @Input() inPoint: Point = {x:1, y:2};
   @Input() outPoint: Point = {x:100, y:20};

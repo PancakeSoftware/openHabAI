@@ -7,6 +7,7 @@ import {toastErr, toastInfo} from "../util/Log";
 import {DOCUMENT} from "@angular/common";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {TestPlaygroundComponent} from "@frontend/test-playground/test-playground.component";
+import {AppState} from "@frontend/settings/app-state.service";
 
 /*
  *-- MainComponent ------------------------------------------------------- */
@@ -28,6 +29,7 @@ export class AppMainComponent {
   connected: boolean = false;
 
   constructor(
+    public appState: AppState,
     route: ActivatedRoute,
     @Inject(DOCUMENT) private document: Document)
   {
