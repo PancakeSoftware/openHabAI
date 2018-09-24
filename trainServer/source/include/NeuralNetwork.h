@@ -16,6 +16,7 @@ using namespace std;
 using namespace mxnet::cpp;
 class DataStructure;
 class Catflow;
+class OperationNode;
 
 
 class NeuralNetwork : public ApiRouteJson
@@ -28,8 +29,10 @@ class NeuralNetwork : public ApiRouteJson
     string name, optimizerType = "sgd";
     float learnrate = 0.005;
     float weightDecay = 0.01;
+    float initUniformDistributionScale = 0.01;
+    int x;
     int hiddenLayers, neuronsPerLayer;
-    Json modelDefinition;
+    vector<OperationNode> modelDefinition;
 
     /* Json keys */
     void params() override { JsonObject::params();
@@ -39,8 +42,11 @@ class NeuralNetwork : public ApiRouteJson
         param("neuronsPerHidden", neuronsPerLayer);
         param("learnRate", learnrate);
         param("weightDecay", weightDecay);
+        param("initUniformScale", initUniformDistributionScale);
         param("optimizer", optimizerType);
-        param("modelDefinition", modelDefinition);
+        paramWithFunction("modelDefinition", [this](Json j) {setModelDefinition(j);}, [this](){
+            return modelDefinition;
+        });
     }
 
     static void init(Context *mxContext);
@@ -84,8 +90,27 @@ class NeuralNetwork : public ApiRouteJson
     Optimizer *optimizer{nullptr};
     vector<float> trainDataX;
 
+    void setModelDefinition(vector<OperationNode> json);
     void graphBindIo();
 };
 
+class OperationNode: public JsonObject {
+  public:
+    string operation;
+    string name;
+    Json opParams;
+    vector<int> inputNodes;
+    vector<int> editorPosition;
+    int index = -1;
+
+    void params() override {
+      param("operation", operation);
+      param("name", name);
+      param("params", opParams);
+      param("inputNodes", inputNodes);
+      param("editorPosition", editorPosition);
+      //param("index", index);
+    }
+};
 
 #endif //NeuralNetwork_H

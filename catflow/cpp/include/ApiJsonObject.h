@@ -73,7 +73,7 @@ class ApiJsonObject : protected virtual Log, public virtual ApiSubscribable, pub
      * @param param... changed json object params
      */
     void notifyParamsChanged(vector<string> param);
-    void notifyParamsChanged(string param, ...);
+    //void notifyParamsChanged(string param, ...);
 
 
     ApiRespond *processApi(ApiRequest request) override;

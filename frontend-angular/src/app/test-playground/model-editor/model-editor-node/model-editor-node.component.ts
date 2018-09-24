@@ -216,7 +216,7 @@ export class ModelEditorNodeComponent implements OnInit, AfterViewInit, OnDestro
     {
       case "FullyConnected":
         this.operationParams = [
-          {type: "number", name: "num_hidden", discr: "size", value:  0},
+          {type: "number", name: "num_hidden", discr: "size", value:  "10"},
           {type: "text", name: "activationFunction", value: "tanh", select: ["tanh", "relu", "none"]}
         ];
         break;
@@ -228,8 +228,12 @@ export class ModelEditorNodeComponent implements OnInit, AfterViewInit, OnDestro
         break;
 
       case "Input":
-      case "Label":
         this.operationParams = [];
+        break;
+      case "Label":
+        this.operationParams = [
+          {type: "text", name: "lossFunction", discr: "loss function", value: "LinearRegressionOutput", select: ["LinearRegressionOutput", "MAERegressionOutput", "LogisticRegressionOutput", "SoftmaxOutput"]}
+        ];
         break;
     }
   }

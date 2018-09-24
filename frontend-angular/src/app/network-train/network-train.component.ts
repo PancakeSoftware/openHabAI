@@ -41,7 +41,8 @@ export class NetworkTrainComponent implements OnInit {
       this.trainParams = fb.group({
           optimizer: "sgd",
           learnRate: 12,
-          weightDecay: 0.1
+          weightDecay: 0.1,
+          initUniformScale: 0.1
         }
       );
 
@@ -91,7 +92,8 @@ export class NetworkTrainComponent implements OnInit {
       this.trainParams.setValue({
         optimizer: net.optimizer,
         learnRate: net.learnRate,
-        weightDecay: net.weightDecay
+        weightDecay: net.weightDecay,
+        initUniformScale: net.initUniformScale
       });
     });
 
@@ -158,6 +160,8 @@ export class NetworkTrainComponent implements OnInit {
 
 
   onTriggerResetModel() {
-    this.network.action("resetModel").then(value => toastOk("all trained data overwritten"))
+    this.network.update(this.trainParams.value);
+    this.network.action("resetModel")
+      .then(value => toastOk("all trained data overwritten"))
   }
 }

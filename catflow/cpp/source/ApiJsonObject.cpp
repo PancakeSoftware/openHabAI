@@ -158,6 +158,7 @@ void ApiJsonObject::remove()
     boost::filesystem::remove(route.get().toStringStorePath() + "item.json");
 }
 
+/*
 void ApiJsonObject::notifyParamsChanged(string paramC ...) {
   if (!route.is_initialized()) {
       warn("can’t push update to subscribers at notifyParamsChanged(...) because route of Object is not set, maybe you forgot to call setRoute() or setStorePath().");
@@ -176,6 +177,7 @@ void ApiJsonObject::notifyParamsChanged(string paramC ...) {
                      toJson(params))
   );
 }
+ */
 
 void ApiJsonObject::notifyParamsChanged(vector<string> params) {
   if (!route.is_initialized()) {

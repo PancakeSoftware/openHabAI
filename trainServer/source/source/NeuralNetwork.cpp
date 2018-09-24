@@ -56,7 +56,7 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
   {
     TaskManager::addTaskOnceOnly([this] {
     // -- INIT ALL random  ----
-    auto initializer = Uniform(0.01);
+    auto initializer = Uniform(initUniformDistributionScale);
       for (auto& arg : graphValues) {
         // arg.first is parameter name, and arg.second is the value
         initializer(arg.first, &arg.second);
@@ -94,7 +94,7 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
     // iterate throw whole data
     for (int i = 0; i < iterations; ++i) {
       // push throw model
-      graphValues["x"].SyncCopyFromCPU(dataXFlatten.data() + i*inputDimensions*batchSize, batchSize*inputDimensions); // @TODO in last iteration data is smaller than batchsize -> Error!?
+      graphValues["Input"].SyncCopyFromCPU(dataXFlatten.data() + i*inputDimensions*batchSize, batchSize*inputDimensions); // @TODO in last iteration data is smaller than batchsize -> Error!?
       exeChart->Forward(false);
 
       // sync back
@@ -109,7 +109,7 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
     }
 
     // set old data
-    graphValues["x"].SyncCopyFromCPU(trainDataX);
+    graphValues["Input"].SyncCopyFromCPU(trainDataX);
 
     delete exeChart;
     return result;
@@ -122,8 +122,8 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
    * Graph
    */
   auto numHidden = 40;
-  auto symX       = Symbol::Variable("x");
-  auto symLabel   = Symbol::Variable("label");
+  auto symX       = Symbol::Variable("Input");
+  auto symLabel   = Symbol::Variable("Label");
 
 
   auto symL1 = tanh( FullyConnected(
@@ -166,6 +166,214 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
       symLabel
   );
 
+
+
+  graphBindIo();
+}
+
+struct OpOrSymbol {
+    Symbol symbol;
+    Operator op;
+    bool isSymbol = false;
+
+    OpOrSymbol(Symbol sym): op(""){
+      isSymbol = true;
+      symbol = sym;
+    }
+
+    OpOrSymbol(Operator o): op(o){
+      isSymbol = false;
+    }
+};
+
+void NeuralNetwork::setModelDefinition(vector<OperationNode>  model)
+{
+  if (model.size() == 0)
+    return;
+
+  /*
+   * topological sorting of model
+   */
+  map<int, int> fromToPos;            // old to new node position
+  vector<OperationNode>  modelCopy = model;   // work with model copy
+  vector<OperationNode>  modelSorted; // sorted model
+
+  // set index of each node
+  int index = 0;
+  for (auto it = modelCopy.begin(); it != modelCopy.end(); it++) {
+    it->index = index;
+    index++;
+  }
+
+  // sort and change inputs
+  while (modelCopy.size() > 0)
+  {
+    bool hasCircle = true;
+
+    // find nodes with no input -> remove
+    for (auto it = modelCopy.begin(); it != modelCopy.end();)
+    {
+      if (it->inputNodes.size() == 0) {
+        int pos = it->index;
+        OperationNode done = model[pos];
+
+        // change input nodes to new indices
+        for (auto inputIt = done.inputNodes.begin(); inputIt != done.inputNodes.end(); inputIt++) {
+          *inputIt = fromToPos[*inputIt];
+        }
+        modelSorted.push_back(done);
+        fromToPos.emplace(pos, modelSorted.size()-1);
+        it = modelCopy.erase(it);
+        // erase index of removed node form all inputs
+        for (auto nodeIt = modelCopy.begin(); nodeIt != modelCopy.end(); nodeIt++) {
+          for (auto inputIt = nodeIt->inputNodes.begin(); inputIt != nodeIt->inputNodes.end();) {
+            if (*inputIt == pos)
+              inputIt = nodeIt->inputNodes.erase(inputIt);
+            else
+              inputIt++;
+          }
+        }
+        hasCircle = false;
+      }
+      else
+        it++;
+    }
+
+    // circle is in graph
+    if (hasCircle)
+      throw JsonObjectException("circle in model graph");
+  }
+
+  // set sorted model
+  // debug("new model: " + Json{modelSorted}.dump());
+  modelDefinition = modelSorted;
+  //notifyParamsChanged({"modelDefinition"});
+
+
+  /*
+   * create mxnet graph from model
+   */
+  // input, label symbols
+  Symbol symInput;
+  Symbol symLabel;
+  Symbol symLoss;
+  vector<Symbol> mxModel(0);
+
+  index = -1;
+  for (OperationNode node: modelDefinition)
+  {
+    index++;
+
+    // if is input, label
+    if (node.operation == "Input") {
+      Symbol sym = Symbol::Variable(node.operation);
+      mxModel.push_back(sym);
+      symInput = sym;
+      continue;
+    }
+    if (node.operation == "Label") {
+      Symbol sym = Symbol::Variable(node.operation);
+      mxModel.push_back(sym);
+      symLabel = sym;
+
+      Symbol input;
+      if (node.inputNodes.size() >= 1)
+        input = mxModel[node.inputNodes[0]];
+      else
+        input = Symbol("");
+      symLoss =  Operator(node.opParams["lossFunction"].get<string>())
+          .SetParam("grad_scale", 1)
+          .SetInput("data", input)
+          .SetInput("label", symLabel)
+          .CreateSymbol(node.opParams["lossFunction"]);
+      continue;
+    }
+
+
+    Symbol sym;
+
+    if (node.operation == "FullyConnected") {
+      Symbol input;
+      // input symbols
+      if (node.inputNodes.size() == 1)
+        input = mxModel[node.inputNodes[0]];
+      else if (node.inputNodes.size() > 1) {
+        input = mxModel[node.inputNodes[0]];
+        warn("operations with multiple inputs not supported yet (will use first input only), at " + routeString);
+      }
+      else {
+        input = Symbol("");
+        warn("operation has no input (antonym input is created), at " + routeString);
+      }
+
+      sym = FullyConnected(
+          node.name,
+          input,
+          Symbol::Variable(to_string(index) + "-weight"),
+          Symbol::Variable(to_string(index) + "-bias2"),
+          stoi(node.opParams["num_hidden"].get<string>())
+      );
+
+      if (node.opParams["activationFunction"] != "none") {
+        sym = Operator(node.opParams["activationFunction"].get<string>())
+            .SetInput("data", sym)
+            .CreateSymbol();
+      }
+    }
+
+    mxModel.push_back(sym);
+
+    /*
+    // create op and set params
+    Operator op(node.operation);
+
+    for (Json::iterator it = node.opParams.begin(); it != node.opParams.end(); ++it) {
+      if (it.key() == "activationFunction")
+        continue;
+      debug("set param: " + it.key() + ": " + (it.value().dump()));
+      op.SetParam(it.key(), it.value());
+    }
+
+    // input symbols
+    if (node.inputNodes.size() == 1)
+      op.SetInput("data", mxModel[node.inputNodes[0]]);
+    else if (node.inputNodes.size() > 1) {
+      op.SetInput("data", mxModel[node.inputNodes[0]]);
+      warn("operations with multiple inputs not supported yet (will use first input only), at " + routeString);
+    }
+
+    // operation specific inputs/params
+    if (node.operation == "FullyConnected") {
+      op.SetInput("weight", Symbol::Variable(to_string(index) + "-weight"))
+        .SetInput("bias",   Symbol::Variable(to_string(index) + "-bias"))
+        .SetParam("no_bias", false).SetParam("num_hidden", 100)
+        .SetParam("flatten", true);
+      if (node.opParams["num_hidden"] <= 0)
+        continue;
+    }
+
+    //Symbol sym = op.CreateSymbol(node.name);
+    Operator opT("FullyConnected");
+    opT .SetParam("num_hidden", 100)
+        .SetParam("no_bias", false)
+        .SetParam("flatten", true)
+        .SetInput("data", mxModel[node.inputNodes[0]])
+        .SetInput("weight", Symbol::Variable(to_string(index) + "weight"))
+        .SetInput("bias", Symbol::Variable(to_string(index) + "bias"));
+    Symbol sym = op.CreateSymbol(node.name);//opT.CreateSymbol(node.name);//*-/
+
+    debug("op symbol: " + sym.ToJSON());
+    mxModel.push_back(sym);
+     */
+  }
+
+  if (symInput.GetHandle() == nullptr || symLabel.GetHandle()  == nullptr)
+    throw JsonObjectException("model definition not has Input or Label");
+
+
+
+  symLossOut = symLoss;
+  //debug(symLoss.ToJSON());
   graphBindIo();
 }
 
@@ -179,18 +387,26 @@ void NeuralNetwork::graphBindIo()
    */
 
   graphValues = {
-      {"x", NDArray(Shape(batchSize /* batch */, structure.inputNames.size() /*inputs*/), *ctx)},
-      {"label", NDArray(Shape(batchSize, structure.outputNames.size()/* outputs */), *ctx)}
+      {"Input", NDArray(Shape(batchSize /* batch */, structure.inputNames.size() /*inputs*/), *ctx)},
+      {"Label", NDArray(Shape(batchSize, structure.outputNames.size()/* outputs */), *ctx)}
   };
 
 
   // inter args
-  symLossOut.InferArgsMap(*ctx, &graphValues, graphValues);
-  graphValueNames = symLossOut.ListArguments();
+  try
+  {
+    symLossOut.InferArgsMap(*ctx, &graphValues, graphValues);
+    graphValueNames = symLossOut.ListArguments();
+  }
+  catch (exception &e) {
+    err(e.what());
+    cout << "Last err:" << MXGetLastError() << endl;
+    throw JsonObjectException("InferArgsMap of model graph: " + string(MXGetLastError()));
+  }
 
 
   // -- INIT ALL  ----
-  auto initializer = Uniform(0.01);
+  auto initializer = Uniform(initUniformDistributionScale);
   for (auto& arg : graphValues) {
     // arg.first is parameter name, and arg.second is the value
     initializer(arg.first, &arg.second);
@@ -204,6 +420,20 @@ void NeuralNetwork::graphBindIo()
 // -- TRAIN -----------------------------------------
 void NeuralNetwork::train()
 {
+  // save to file
+  if (route.is_initialized()) {
+    string path = route.get().toStringStorePath() + "model.json";
+    ofstream stream;
+    stream.open(path);
+    if (!stream.is_open()) {
+      stream.close();
+      err("save to " + path);
+    } else
+      stream << symLossOut.ToJSON();
+    stream.close();
+  }
+
+
   /* --------------------------------------
   * Train
   */
@@ -212,7 +442,16 @@ void NeuralNetwork::train()
   if (optimizer != nullptr)
     delete optimizer;
 
-  exe = symLossOut.SimpleBind(*ctx, graphValues, map<std::string, NDArray>()); //, graphGradientOps);
+  try {
+    exe = symLossOut.SimpleBind(*ctx, graphValues, map<std::string, NDArray>()); //, graphGradientOps);
+  }
+  catch (exception &e) {
+    cout << e.what() << endl;
+    cout << "Last err:" << MXGetLastError() << endl;
+  }
+
+
+
 
   // setup optimizer
   optimizer = OptimizerRegistry::Find("sgd");
@@ -252,20 +491,20 @@ void NeuralNetwork::train()
   }*/
 
   // copy train-data to compute-device
-  graphValues["x"].SyncCopyFromCPU(trainDataX);
-  graphValues["label"].SyncCopyFromCPU(y);
+  graphValues["Input"].SyncCopyFromCPU(trainDataX);
+  graphValues["Label"].SyncCopyFromCPU(y);
 
   cout << endl;
-  cout << "X("<< graphValues["x"].Size() <<"): " << graphValues["x"] << endl;
-  cout << "L("<< graphValues["label"].Size() <<"): " << graphValues["label"] << endl;
+  cout << "X("<< graphValues["Input"].Size() <<"): " << graphValues["Input"] << endl;
+  cout << "L("<< graphValues["Label"].Size() <<"): " << graphValues["Label"] << endl;
   printSymbolShapes(graphValues);
 
 
   // display function
   vector<float> xs;
   vector<float> ys;
-  graphValues["label"].SyncCopyToCPU(&ys, batchSize);
-  graphValues["x"].SyncCopyToCPU(&xs, batchSize);
+  graphValues["Label"].SyncCopyToCPU(&ys, batchSize);
+  graphValues["Input"].SyncCopyToCPU(&xs, batchSize);
   //debug("x: " + Json{xs}.dump());
   //debug("label: " + Json{ys}.dump());
 
@@ -295,12 +534,12 @@ void NeuralNetwork::train()
       exe->Forward(false);
 
       // reshape label to 1d
-      auto labelData = graphValues["label"].Reshape( Shape(graphValues["label"].GetShape()[0]) );
+      auto labelData = graphValues["Label"].Reshape( Shape(graphValues["Label"].GetShape()[0]) );
 
       vector<float> labelDataLocal;
       vector<float> ys;
       exe->outputs[0].SyncCopyToCPU(&ys, exe->outputs[0].Size());
-      graphValues["label"].SyncCopyToCPU(&labelDataLocal, graphValues["label"].Size());
+      graphValues["Label"].SyncCopyToCPU(&labelDataLocal, graphValues["Label"].Size());
 
       //debug("label: " + Json{labelDataLocal}.dump());
       //debug("real:  " + Json{ys}.dump());
@@ -326,7 +565,7 @@ void NeuralNetwork::train()
     // Update parameters
     for (size_t i = 0; i < this->graphValueNames.size(); ++i)
     {
-      if (this->graphValueNames[i] == "x" || this->graphValueNames[i] == "label") continue;
+      if (this->graphValueNames[i] == "Input" || this->graphValueNames[i] == "Label") continue;
       optimizer->Update(i, exe->arg_arrays[i], exe->grad_arrays[i]);
     }
 
