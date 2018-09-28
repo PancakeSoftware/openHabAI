@@ -17,7 +17,7 @@ if (OPTION_BUILD_DEPS)
 
     ExternalProject_Add(mxnet_external
             GIT_REPOSITORY https://github.com/dmlc/mxnet
-            GIT_TAG 1.2.0
+            GIT_TAG 1.3.0
 
             PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/mxnet"
             BUILD_IN_SOURCE 1
@@ -41,7 +41,7 @@ set(DEPENDENCIES_MXNET_LIB mxnet PARENT_SCOPE)
 set(DEPENDENCIES_MXNET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/ PARENT_SCOPE)
 set(DEPENDENCIES_MXNET_INCLUDE
         ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/cpp-package/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/3rdparty/nnvm/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/3rdparty/tvm/nnvm/include
         ${CMAKE_CURRENT_SOURCE_DIR}/mxnet/src/mxnet_external/include PARENT_SCOPE)
 
 

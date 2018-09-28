@@ -414,6 +414,15 @@ void NeuralNetwork::graphBindIo()
   }
 
   printSymbolShapes(graphValues);
+
+  try {
+    exe = symLossOut.SimpleBind(*ctx, graphValues, map<std::string, NDArray>()); //, graphGradientOps);
+  }
+  catch (exception &e) {
+    err("bind executor to model-graph", e.what());
+    err("bind executor to model-graph", string(MXGetLastError()));
+    throw JsonObjectException("bind executor to model-graph: " + string(MXGetLastError()));
+  }
 }
 
 
