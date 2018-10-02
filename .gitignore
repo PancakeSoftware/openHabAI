@@ -9,6 +9,3 @@ cmake-build-debug
 
 # Jetbrains
 .idea/*
-
-# angular
-package-lock.json

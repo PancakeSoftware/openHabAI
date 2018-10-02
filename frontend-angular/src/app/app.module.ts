@@ -22,11 +22,9 @@ import { SettingsComponent } from './settings/settings.component';
 import { SelectionViewComponent } from './settings/selection-view/selection-view.component';
 import {AppState} from "@frontend/settings/app-state.service";
 import {ApiSeriesChart} from "@catflow/extensions/Chart-series";
-import {AngularResizedEventModule} from "angular-resize-event";
 import { ModelEditorComponent } from './test-playground/model-editor/model-editor.component';
-import {AngularDraggableModule} from "angular2-draggable";
 import { TestPlaygroundComponent } from './test-playground/test-playground.component';
-import { ChartPlotlyComponent } from './test-playground/chart-plotly/chart-plotly.component';
+//import { ChartPlotlyComponent } from './test-playground/chart-plotly/chart-plotly.component';
 import { ModelEditorNodeComponent } from './test-playground/model-editor/model-editor-node/model-editor-node.component';
 import { ModelEditorConnectionComponent } from './test-playground/model-editor/model-editor-connection/model-editor-connection.component';
 import { ProgressIndicatorComponent } from './util/progress-indicator/progress-indicator.component';
@@ -49,7 +47,7 @@ import { ProgressIndicatorComponent } from './util/progress-indicator/progress-i
     SelectionViewComponent,
     ModelEditorComponent,
     TestPlaygroundComponent,
-    ChartPlotlyComponent,
+  //  ChartPlotlyComponent,
     ModelEditorNodeComponent,
     ModelEditorConnectionComponent,
     ProgressIndicatorComponent
@@ -61,9 +59,7 @@ import { ProgressIndicatorComponent } from './util/progress-indicator/progress-i
     FormsModule,
     ApPrismModule,
     NgxAutoScrollModule,
-    ReactiveFormsModule,
-    AngularResizedEventModule,
-    AngularDraggableModule
+    ReactiveFormsModule
   ],
   providers: [
     Api,

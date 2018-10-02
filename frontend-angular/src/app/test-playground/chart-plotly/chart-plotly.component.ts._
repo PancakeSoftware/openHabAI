@@ -6,7 +6,6 @@ import {Subject} from "rxjs/Subject";
 import "rxjs/add/operator/takeUntil";
 import {componentDestroyed} from "ng2-rx-componentdestroyed";
 import "rxjs/add/operator/delayWhen";
-import {ResizedEvent} from "angular-resize-event/resized-event";
 import {Config, ScatterData} from "plotly.js";
 
 @Component({
@@ -289,9 +288,10 @@ export class ChartPlotlyComponent implements OnInit, OnDestroy, AfterViewInit
 
     return;
 
+    /*
 
     // setup chart.js chart
-    this.chart = new Chart(( <HTMLCanvasElement> this.chartElement.nativeElement).getContext("2d"), {
+    this.chart = new Chart(( <HTMLCanvasElement> this.chartElementPlotly.nativeElement).getContext("2d"), {
       type: 'line',
       data: {
         datasets: [ /*{
@@ -306,7 +306,7 @@ export class ChartPlotlyComponent implements OnInit, OnDestroy, AfterViewInit
           backgroundColor: "#97e400",
           borderColor: "#97e400",
           fill: false
-        } */
+        } *d/
         ]
       },
       options: {
@@ -337,6 +337,7 @@ export class ChartPlotlyComponent implements OnInit, OnDestroy, AfterViewInit
     // if need update
     if (this.chartDirty)
       this.refreshObject();
+      */
   }
 
   dataX: number[] = [];

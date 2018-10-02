@@ -15,12 +15,16 @@
       "es2017",
       "dom"
     ],
-
     "baseUrl": "src",
     "paths": {
-      "@frontend/*": ["app/*"],
-      "@catflow/*": ["catflow/*"]
-    }
+      "@frontend/*": [
+        "app/*"
+      ],
+      "@catflow/*": [
+        "catflow/*"
+      ]
+    },
+    "module": "es2015"
   },
   "include": [
     "src/**/*"

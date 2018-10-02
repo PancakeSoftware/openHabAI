@@ -67,10 +67,15 @@ frontend:
     - package
   before_script:
     - apt update -qq
-    - apt-get install -qq npm nodejs-legacy
+    - apt-get install -qq npm curl
+    - curl -sL https://deb.nodesource.com/setup_8.x -o nodesource_setup.sh
+    - bash nodesource_setup.sh
+    - apt-get install -qq nodejs
+    - npm install -g @angular/cli
   script:
     - cd frontend-angular
     - npm install
+    - ng build
   cache:
     key: nodeModules
     paths:
@@ -89,8 +94,8 @@ package:
   dependencies:
     - build
   before_script:
-    - apt update -qq
-    - apt-get install -qq wget
+  - apt update -qq
+    - apt-get install -qq wget software-properties-common
 
     # install cmake 3.10
     - wget -q https://cmake.org/files/v3.10/cmake-3.10.0-rc4-Linux-x86_64.sh
@@ -98,7 +103,20 @@ package:
     - sh cmake-3.10.0-rc4-Linux-x86_64.sh --skip-license --prefix=/opt/cmake
     - ln -s /opt/cmake/bin/cmake /usr/bin/cmake
     - ln -s /opt/cmake/bin/cpack /usr/bin/cpack
+
+    # install other deps
+    - apt-get install -qq zlib1g-dev libopenblas-dev liblapack-dev libuv-dev build-essential libssl-dev git python
+
+    # install gcc 7
+    - add-apt-repository ppa:ubuntu-toolchain-r/test
+    - apt-get update
+    - apt install -qq -y g++-7
+    - update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60  --slave /usr/bin/g++ g++ /usr/bin/g++-7
+    - update-alternatives --config gcc
+
+    # tool versions
     - cmake --version
+    - g++ --version
   script:
     - cd cmake-build
     - cpack -G DEB -V
