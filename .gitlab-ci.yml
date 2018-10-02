@@ -64,7 +64,7 @@ test:
   dependencies:
     - build
   script:
-    - ./build/bin/catflow-test
+    - ./build/catflow-test
 
 package:
   stage: package
