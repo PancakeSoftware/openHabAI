@@ -72,13 +72,14 @@ package:
     - build
   before_script:
     - apt update -qq
-    - apt-get install -qq wget cmake
+    - apt-get install -qq wget
 
     # install cmake 3.10
-    #- wget -q https://cmake.org/files/v3.10/cmake-3.10.0-rc4-Linux-x86_64.sh
-    #- mkdir /opt/cmake
-    #- sh cmake-3.10.0-rc4-Linux-x86_64.sh --skip-license --prefix=/opt/cmake
-    #- ln -s /opt/cmake/bin/cmake /usr/bin/cmake
+    - wget -q https://cmake.org/files/v3.10/cmake-3.10.0-rc4-Linux-x86_64.sh
+    - mkdir /opt/cmake
+    - sh cmake-3.10.0-rc4-Linux-x86_64.sh --skip-license --prefix=/opt/cmake
+    - ln -s /opt/cmake/bin/cmake /usr/bin/cmake
+    - ln -s /opt/cmake/bin/cpack /usr/bin/cpack
     - cmake --version
   script:
     - cd cmake-build
