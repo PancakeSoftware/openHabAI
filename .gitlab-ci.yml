@@ -7,6 +7,7 @@ variables:
 stages:
   - build
   - test
+  - package
 
 
 # build all
@@ -53,6 +54,7 @@ build:
   artifacts:
     paths:
       - build/
+      - cmake-build/
 
 
 
@@ -63,3 +65,16 @@ test:
     - build
   script:
     - ./build/bin/catflow-test
+
+package:
+  stage: package
+  dependencies:
+    - build
+  script:
+    - cd cmake-build
+    - cpack -G DEB
+    - cpack -G TGZ
+  artifacts:
+    name: openhabai-install-package
+    paths:
+      - build/pack

@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.0)
 
 include(trainServer/cmake/HunterGate.cmake)
 HunterGate(
-        URL "https://github.com/ruslo/hunter/archive/v0.16.15.tar.gz"
-        SHA1 "6974c2150fc0d3b09de3ad1efcbf15d360647ffa"
+        URL "https://github.com/ruslo/hunter/archive/v0.23.28.tar.gz"
+        SHA1 "6c79b36253a8e8bcba48927e9f3be65a3a81e6ec"
 )
 
 project(OpenHabAI)
@@ -41,7 +41,7 @@ option(OPTION_USE_SEASOCKS  "use seasocks lib for websocket comunication" OFF)
 # -- set BUILD out dirs
 setOutDir(
         build                               # general
-        build/bin                           # bin
+        build                               # bin
         build/lib                           # lib
         build/include                       # include
         build/lib                           # archiv
@@ -85,8 +85,7 @@ find_package(GTest CONFIG REQUIRED)
 
 # ------------------------
 link_directories(
-        ${OUTPUT_LIB}
-        ${DEPENDENCIES_TENSORFLOW_DIR}
+        #lib/
         ${DEPENDENCIES_MXNET_DIR}
         ${DEPENDENCIES_UWEBSOCKETS_DIR}
 )

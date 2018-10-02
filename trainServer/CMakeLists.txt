@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
+# rpath
+SET(CMAKE_INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/:$ORIGIN/lib:")
 
 # source dir
 add_subdirectory(source)
@@ -9,8 +11,21 @@ add_subdirectory(source)
 
 # ----------------------------------
 # -- create installer
+
+# libs
+file(GLOB LIB_FILES
+        ${OUTPUT_LIB}/*.so*
+        ${OUTPUT}/*.so
+        ${DEPENDENCIES_MXNET_DIR}*.so)
+message(STATUS "libs: ${LIB_FILES}")
+install(FILES ${LIB_FILES} DESTINATION lib)
+
+# deps
+set (CPACK_DEBIAN_PACKAGE_DEPENDS  "libssl1.0.0, libopenblas-base")
+
+
 if (UNIX)
-    SET(CPACK_GENERATOR "DEB")
+    #SET(CPACK_GENERATOR "DEB")
     SET(CPACK_DEBIAN_PACKAGE_MAINTAINER ${META_PROJECT_AUTHOR})
 endif ()
 

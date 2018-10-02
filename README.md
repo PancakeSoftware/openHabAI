@@ -1,11 +1,19 @@
-# OpenHabAI<br>![](doc/img/frontend.png)
+# OpenHabAI [![pipeline status](https://gitlab.com/PancakeSoftware/openHabAI/badges/master/pipeline.svg)](https://gitlab.com/PancakeSoftware/openHabAI/commits/master) <br>![](doc/img/frontend.png)
 Automate your home using Neuronal networks. <br>
 OpenHabAI provides a fast c++ backend 
 ([mxnet is used for computation](http://mxnet.io)) and frontend that run in browser.
 
 To see api documentation look at: [catflow/README.md](catflow/README.md)
 
-## Build [![pipeline status](https://gitlab.com/PancakeSoftware/openHabAI/badges/master/pipeline.svg)](https://gitlab.com/PancakeSoftware/openHabAI/commits/master)
+## Install
+Download [openhabai-install-package](https://gitlab.com/PancakeSoftware/openHabAI/-/jobs/artifacts/master/download?job=package) from artifacts. Extract it and install the .deb package.
+```bash
+dpkg --install OpenHabAI-0.0.0-Linux.deb
+# resolve deps 
+apt-get install -f                          
+```
+
+## Build from Source 
 First **install** these packages:
 * For **frontend**
     * nodejs

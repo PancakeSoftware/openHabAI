@@ -66,9 +66,10 @@ endif ()
 #
 
 # Self
+##[[
 install(TARGETS ${TARGET}
         RUNTIME DESTINATION ${INSTALL_BIN} COMPONENT runtime
-        LIBRARY DESTINATION ${INSTALL_LIB} COMPONENT runtime
+        #LIBRARY DESTINATION ${INSTALL_LIB} COMPONENT runtime
         ARCHIVE DESTINATION ${INSTALL_ARCH} COMPONENT develope
         )
 
@@ -77,3 +78,4 @@ install(DIRECTORY
         ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION ${INSTALL_INCLUDE}
         COMPONENT develope
         )
+#]]#
