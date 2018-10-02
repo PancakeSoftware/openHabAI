@@ -7,8 +7,8 @@ variables:
 stages:
   - build
   - test
-  - frontend
   - package
+  - frontend
 
 
 # build all
@@ -67,7 +67,7 @@ frontend:
     - package
   before_script:
     - apt update -qq
-    - apt-get install -qq npm
+    - apt-get install -qq npm nodejs-legacy
   script:
     - cd frontend-angular
     - npm install
