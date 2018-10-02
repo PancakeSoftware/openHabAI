@@ -70,6 +70,13 @@ package:
   stage: package
   dependencies:
     - build
+  before_script:
+    # install cmake 3.10
+    - wget -q https://cmake.org/files/v3.10/cmake-3.10.0-rc4-Linux-x86_64.sh
+    - mkdir /opt/cmake
+    - sh cmake-3.10.0-rc4-Linux-x86_64.sh --skip-license --prefix=/opt/cmake
+    - ln -s /opt/cmake/bin/cmake /usr/bin/cmake
+    - cmake --version
   script:
     - cd cmake-build
     - cpack -G DEB
