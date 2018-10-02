@@ -94,7 +94,7 @@ package:
   dependencies:
     - build
   before_script:
-  - apt update -qq
+    - apt update -qq
     - apt-get install -qq wget software-properties-common
 
     # install cmake 3.10
