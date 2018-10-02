@@ -7,6 +7,7 @@ variables:
 stages:
   - build
   - test
+  - frontend
   - package
 
 
@@ -22,6 +23,7 @@ build:
     - mkdir /opt/cmake
     - sh cmake-3.10.0-rc4-Linux-x86_64.sh --skip-license --prefix=/opt/cmake
     - ln -s /opt/cmake/bin/cmake /usr/bin/cmake
+    - ln -s /opt/cmake/bin/cpack /usr/bin/cpack
 
     # install other deps
     - apt-get install -qq zlib1g-dev libopenblas-dev liblapack-dev libuv-dev build-essential libssl-dev git python
@@ -52,11 +54,27 @@ build:
       - trainServer/dependencies/seasocks
 
   artifacts:
+    name: build_output
     paths:
       - build/
       - cmake-build/
+      - trainServer/
 
-
+frontend:
+  stage: frontend
+  image: ubuntu:16.04
+  dependencies:
+    - package
+  before_script:
+    - apt update -qq
+    - apt-get install -qq npm
+  script:
+    - cd frontend-angular
+    - npm install
+  cache:
+    key: nodeModules
+    paths:
+      - frontend-angular/node_modules/
 
 # run tests
 test:
@@ -83,7 +101,7 @@ package:
     - cmake --version
   script:
     - cd cmake-build
-    - cpack -G DEB
+    - cpack -G DEB -V
     - cpack -G TGZ
   artifacts:
     name: openhabai-install-package
