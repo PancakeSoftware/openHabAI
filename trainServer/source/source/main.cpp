@@ -45,7 +45,8 @@ int main(int argc, char *argv[])
   apiRoot.restore();
   Catflow::setApiRootRoute(apiRoot);
   Catflow::start<ApiuWebsocketsServer>(
-      5555 // webSocket port
+      5555,
+      "./../frontend-angular/dist"  // webserver root
   );
 
   // start blocking taskManager

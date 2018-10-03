@@ -23,13 +23,15 @@ class Catflow
     /**
      * start catflow
      * @param port listen for incoming api connections at this port
+     * @param httpServerPath path to http root dir to serve
      */
     template <class SERVER>
-    static void start(int port) {
+    static void start(int port, string httpServerPath = "") {
       if (Catflow::apiRoot == nullptr)
         l.warn("you have to set apiRoute!");
 
       Catflow::port = port;
+      Catflow::httpServerPath = httpServerPath;
 
       // create server
       server = new SERVER();
@@ -98,6 +100,7 @@ class Catflow
     static list<pair<Client*, ApiRequest>> requestsToSend;
     static list<pair<Client*, ApiRespond>> responsesToSend;
     static int port;
+    static string httpServerPath;
 
 
   private:

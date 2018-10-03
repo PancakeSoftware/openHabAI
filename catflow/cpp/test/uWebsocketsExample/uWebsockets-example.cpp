@@ -1,6 +1,7 @@
 #include <uWS.h>
 #include <iostream>
 #include <fstream>
+#include <boost/filesystem.hpp>
 #include <thread>
 
 using namespace std;
@@ -12,15 +13,25 @@ using namespace std;
  */
 int main()
 {
-  // cache index.html
-  string indexHtml;
+  using namespace boost;
+
+  // cache all *.html
+  map<string, string> webDocs;
   try
   {
-    ifstream infile{"../../catflow/cpp/test/uWebsocketsExample/index.html"};
-    string str{istreambuf_iterator<char>(infile), istreambuf_iterator<char>()};
-    indexHtml = str;
-  } catch (exception &e) {
-    cout << "can't read index.html" << endl;
+    auto path = filesystem::path("./../frontend-angular/dist");
+    for (filesystem::recursive_directory_iterator i(path), end; i != end; ++i)
+    {
+      if (!is_directory(i->path())) {
+        string webDocPath = i->path().string().substr(path.size(), i->path().size() - path.size());
+        cout << webDocPath << "\n";
+        filesystem::ifstream infile{i->path()};
+        string str{istreambuf_iterator<char>(infile), istreambuf_iterator<char>()};
+        webDocs.emplace(webDocPath, str);
+      }
+    }
+  } catch (std::exception &e) {
+    cout << "can't read index.html: " << e.what() << endl;
   }
 
 
@@ -47,10 +58,24 @@ int main()
     cout << "webSocket-connection gone  IP-addr: " << ws->getAddress().address << "     Port: " << ws->getAddress().port << "  code:"<< code <<  "  msg:" << message << endl;
   });
 
-  h.onHttpRequest([indexHtml](uWS::HttpResponse *res, uWS::HttpRequest req, char *data, size_t, size_t) {
+  h.onHttpRequest([webDocs](uWS::HttpResponse *res, uWS::HttpRequest req, char *data, size_t, size_t) {
     // on Http request
     cout << "GOT http request:  url: " << req.getUrl().toString() << "   httpMethod: " << req.getMethod() << endl;
 
+    auto doc = webDocs.find(req.getUrl().toString());
+    if (doc != webDocs.end())
+      res->end(doc->second.data(), doc->second.size());
+    else {
+      cout << "redirect from " << req.getUrl().toString() << " to index.html " << endl;
+      doc = webDocs.find("/index.html");
+      if (doc != webDocs.end())
+        res->end(doc->second.data(), doc->second.size());
+      else {
+        string s = "can't find index.html :(";
+        res->end(s.data(), s.size());
+      }
+    }
+    /*
     if (req.getUrl().toString() == "/console") {
       res->end(indexHtml.data(), indexHtml.size());
     }
@@ -59,6 +84,7 @@ int main()
           + string(data == NULL ? "" : data);
       res->end(resStr.data(), resStr.size());
     }
+     */
   });
 
 

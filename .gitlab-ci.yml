@@ -54,7 +54,7 @@ build:
       - trainServer/dependencies/seasocks
 
   artifacts:
-    name: build_output
+    name: build_backend
     paths:
       - build/
       - cmake-build/
@@ -62,24 +62,23 @@ build:
 
 frontend:
   stage: frontend
-  image: ubuntu:16.04
+  image: johnpapa/angular-cli
   dependencies:
     - package
-  before_script:
-    - apt update -qq
-    - apt-get install -qq npm curl
-    - curl -sL https://deb.nodesource.com/setup_8.x -o nodesource_setup.sh
-    - bash nodesource_setup.sh
-    - apt-get install -qq nodejs
-    - npm install -g @angular/cli
   script:
     - cd frontend-angular
     - npm install
     - ng build
+    - ll
+    - ll dist/
   cache:
     key: nodeModules
     paths:
       - frontend-angular/node_modules/
+  artifacts:
+    name: build_frontend
+    paths:
+    - frontend-angular/dist
 
 # run tests
 test:
@@ -119,6 +118,8 @@ package:
     #- g++ --version
   script:
     - cd cmake-build
+    - pwd
+    - ll
     - cpack -G DEB -V
     - cpack -G TGZ
   artifacts:
