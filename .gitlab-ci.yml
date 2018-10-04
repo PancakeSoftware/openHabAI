@@ -8,7 +8,7 @@ stages:
   - frontend
   - build
   - test
-  - openhabai-install-package
+  - install-packages
 
 
 # build web
@@ -93,8 +93,8 @@ test:
 
 
 # put install packages in extra artifact
-openhabai-install-package:
-  stage: openhabai-install-package
+install-packages:
+  stage: install-packages
   dependencies:
     - build
   script:

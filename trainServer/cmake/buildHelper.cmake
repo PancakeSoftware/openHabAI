@@ -11,6 +11,12 @@ function(setOutDir ALL BIN LIB INCLUDE ARCH PACK)
     set(OUTPUT_INCLUDE                  ${CMAKE_SOURCE_DIR}/${INCLUDE} PARENT_SCOPE)
     set(OUTPUT_ARCHIVE                  ${CMAKE_SOURCE_DIR}/${ARCH} PARENT_SCOPE)
     set(OUTPUT_PACKAGE                  ${CMAKE_SOURCE_DIR}/${PACK} PARENT_SCOPE)
+
+    # create dirs
+    file(MAKE_DIRECTORY ${ALL})
+    file(MAKE_DIRECTORY ${BIN})
+    file(MAKE_DIRECTORY ${LIB})
+    file(MAKE_DIRECTORY ${INCLUDE})
 endfunction(setOutDir)
 
 
