@@ -112,7 +112,7 @@ if (OPTION_BUILD_DEPS)
             BUILD_IN_SOURCE 1
             CONFIGURE_COMMAND ""
             BUILD_COMMAND ${MAKE}
-            INSTALL_COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/uWebSockets/src/uWebSockets_external/libuWS.${LIB_SUFIX} ${OUTPUT_BIN}
+            INSTALL_COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/uWebSockets/src/uWebSockets_external/libuWS.${LIB_SUFIX} ${OUTPUT_LIB}
             )
 else()
     # empty dummy target

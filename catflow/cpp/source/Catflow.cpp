@@ -16,6 +16,7 @@ set<Client *> Catflow::webSockConnections;
 set<set<Client*>*> Catflow::linkedWebSockConnections;
 
 int Catflow::port;
+string Catflow::httpServerPath{""};
 list<pair<Client*, ApiRequest>> Catflow::requestsToSend;
 list<pair<Client*, ApiRespond>> Catflow::responsesToSend;
 

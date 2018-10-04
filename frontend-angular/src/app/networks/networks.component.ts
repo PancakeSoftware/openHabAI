@@ -18,8 +18,8 @@ export class NetworksComponent implements OnInit
   formNew: FormGroup;
 
   networks: Observable<Network[]>;
-  private networksList: ApiList<Network>;
-  private dataStructure: BehaviorSubject<any>;
+  networksList: ApiList<Network>;
+  dataStructure: BehaviorSubject<any>;
 
   constructor(
     fb: FormBuilder,

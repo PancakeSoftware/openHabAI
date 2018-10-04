@@ -6,7 +6,7 @@ OpenHabAI provides a fast c++ backend
 To see api documentation look at: [catflow/README.md](catflow/README.md)
 
 ## Install
-Download [openhabai-install-package](https://gitlab.com/PancakeSoftware/openHabAI/-/jobs/artifacts/master/download?job=package) from artifacts. Extract it and install the .deb package.
+Download [install-packages](https://gitlab.com/PancakeSoftware/openHabAI/-/jobs/artifacts/master/download?job=install-packages) from artifacts. Extract it and install the .deb package.
 ```bash
 dpkg --install OpenHabAI-0.0.0-Linux.deb
 # resolve deps 

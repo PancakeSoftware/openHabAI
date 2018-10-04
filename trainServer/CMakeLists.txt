@@ -13,12 +13,16 @@ add_subdirectory(source)
 # -- create installer
 
 # libs
-file(GLOB LIB_FILES
-        ${OUTPUT_LIB}/*.so*
-        ${OUTPUT}/*.so
-        ${DEPENDENCIES_MXNET_DIR}*.so)
-message(STATUS "libs: ${LIB_FILES}")
-install(FILES ${LIB_FILES} DESTINATION lib)
+install(DIRECTORY ${OUTPUT_LIB}/ DESTINATION lib
+        FILES_MATCHING
+        PATTERN "*.so*")
+install(FILES
+        ${DEPENDENCIES_MXNET_DIR}libmklml_gnu.so
+        ${DEPENDENCIES_MXNET_DIR}libmklml_intel.so
+        DESTINATION lib)
+
+# web
+install(DIRECTORY ${OUTPUT}/web/ DESTINATION share/openhabai/web/)
 
 # deps
 set (CPACK_DEBIAN_PACKAGE_DEPENDS  "libssl1.0.0, libopenblas-base")

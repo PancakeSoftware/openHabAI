@@ -8,6 +8,8 @@ import {ActivatedRoute, Params} from "@angular/router";
 })
 export class NetworksAndTrainComponent implements OnInit {
 
+  public componentName = "NetworksAndTrainComponent";
+
   networkID: number;
   structureID: number;
   tabsElement: any;

@@ -11,7 +11,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist",
+            "outputPath": "../build/web",
             "index": "src/index.html",
             "main": "src/main.ts",
             "tsConfig": "src/tsconfig.app.json",
@@ -27,8 +27,7 @@
             "scripts": [
               "node_modules/materialize-css/dist/js/materialize.js",
               "node_modules/jquery/dist/jquery.min.js",
-              "node_modules/jquery-ui-dist/jquery-ui.js",
-              "node_modules/plotly.js/dist/plotly.js"
+              "node_modules/jquery-ui-dist/jquery-ui.js"
             ]
           },
           "configurations": {

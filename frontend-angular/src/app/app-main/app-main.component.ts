@@ -30,7 +30,7 @@ export class AppMainComponent {
 
   constructor(
     public appState: AppState,
-    route: ActivatedRoute,
+    public route: ActivatedRoute,
     @Inject(DOCUMENT) private document: Document)
   {
     ApiConnection.onGetError.subscribe(msg => {
@@ -45,11 +45,13 @@ export class AppMainComponent {
         ApiConnection.connect(this.document.location.hostname, 5555);
       }, 1000);
     }
+
+
   }
 
   onRouteChange($event) {
     console.log('show ', $event);
-    this.routedComponent = $event.constructor.name;
+    this.routedComponent = $event.componentName;
     this.networkID = $event.networkID;
     this.structureID = $event.structureID;
     //console.log('show ', this.routedComponent);

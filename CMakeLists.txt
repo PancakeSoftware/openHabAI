@@ -76,8 +76,8 @@ set(INCLUDE_DIR include/)
 add_subdirectory(trainServer/dependencies)
 
 # -- BOOST
-hunter_add_package(Boost COMPONENTS filesystem)
-find_package(Boost CONFIG REQUIRED system filesystem)
+hunter_add_package(Boost COMPONENTS filesystem program_options)
+find_package(Boost CONFIG REQUIRED system filesystem program_options)
 
 # -- GTEST
 hunter_add_package(GTest)
@@ -108,6 +108,7 @@ set(DEFAULT_LIBRARIES
         pthread
         Boost::filesystem
         Boost::system
+        Boost::program_options
         )
 
 set(DEFAULT_DEPENDENCIES

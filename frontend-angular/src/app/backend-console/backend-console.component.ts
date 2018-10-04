@@ -15,7 +15,9 @@ export class BackendConsoleComponent implements OnInit {
   CONNECTION_STATUS = CONNECTION_STATUS;
 
 
-  constructor(private settings:AppState) {
+  constructor(
+    public settings:AppState
+  ) {
     ApiConnection.onReceive.subscribe(data => {
       this.log.push({direction: 'got', message: data});
       if (this.log.length > 50)

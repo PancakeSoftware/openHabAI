@@ -27,9 +27,9 @@ export class ModelEditorNodeComponent implements OnInit, AfterViewInit, OnDestro
 
   /* Model operation type and params
    */
-  protected operationType: string = "?";
-  protected operationLayerName: string = "";
-  protected operationParams: OperationParam[] = [];
+  public operationType: string = "?";
+  public operationLayerName: string = "";
+  public operationParams: OperationParam[] = [];
 
   @Input() editor: ModelEditorComponent;
   @Input() editorPanel;
