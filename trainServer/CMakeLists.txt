@@ -13,12 +13,9 @@ add_subdirectory(source)
 # -- create installer
 
 # libs
-file(GLOB LIB_FILES
-        ${OUTPUT_LIB}/*.so*
-        ${OUTPUT}/*.so
-        ${DEPENDENCIES_MXNET_DIR}*.so)
-message(STATUS "libs: ${LIB_FILES}")
-install(FILES ${LIB_FILES} DESTINATION lib)
+install(DIRECTORY ${OUTPUT_LIB}/ DESTINATION lib
+        FILES_MATCHING
+        PATTERN "*.so*")
 
 # web
 install(DIRECTORY ${OUTPUT}/web/ DESTINATION share/openhabai/web/)
