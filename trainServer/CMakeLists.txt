@@ -20,6 +20,9 @@ file(GLOB LIB_FILES
 message(STATUS "libs: ${LIB_FILES}")
 install(FILES ${LIB_FILES} DESTINATION lib)
 
+# web
+install(DIRECTORY ${OUTPUT}/web/ DESTINATION share/openhabai/web/)
+
 # deps
 set (CPACK_DEBIAN_PACKAGE_DEPENDS  "libssl1.0.0, libopenblas-base")
 

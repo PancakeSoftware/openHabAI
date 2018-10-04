@@ -7,6 +7,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DatastructureAndSettingsComponent implements OnInit {
 
+  public componentName = "DatastructureAndSettingsComponent";
+
   constructor() { }
 
   ngOnInit() {

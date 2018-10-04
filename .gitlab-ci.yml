@@ -5,15 +5,34 @@ variables:
 
 
 stages:
+  - frontend
   - build
   - test
   - package
-  - frontend
 
 
-# build all
+# build web
+frontend:
+  stage: frontend
+  image: johnpapa/angular-cli
+  script:
+  - cd frontend-angular
+  - npm install
+  - ng build --prod
+  cache:
+    key: nodeModules
+    paths:
+    - frontend-angular/node_modules/
+  artifacts:
+    name: build_frontend
+    paths:
+    - build/web
+
+# build all and create package
 build:
   stage: build
+  dependencies:
+    - frontend
   before_script:
     - apt update -qq
     - apt-get install -qq wget software-properties-common
@@ -44,6 +63,8 @@ build:
     - cd cmake-build
     - cmake ..
     - make -j $(nproc)
+    - cpack -G DEB -V
+    - cpack -G TGZ
 
   # cache dependencies
   cache:
@@ -54,31 +75,12 @@ build:
       - trainServer/dependencies/seasocks
 
   artifacts:
-    name: build_backend
+    name: build_output
+    when: always
     paths:
       - build/
       - cmake-build/
-      - trainServer/
 
-frontend:
-  stage: frontend
-  image: johnpapa/angular-cli
-  dependencies:
-    - package
-  script:
-    - cd frontend-angular
-    - npm install
-    - ng build
-    - ll
-    - ll dist/
-  cache:
-    key: nodeModules
-    paths:
-      - frontend-angular/node_modules/
-  artifacts:
-    name: build_frontend
-    paths:
-    - frontend-angular/dist
 
 # run tests
 test:
@@ -88,43 +90,15 @@ test:
   script:
     - ./build/catflow-test
 
+
+# put install packages in extra artifact
 package:
   stage: package
   dependencies:
     - build
-  before_script:
-    - apt update -qq
-    - apt-get install -qq wget #software-properties-common
-
-    # install cmake 3.10
-    - wget -q https://cmake.org/files/v3.10/cmake-3.10.0-rc4-Linux-x86_64.sh
-    - mkdir /opt/cmake
-    - sh cmake-3.10.0-rc4-Linux-x86_64.sh --skip-license --prefix=/opt/cmake
-    - ln -s /opt/cmake/bin/cmake /usr/bin/cmake
-    - ln -s /opt/cmake/bin/cpack /usr/bin/cpack
-
-    # install other deps
-    #- apt-get install -qq zlib1g-dev libopenblas-dev liblapack-dev libuv-dev build-essential libssl-dev git python
-
-    # install gcc 7
-    #- add-apt-repository ppa:ubuntu-toolchain-r/test
-    #- apt-get update
-    #- apt install -qq -y g++-7
-    #- update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60  --slave /usr/bin/g++ g++ /usr/bin/g++-7
-    #- update-alternatives --config gcc
-
-    # tool versions
-    - cmake --version
-    #- g++ --version
   script:
-    - cd cmake-build
-    - pwd
-    - ll
-    - cpack -G DEB -V
-    - cpack -G TGZ
+    - ls
   artifacts:
     name: openhabai-install-package
-    when: always
     paths:
       - build/pack
-      - cmake-build

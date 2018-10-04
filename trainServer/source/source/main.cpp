@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   Catflow::setApiRootRoute(apiRoot);
   Catflow::start<ApiuWebsocketsServer>(
       5555,
-      "./../frontend-angular/dist"  // webserver root
+      "/usr/share/openhabai/web"  // webserver root
   );
 
   // start blocking taskManager

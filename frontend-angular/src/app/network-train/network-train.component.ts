@@ -15,10 +15,12 @@ import {AppState} from "@frontend/settings/app-state.service";
 })
 export class NetworkTrainComponent implements OnInit {
 
+  public componentName = "NetworkTrainComponent";
+
   structureID: number = -1;
   networkID: number = -1;
   trainParams: FormGroup;
-  protected network: ApiObject<any>;
+  network: ApiObject<any>;
 
   @ViewChild('modelEditor') modelEditor;
   @ViewChild('dataChart') dataChart;

@@ -99,26 +99,30 @@ class ApiuWebsocketsServer: public ApiServer
           ok("listen for webSocket connection on port " + to_string(Catflow::port));
 
           // cache web files
-          if (Catflow::httpServerPath != "") {
-            int c = 0;
+          if (Catflow::httpServerPath.size() > 0) {
+            int filesAmount = 0;
+            int filesTotalSize = 0;
             try
             {
               auto path = boost::filesystem::path(Catflow::httpServerPath);
+              int cutFromPath = (Catflow::httpServerPath.back() == '/')  ?  path.size()-1 : path.size();
 
               for (boost::filesystem::recursive_directory_iterator i(path), end; i != end; ++i)
               {
                 if (!is_directory(i->path())) {
-                  string webDocPath = i->path().string().substr(path.size(), i->path().size() - path.size());
+                  string webDocPath = i->path().string().substr(cutFromPath, i->path().size() - cutFromPath);
                   boost::filesystem::ifstream infile{i->path()};
                   string str{istreambuf_iterator<char>(infile), istreambuf_iterator<char>()};
                   webDocs.emplace(webDocPath, str);
+                  filesTotalSize+= str.size();
+                  filesAmount++;
+                  // trace("cached file: " + webDocPath);
                 }
-                c++;
               }
             } catch (std::exception &e) {
               err("can't read cache web files: " + string(e.what()));
             }
-            info("cached " + to_string(c) + " files from webserver root '" + Catflow::httpServerPath +"'");
+            info("cached " + to_string(filesAmount) + " files ("+ to_string((float)filesTotalSize/(1024*1024)) +" Mbyte) from webserver root '" + Catflow::httpServerPath +"'");
           }
 
           hub.run();
