@@ -16,6 +16,10 @@ add_subdirectory(source)
 install(DIRECTORY ${OUTPUT_LIB}/ DESTINATION lib
         FILES_MATCHING
         PATTERN "*.so*")
+install(FILES
+        ${DEPENDENCIES_MXNET_DIR}libmklml_gnu.so
+        ${DEPENDENCIES_MXNET_DIR}libmklml_intel.so
+        DESTINATION lib)
 
 # web
 install(DIRECTORY ${OUTPUT}/web/ DESTINATION share/openhabai/web/)
