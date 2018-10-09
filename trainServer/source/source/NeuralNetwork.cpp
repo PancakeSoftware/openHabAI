@@ -171,20 +171,6 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
   graphBindIo();
 }
 
-struct OpOrSymbol {
-    Symbol symbol;
-    Operator op;
-    bool isSymbol = false;
-
-    OpOrSymbol(Symbol sym): op(""){
-      isSymbol = true;
-      symbol = sym;
-    }
-
-    OpOrSymbol(Operator o): op(o){
-      isSymbol = false;
-    }
-};
 
 void NeuralNetwork::setModelDefinition(vector<OperationNode>  model)
 {

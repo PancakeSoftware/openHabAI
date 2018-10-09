@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     return 0;
   }
 
-  string hmtlFilesPath    = cliArgs["html-files-path"].as<string>();
+  string htmlFilesPath    = cliArgs["html-files-path"].as<string>();
   string configStorePath  = cliArgs["store-path"].as<string>();
   int port                = cliArgs["port"].as<int>();
 
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
   Catflow::setApiRootRoute(apiRoot);
   Catflow::start<ApiuWebsocketsServer>(
       port,
-      hmtlFilesPath // webserver root
+      htmlFilesPath // webserver root
   );
 
   // start blocking taskManager

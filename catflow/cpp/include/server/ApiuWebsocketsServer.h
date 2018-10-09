@@ -88,6 +88,9 @@ class ApiuWebsocketsServer: public ApiServer
           }
         });
 
+      hub.onError([this](int type){
+        err("err on port " + to_string(type));
+      });
     }
 
     void start() override
@@ -96,7 +99,7 @@ class ApiuWebsocketsServer: public ApiServer
       serverThread = new thread([this](){
         if (hub.listen(Catflow::port)) {
           // run is blocking
-          ok("listen for webSocket connection on port " + to_string(Catflow::port));
+          ok("listen for webSocket/http connection on port " + to_string(Catflow::port));
 
           // cache web files
           if (Catflow::httpServerPath.size() > 0) {
@@ -127,6 +130,7 @@ class ApiuWebsocketsServer: public ApiServer
 
           hub.run();
         } else {
+          fatal("listen for webSocket/http connection on port " + to_string(Catflow::port));
         }
       });
       ok("created serverWebsocket thread");
