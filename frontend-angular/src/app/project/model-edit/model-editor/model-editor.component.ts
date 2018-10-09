@@ -7,13 +7,14 @@ import {
   OnInit,
   ViewChild, ViewContainerRef
 } from '@angular/core';
-import {Drag} from "@frontend/test-playground/model-editor/Drag";
-import {ModelEditorNodeComponent} from "@frontend/test-playground/model-editor/model-editor-node/model-editor-node.component";
-import {ModelEditorConnectionComponent} from "@frontend/test-playground/model-editor/model-editor-connection/model-editor-connection.component";
+import {Drag} from "@frontend/project/model-edit/model-editor/Drag";
+import {ModelEditorNodeComponent} from "@frontend/project/model-edit/model-editor/model-editor-node/model-editor-node.component";
+import {ModelEditorConnectionComponent} from "@frontend/project/model-edit/model-editor/model-editor-connection/model-editor-connection.component";
 import {ApiObject} from "@catflow/ApiObject";
 import {toastErr, toastOk} from "@frontend/util/Log";
-import {componentDestroyed} from "ng2-rx-componentdestroyed";
 import {Observable, Subject} from "rxjs";
+import {untilDestroyed} from "ngx-take-until-destroy";
+import {componentDestroyed} from "ng2-rx-componentdestroyed";
 
 @Component({
   selector: 'app-model-editor',
@@ -132,13 +133,14 @@ export class ModelEditorComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
     // add input, label if not exits
+    this.inputOrLabelNeedRePos = false;
     if (this.nodes.filter((node) => node.getOperationType() == "Input").length == 0) {
       this.createNode("Input").setPosition({x: this.editorPanelEl.nativeElement.offsetWidth/2 - 240/2, y: 20});
-      this.inputLabelNeedRePos = true;
+      this.inputOrLabelNeedRePos = true;
     }
     if (this.nodes.filter((node) => node.getOperationType() == "Label").length == 0) {
       this.createNode("Label").setPosition({x: this.editorPanelEl.nativeElement.offsetHeight - 60, y: 20});
-      this.inputLabelNeedRePos = true;
+      this.inputOrLabelNeedRePos = true;
     }
   }
 
@@ -153,7 +155,7 @@ export class ModelEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   onRefresh:  Subject<boolean> = new Subject<boolean>();
-  inputLabelNeedRePos = false;
+  inputOrLabelNeedRePos = false;
   @Input('networkObject')
   set networkObject (obj: ApiObject<any>) {
     this.onRefresh.next(true);
@@ -176,14 +178,14 @@ export class ModelEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * => reCalc input, label offest
      */
     this.visibleObserver = new IntersectionObserver((entries) => {
-      if (entries[0].intersectionRatio && this.inputLabelNeedRePos) {
+      if (entries[0].intersectionRatio && this.inputOrLabelNeedRePos) {
         let nodeInput = this.nodes.filter((n) => n.getOperationType() == "Input")[0];
         let nodeLabel = this.nodes.filter((n) => n.getOperationType() == "Label")[0];
         if (nodeInput)
           nodeInput.setPosition({x: this.editorPanelEl.nativeElement.offsetWidth/2 - 240/2, y: 20});
         if (nodeLabel)
           nodeLabel.setPosition({x: this.editorPanelEl.nativeElement.offsetWidth/2 - 240/2, y: this.editorPanelEl.nativeElement.offsetHeight - 80});
-        this.inputLabelNeedRePos = false;
+        this.inputOrLabelNeedRePos = false;
       }
     }, {
       root: document.body

@@ -7,7 +7,7 @@
                 <i [ngClass]="connected ? 'green-text' : 'red-text'" class="material-icons red-text right">{{connected ? 'wifi' : 'wifi_off'}}</i></a></li>
         </ul>
 
-        <ul class="right" *ngIf="appState.training">
+        <ul class="right" *ngIf="state.training">
             <li>
                 <a class="green-text btn white btn-flat no-select">
                     Training
@@ -22,23 +22,23 @@
     </div>
 
     <!-- Tabs Network -->
-    <div class="nav-network"  *ngIf="routedComponent == 'NetworksAndTrainComponent'">
+    <div class="nav-network"  *ngIf="routedComponent == 'ProjectComponent'">
         <ul class="tabs tabs-transparent" materialize="tabs">
-            <li class="tab" [class.disabled]="networkID === undefined">
-                <!--<a  *ngIf="networkID !== undefined" [routerLink]="['/dataStructure', structureID, 'network', networkID]" href="#tab-train">Train</a>-->
-                <a href="#tab-train">Train</a>
-            </li>
             <li class="tab">
-                <a class="active" href="#tab-networks">Networks</a></li>
-            <li class="tab disabled"><a href="#tab-run">Run</a></li>
-            <!--<li class="tab disabled"><a href="#tab-settings"><i class="material-icons">settings</i></a></li>-->
+                <a class="active" href="#tab-networks">Dataset</a></li>
+            <li class="tab" [class.disabled]="state.routedModelId === undefined">
+                <a href="#tab-edit">Model Definition</a>
+            </li>
+            <li class="tab" [class.disabled]="state.routedModelId === undefined">
+                <a href="#tab-train">Model Training</a>
+            </li>
         </ul>
     </div>
 
     <!-- Tabs DataStructure -->
-    <div class="nav-dataStructure" *ngIf="routedComponent == 'DatastructureAndSettingsComponent'" >
+    <div class="nav-dataStructure" *ngIf="routedComponent == 'ProjectsAndSettingsComponent'" >
         <ul class="tabs tabs-transparent " materialize="tabs">
-            <li class="tab"><a href="#tab-dataStructure">Data structures</a></li>
+            <li class="tab"><a href="#tab-dataStructure">Projects</a></li>
             <li class="tab"><a href="#tab-generalSettings">Settings</a></li>
         </ul>
     </div>

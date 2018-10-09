@@ -8,38 +8,39 @@ import {NgxAutoScrollModule} from "ngx-auto-scroll";
 
 
 import {AppMainComponent, AppRoutingModule} from './app-main/app-main.component';
-import {DatastructureAndSettingsComponent} from './datastructure-and-settings/datastructure-and-settings.component';
-import {DataStructuresComponent} from './data-structures/data-structures.component';
+import {ProjectsAndSettingsComponent} from './projects-and-settings/projects-and-settings.component';
+import {ProjectsListComponent} from './projects-and-settings/projects-list/projects-list.component';
 import {BackendConsoleComponent} from "./backend-console/backend-console.component";
-import { NetworksAndTrainComponent } from './networks-and-train/networks-and-train.component';
-import { NetworksComponent } from './networks/networks.component';
+import { ProjectComponent } from './project/project.component';
 import {RouteReuseStrategy} from "@angular/router";
-import { NetworkTrainComponent } from './network-train/network-train.component';
+import { ModelTrainComponent } from './project/model-train/model-train.component';
 import {Api} from "@catflow/Api";
 import {ApiChart} from "@catflow/extensions/Chart-range";
 import {KeysPipe} from "@catflow/Utils";
-import { SettingsComponent } from './settings/settings.component';
-import { SelectionViewComponent } from './settings/selection-view/selection-view.component';
-import {AppState} from "@frontend/settings/app-state.service";
+import { SettingsComponent } from './projects-and-settings/settings/settings.component';
+import { SelectionViewComponent } from './projects-and-settings/settings/selection-view/selection-view.component';
+import {AppState} from "@frontend/projects-and-settings/settings/app-state.service";
 import {ApiSeriesChart} from "@catflow/extensions/Chart-series";
-import { ModelEditorComponent } from './test-playground/model-editor/model-editor.component';
+import { ModelEditorComponent } from './project/model-edit/model-editor/model-editor.component';
 import { TestPlaygroundComponent } from './test-playground/test-playground.component';
 //import { ChartPlotlyComponent } from './test-playground/chart-plotly/chart-plotly.component';
-import { ModelEditorNodeComponent } from './test-playground/model-editor/model-editor-node/model-editor-node.component';
-import { ModelEditorConnectionComponent } from './test-playground/model-editor/model-editor-connection/model-editor-connection.component';
+import { ModelEditorNodeComponent } from './project/model-edit/model-editor/model-editor-node/model-editor-node.component';
+import { ModelEditorConnectionComponent } from './project/model-edit/model-editor/model-editor-connection/model-editor-connection.component';
 import { ProgressIndicatorComponent } from './util/progress-indicator/progress-indicator.component';
+import {ProjectModelsComponent} from "@frontend/project/models-list/project-models.component";
+import { ModelEditComponent } from './project/model-edit/model-edit.component';
 
 
 
 @NgModule({
   declarations: [
     AppMainComponent,
-    DatastructureAndSettingsComponent,
-    DataStructuresComponent,
+    ProjectsAndSettingsComponent,
+    ProjectsListComponent,
     BackendConsoleComponent,
-    NetworksAndTrainComponent,
-    NetworksComponent,
-    NetworkTrainComponent,
+    ProjectComponent,
+    ProjectModelsComponent,
+    ModelTrainComponent,
     ApiChart,
     ApiSeriesChart,
     KeysPipe,
@@ -50,7 +51,8 @@ import { ProgressIndicatorComponent } from './util/progress-indicator/progress-i
   //  ChartPlotlyComponent,
     ModelEditorNodeComponent,
     ModelEditorConnectionComponent,
-    ProgressIndicatorComponent
+    ProgressIndicatorComponent,
+    ModelEditComponent
   ],
   imports: [
     BrowserModule,

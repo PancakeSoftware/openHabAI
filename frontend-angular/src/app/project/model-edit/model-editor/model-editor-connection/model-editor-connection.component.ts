@@ -1,8 +1,8 @@
 import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import {ModelEditorNodeComponent} from "@frontend/test-playground/model-editor/model-editor-node/model-editor-node.component";
-import {Drag} from "@frontend/test-playground/model-editor/Drag";
-import {Point} from "@frontend/util/Helper";
-import {ModelEditorComponent} from "@frontend/test-playground/model-editor/model-editor.component";
+import {ModelEditorNodeComponent} from "../model-editor-node/model-editor-node.component";
+import {Drag} from "../Drag";
+import {Point} from "../../../../util/Helper";
+import {ModelEditorComponent} from "../model-editor.component";
 
 @Component({
   selector: 'app-model-editor-connection',

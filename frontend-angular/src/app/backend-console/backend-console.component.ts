@@ -1,13 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ApiConnection, CONNECTION_STATUS} from "@catflow/ApiConnection";
-import {AppState} from "@frontend/settings/app-state.service";
+import {AppState} from "@frontend/projects-and-settings/settings/app-state.service";
+import {componentDestroyed} from "ng2-rx-componentdestroyed";
 
 @Component({
   selector: 'app-backend-console',
   templateUrl: './backend-console.component.html',
   styleUrls: ['./backend-console.components.css'],
 })
-export class BackendConsoleComponent implements OnInit {
+export class BackendConsoleComponent implements OnInit, OnDestroy {
 
   log: {direction: string, message: any}[] = [];
   sendText: string;
@@ -18,12 +19,12 @@ export class BackendConsoleComponent implements OnInit {
   constructor(
     public settings:AppState
   ) {
-    ApiConnection.onReceive.subscribe(data => {
+    ApiConnection.onReceive.takeUntil(componentDestroyed(this)).subscribe(data => {
       this.log.push({direction: 'got', message: data});
       if (this.log.length > 50)
         this.log = this.log.slice(0, this.log.length - 50);
     });
-    ApiConnection.onSend.subscribe(data => {
+    ApiConnection.onSend.takeUntil(componentDestroyed(this)).subscribe(data => {
       this.log.push({direction: 'send', message: data});
       if (this.log.length > 50)
         this.log = this.log.slice(0, this.log.length - 50);
@@ -40,5 +41,8 @@ export class BackendConsoleComponent implements OnInit {
     /*
     ApiConnection.send(this.sendText);
     toastInfo(this.sendText);*/
+  }
+
+  ngOnDestroy(): void {
   }
 }

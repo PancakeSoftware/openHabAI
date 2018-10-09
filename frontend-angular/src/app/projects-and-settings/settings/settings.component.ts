@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Api} from "@catflow/Api";
 import {ApiObject} from "@catflow/ApiObject";
 import {toastOk} from "@frontend/util/Log";
-import {AppState} from "@frontend/settings/app-state.service";
+import {AppState} from "@frontend/projects-and-settings/settings/app-state.service";
 
 @Component({
     selector: 'app-settings',

@@ -11,18 +11,17 @@
 </div>
 -->
 
+<div id="tab-networks" class="col s12">
+    <app-models-list></app-models-list>
+    {{state.routedModelId | json}}
+</div>
 
+<div id="tab-edit" class="col s12">
+    <app-model-edit *ngIf="state.routedModelId != undefined">
+    </app-model-edit>
+</div>
 
 <div id="tab-train" class="col s12">
-    <app-network-train *ngIf="networkID != undefined">
-
-    </app-network-train>
-</div>
-
-<div id="tab-networks" class="col s12">
-    <app-networks></app-networks>
-</div>
-
-<div id="tab-run" class="col s12">
-    Run coming soon...
+    <app-model-train *ngIf="state.routedModelId != undefined">
+    </app-model-train>
 </div>

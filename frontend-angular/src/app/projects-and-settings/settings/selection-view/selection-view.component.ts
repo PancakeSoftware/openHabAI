@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ApiObject} from "@catflow/ApiObject";
+import {ApiObject} from "../../../../catflow/ApiObject";
 import {selector} from "rxjs/operator/publish";
-import {Api} from "@catflow/Api";
+import {Api} from "../../../../catflow/Api";
 
 @Component({
   selector: 'app-selection-view',

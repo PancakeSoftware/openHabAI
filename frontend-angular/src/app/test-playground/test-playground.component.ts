@@ -1,5 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Api} from "@catflow/Api";
+import {PublishSubject} from "@frontend/util/PublishSubject";
 
 @Component({
   selector: 'app-test-playground',
@@ -12,6 +13,13 @@ export class TestPlaygroundComponent implements OnInit {
 
   constructor(public api: Api) {
 
+    let s = new PublishSubject<number>();
+    s.subscribe(val => console.info('before', val));
+    s.next(0);
+    s.next(1);
+    s.next(20);
+    s.subscribe(val => console.info('after', val));
+    s.next(30);
   }
 
   editorReset() {

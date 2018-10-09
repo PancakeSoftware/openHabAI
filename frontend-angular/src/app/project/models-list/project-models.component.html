@@ -5,14 +5,14 @@
      data-position="left" data-tooltip="new network"><i class="material-icons">add</i></a>
 </div>
 
-<!-- Networks List -->
+<!-- Models List -->
 <div class="col s12 networks no-select list" >
-  <div class="card" *ngFor="let net of networks | async" routerLink="/dataStructure/{{structureID}}/network/{{net.id}}">
+  <div class="card" *ngFor="let model of models | async" routerLink="/project/{{projectID}}/model/{{model.id}}">
     <div class="card-content">
       <i class="material-icons left medium">timeline</i>
-      <a app-click-stop-propagation="" class="waves-effect waves-light btn-flat red lighten-1 right white-text" (click)="$event.stopPropagation(); removeNet(net); "> <i class="material-icons small" >delete</i> </a>
-      <div class="card-title">{{net.name}}</div>
-      <p>ID: {{net.id}}</p>
+      <a app-click-stop-propagation="" class="waves-effect waves-light btn-flat red lighten-1 right white-text" (click)="$event.stopPropagation(); removeNet(model); "> <i class="material-icons small" >delete</i> </a>
+      <div class="card-title">{{model.name}}</div>
+      <p>ID: {{model.id}}</p>
     </div>
   </div>
 </div>
@@ -20,19 +20,19 @@
 
 <!-- DataStructure Params -->
 <div class="col s12 networks list" >
-  <div class="card" *ngIf="dataStructure.getValue() != undefined" style="cursor: auto">
+  <div class="card" *ngIf="project.getValue() != undefined" style="cursor: auto">
     <div class="card-content">
-      <span class="card-title">{{dataStructure.getValue().name}}</span>
-      <p>Data-records: <b>{{dataStructure.getValue().dataRecords}}</b></p>
-      <p>Outputs: {{getNamesOf(dataStructure.getValue().outputNames)}}</p>
+      <span class="card-title">{{project.getValue().name}}</span>
+      <p>Data-records: <b>{{project.getValue().dataRecords}}</b></p>
+      <p>Outputs: {{getNamesOf(project.getValue().outputNames)}}</p>
 
-      <div *ngIf="dataStructure.getValue().type == 'function'">
-        <p>Function:  <b>{{dataStructure.getValue().function}}</b></p>
+      <div *ngIf="project.getValue().type == 'function'">
+        <p>Function:  <b>{{project.getValue().function}}</b></p>
         <br>
         <h6>Inputs:</h6>
         <table class="col s12 m12">
           <tbody>
-          <tr *ngFor="let input of dataStructure.getValue().inputRanges; let index = index">
+          <tr *ngFor="let input of project.getValue().inputRanges; let index = index">
             <td>
               <label>Name: </label>
               <p>{{getInputnameById(index)}}</p>
@@ -59,30 +59,19 @@
   </div>
 </div>
 
-<!-- Modal new Network -->
+<!-- Modal new Model -->
 <div id="modal-new-network" class="modal" materialize="modal">
   <div class="modal-content" [formGroup]="formNew">
-    <h4 style="margin-bottom: 20px">New neural network</h4>
+    <h4 style="margin-bottom: 20px">New model</h4>
 
     <div class="input-field col s12">
       <input formControlName="name" id="txt-name-net" type="text">
-      <label for="txt-name-net">network name</label>
-    </div>
-
-    <div class="row">
-      <div class="input-field col s6">
-        <input formControlName="hidden" value="2" min="0" step="1" id="num-hidden" type="number">
-        <label for="num-hidden">hidden layers</label>
-      </div>
-      <div class="input-field col s6">
-        <input formControlName="neuronsPerHidden" value="10" min="0" step="1" id="num-neronsPerHidden" type="number">
-        <label for="num-neronsPerHidden">neurons per layer</label>
-      </div>
+      <label for="txt-name-net">model name</label>
     </div>
 
     <div class="modal-footer">
       <a class="modal-action modal-close waves-effect  btn-flat red white-text">Cancel</a>
-      <a id="bt-new-network" (click)="createNetwork()" class="modal-action modal-close waves-effect waves-green btn-flat green white-text">Create</a>
+      <a id="bt-new-network" (click)="createModel()" class="modal-action modal-close waves-effect waves-green btn-flat green white-text">Create</a>
     </div>
   </div>
 </div>

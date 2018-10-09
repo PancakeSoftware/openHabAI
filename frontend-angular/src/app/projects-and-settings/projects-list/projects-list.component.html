@@ -1,14 +1,14 @@
-<!-- Tab DataStructures -->
+<!-- Tab Projects -->
 <div>
-    <div class="card" *ngFor="let struc of dataStructures | async" routerLink="dataStructure/{{struc.id}}">
+    <div class="card" *ngFor="let model of models | async" routerLink="project/{{model.id}}">
         <div class="card-content">
             <i class="material-icons left medium">memory</i>
             <a app-click-stop-propagation="" class="waves-effect waves-light btn-flat red lighten-1 right white-text"
-               (click)="$event.stopPropagation(); removeStruc(struc); "> <i class="material-icons small">delete</i> </a>
-            <div class="card-title">{{struc.name}}</div>
-            <p><i class="material-icons left blue-grey-text">{{struc.type === "function" ? "functions" : "home"}}</i>{{struc.type
-                === "function" ? "Function: "+struc.function : "OpenHab"}} </p>
-            <p>ID: {{struc.id}}</p>
+               (click)="$event.stopPropagation(); removeStruc(model); "> <i class="material-icons small">delete</i> </a>
+            <div class="card-title">{{model.name}}</div>
+            <p><i class="material-icons left blue-grey-text">{{model.type === "function" ? "functions" : "home"}}</i>{{model.type
+                === "function" ? "Function: "+model.function : "OpenHab"}} </p>
+            <p>ID: {{model.id}}</p>
         </div>
     </div>
 </div>

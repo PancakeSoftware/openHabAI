@@ -9,12 +9,12 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import {Drag} from "@frontend/test-playground/model-editor/Drag";
+import {Drag} from "@frontend/project/model-edit/model-editor/Drag";
 import {
   ModelEditorConnectionComponent,
   pointAdd
-} from "@frontend/test-playground/model-editor/model-editor-connection/model-editor-connection.component";
-import {ModelEditorComponent} from "@frontend/test-playground/model-editor/model-editor.component";
+} from "@frontend/project/model-edit/model-editor/model-editor-connection/model-editor-connection.component";
+import {ModelEditorComponent} from "@frontend/project/model-edit/model-editor/model-editor.component";
 import {intersectsWithRect, Point} from "@frontend/util/Helper";
 import {type} from "os";
 

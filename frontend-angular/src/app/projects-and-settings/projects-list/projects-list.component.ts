@@ -1,25 +1,25 @@
 import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, ViewChild, ViewChildren} from '@angular/core';
 import {MaterializeAction} from "angular2-materialize";
 import {FormBuilder, FormGroup} from "@angular/forms";
-import {toastErr, toastInfo, toastOk} from "../util/Log";
+import {toastErr, toastInfo, toastOk} from "../../util/Log";
 import {Observable} from "rxjs/Observable";
-import {Tabs} from "../util/Helper";
-import {Api} from "@catflow/Api";
-import {ApiList} from "@catflow/ApiList";
+import {Tabs} from "../../util/Helper";
+import {Api} from "../../../catflow/Api";
+import {ApiList} from "../../../catflow/ApiList";
 
 
 @Component({
-  selector: 'app-data-structures',
-  templateUrl: './data-structures.component.html',
+  selector: 'app-projects-list',
+  templateUrl: './projects-list.component.html',
   styles: []
 })
-export class DataStructuresComponent implements OnInit, OnDestroy {
+export class ProjectsListComponent implements OnInit, OnDestroy {
 
   modalActions = new EventEmitter<string|MaterializeAction>();
 
 
-  dataStructuresList: ApiList<any>;
-  dataStructures: Observable<any[]>;
+  modelsList: ApiList<any>;
+  models: Observable<any[]>;
 
   formNew: FormGroup;
   formNewTypeTabs: Tabs;
@@ -34,8 +34,8 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
     private api: Api)
   {
     // get data
-    this.dataStructuresList = api.list<any>("/dataStructures");
-    this.dataStructures = this.dataStructuresList.items();
+    this.modelsList = api.list<any>("/dataStructures");
+    this.models = this.modelsList.items();
 
 
     // control tabs
@@ -78,14 +78,14 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
     this.formNew.value.outputNames = ['function'];
     //toastInfo('New DataStructure: ', this.formNew.value);
 
-    this.dataStructuresList.add({
+    this.modelsList.add({
       ...this.formNew.value,
       ...{
         inputRanges: this.formNewInputsList.map((input, index) => {return {from: input.from, to: input.to, steps: input.steps, id: index}; }),
         inputNames: this.formNewInputsList.map(input => input.name)
       }
-    }).then(value => toastOk('Added dataStructure (id: ' + value.id + '). Created  <b>' + value.dataRecords + 'data-records</b> ', 5000))
-      .catch(reason => toastErr("can't add dataStructure: " + reason));
+    }).then(value => toastOk('Added project (id: ' + value.id + '). Created  <b>' + value.dataRecords + 'data-records</b> ', 5000))
+      .catch(reason => toastErr("can't add project: " + reason));
 
     this.formNew.reset({
       name: 'MyDataStructure',
@@ -99,7 +99,7 @@ export class DataStructuresComponent implements OnInit, OnDestroy {
   }
 
   removeStruc(struc: DataStructure) {
-    this.dataStructuresList.remove(struc.id);
+    this.modelsList.remove(struc.id);
   }
 
   ngOnDestroy(): void {
