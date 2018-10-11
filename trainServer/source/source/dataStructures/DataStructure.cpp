@@ -24,7 +24,6 @@ DataStructure::DataStructure()
   // link network when created with this datastructure
   networks.setCreateItemFunction([this](Json params) ->  NeuralNetwork* {
         NeuralNetwork *t = new NeuralNetwork(this);
-        t->fromJson(params);
         return t;
   });
 
@@ -73,7 +72,6 @@ DataStructure *DataStructure::create(Json params)
   else
     return nullptr;
 
-  n->fromJson(params);
   return n;
 }
 

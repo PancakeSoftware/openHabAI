@@ -40,7 +40,7 @@ class ApiJsonObject : protected virtual Log, public virtual ApiSubscribable, pub
      * @see JsonObject::params()
      * @return vector of changed param names
      */
-    vector<string> fromJson(Json params) override;
+    vector<string> fromJson(Json params, bool  catchParameterErrors = false) override;
 
     /**
      * set configured class attributes to values in params

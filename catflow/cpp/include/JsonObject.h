@@ -83,15 +83,17 @@ namespace internal
   class JsonParamReadOnly: public AJsonParam{
     public:
       T* valuePtr;
+      string key;
       JsonParamReadOnly(T &value, string key)
-      {this->valuePtr = &value;}
+      {this->valuePtr = &value; this->key = key;}
 
       Json toJson() const override {
         return Json(*valuePtr);
       }
 
-      void fromJson(Json j) override
-      {}
+      void fromJson(Json j) override {
+        throw JsonObjectException("can't set '"+key+"' because it is readonly");
+      }
 
       bool isPrimitive() override;
   };
@@ -163,7 +165,7 @@ class JsonObject
      * @see JsonObject::params()
      * @return vector of changed param names
      */
-    virtual vector<string> fromJson(Json params) {
+    virtual vector<string> fromJson(Json params, bool  catchParameterErrors = false) {
       /* refresh param pointers
        * this is very inefficient but necessary (rebuild whole param list):
        * when the object is copied all param pointers have to be redefined (change pointer address) */
@@ -202,9 +204,13 @@ class JsonObject
         }
         catch (Json::type_error &e) {
           l.err("can't set jsonObject key '" + key +"' : " + e.what());
-          throw JsonObjectException("can't set jsonObject key '" + key +"' because of wrong type : " + e.what());
+          if (!catchParameterErrors)
+            throw JsonObjectException("can't set jsonObject key '" + key +"' because of wrong type : " + e.what());
         } catch (JsonObjectException &e) {
-          throw JsonObjectException("can't set jsonObject key '" + key +"' because of JsonObjectException : " + e.what());
+          if (!catchParameterErrors)
+            throw JsonObjectException("can't set jsonObject key '" + key +"' because of JsonObjectException : " + e.what());
+          else
+            l.err("can't set jsonObject key '" + key +"' because of JsonObjectException : " + e.what());
         }
       }
 

@@ -32,6 +32,7 @@ export class ModelEditorComponent implements OnInit, AfterViewInit, OnDestroy {
   nodes:        ModelEditorNodeComponent[] = [];
   connections:  ModelEditorConnectionComponent[] = [];
   modelJson: any[] = [];
+  modelValid: boolean = false;
 
   constructor(
     private el: ElementRef,
@@ -162,11 +163,16 @@ export class ModelEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     this.networkObj = obj;
 
     // load graph
-    this.networkObj.object().takeUntil(componentDestroyed(this)).takeUntil(this.onRefresh).subscribe((obj) => {
-      if (obj == null)
+    this.networkObj.objectChanged().takeUntil(componentDestroyed(this)).takeUntil(this.onRefresh).subscribe((changed) => {
+      if (changed == null)
         return;
-      this.modelJson = obj.modelDefinition;
-      this.modelFromJson(this.modelJson);
+      if (changed.changedKeys.includes('modelDefinition')) {
+        this.modelJson = changed.object.modelDefinition;
+        this.modelFromJson(this.modelJson);
+      }
+      if (changed.changedKeys.includes('modelValid')) {
+        this.modelValid = changed.object.modelValid;
+      }
     });
     this.networkObj.subscribe();
   }

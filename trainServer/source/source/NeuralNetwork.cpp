@@ -81,8 +81,10 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
    * charts update functions */
   chartNetworkOutput.setInputOutputNames(structure->inputNames, structure->outputNames);
   chartNetworkOutput.setUpdateFunctionRanged([this, structure] (const vector<RangeParam> &inputRanges, vector<ValueParam> fixedInputs, const vector<int> &outputIds) {
-    Executor* exeChart = symLossOut.SimpleBind(*ctx, graphValues, map<std::string, NDArray>());
     map<int, vector<ChartDataPoint>> result;
+    if (!modelValid)
+      return result;
+    Executor* exeChart = symLossOut.SimpleBind(*ctx, graphValues, map<std::string, NDArray>());
 
     // generate input data
     auto dataX =  createInputDataGrid(inputRanges, fixedInputs);
@@ -174,8 +176,9 @@ NeuralNetwork::NeuralNetwork(DataStructure *structure)
 
 void NeuralNetwork::setModelDefinition(vector<OperationNode>  model)
 {
+  modelValid = false;
   if (model.size() == 0)
-    return;
+    throw JsonObjectException("model can't be empty");
 
   /*
    * topological sorting of model
@@ -267,11 +270,11 @@ void NeuralNetwork::setModelDefinition(vector<OperationNode>  model)
         input = mxModel[node.inputNodes[0]];
       else
         input = Symbol("");
-      symLoss =  Operator(node.opParams["lossFunction"].get<string>())
+      symLoss =  Operator(node.getOpParam("lossFunction"))
           .SetParam("grad_scale", 1)
           .SetInput("data", input)
           .SetInput("label", symLabel)
-          .CreateSymbol(node.opParams["lossFunction"]);
+          .CreateSymbol(node.getOpParam("lossFunction"));
       continue;
     }
 
@@ -297,11 +300,11 @@ void NeuralNetwork::setModelDefinition(vector<OperationNode>  model)
           input,
           Symbol::Variable(to_string(index) + "-weight"),
           Symbol::Variable(to_string(index) + "-bias2"),
-          stoi(node.opParams["num_hidden"].get<string>())
+          stoi(node.getOpParam("num_hidden"))
       );
 
       if (node.opParams["activationFunction"] != "none") {
-        sym = Operator(node.opParams["activationFunction"].get<string>())
+        sym = Operator(node.getOpParam("activationFunction"))
             .SetInput("data", sym)
             .CreateSymbol();
       }
@@ -361,6 +364,7 @@ void NeuralNetwork::setModelDefinition(vector<OperationNode>  model)
   symLossOut = symLoss;
   //debug(symLoss.ToJSON());
   graphBindIo();
+  modelValid = true;
 }
 
 void NeuralNetwork::graphBindIo()
@@ -406,7 +410,6 @@ void NeuralNetwork::graphBindIo()
   }
   catch (exception &e) {
     err("bind executor to model-graph", e.what());
-    err("bind executor to model-graph", string(MXGetLastError()));
     throw JsonObjectException("bind executor to model-graph: " + string(MXGetLastError()));
   }
 }
@@ -415,6 +418,8 @@ void NeuralNetwork::graphBindIo()
 // -- TRAIN -----------------------------------------
 void NeuralNetwork::train()
 {
+  if (!modelValid)
+    throw JsonObjectException("can't start train: model not valid!");
   // save to file
   if (route.is_initialized()) {
     string path = route.get().toStringStorePath() + "model.json";

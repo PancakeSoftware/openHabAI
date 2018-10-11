@@ -106,6 +106,7 @@ ApiRespond* JsonList<T>::processApi(ApiRequest request)
       T* n = createItemFunc(j);
       if (n != nullptr)
       {
+        n->fromJson(j, true /*catch param assignment errors*/);
         items.insert({idAutoIncrement, n});
         if (route.is_initialized() && is_base_of<ApiJsonObject, T>::value)
         {
@@ -268,50 +269,60 @@ void JsonList<T>::restore()
       /*
        * get id by directory name */
       string id = directory_iterator->path().filename().string();
-      int idNum;
       try
       {
-        idNum = stoi(id);
-      } catch (invalid_argument& e)
-      {
-        err("entity's id (in directoryName '" + directory_iterator->path().string() + "') is not a number", e.what());
-        continue;
-      }
-      //info("... restore: " + storePath.get() + "/" + id);
 
-      /*
-       * read item.json */
-      Json params;
-      try
-      {
-        ifstream item{this->route.get().toStringStorePath() + id + "/item.json"};
-        stringstream sItem;
-        sItem << item.rdbuf();
-        params = Json::parse(sItem.str());
-      }
-      catch (exception& e) {
-        err("read item '"+ this->route.get().toStringStorePath() + id + "/item.json" +"' : " + string(e.what()));
+        int idNum;
+        try
+        {
+          idNum = stoi(id);
+        } catch (invalid_argument &e)
+        {
+          err("entity's id (in directoryName '" + directory_iterator->path().string() + "') is not a number", e.what());
+          continue;
+        }
+        //info("... restore: " + storePath.get() + "/" + id);
+
+        /*
+         * read item.json */
+        Json params;
+        try
+        {
+          ifstream item{this->route.get().toStringStorePath() + id + "/item.json"};
+          stringstream sItem;
+          sItem << item.rdbuf();
+          params = Json::parse(sItem.str());
+        }
+        catch (exception &e)
+        {
+          err("read item '" + this->route.get().toStringStorePath() + id + "/item.json" + "' : " + string(e.what()));
+          directory_iterator++;
+          continue;
+        }
+
+        /*
+         * add item */
+        T *n = createItemFunc(params);
+        ApiMessageRoute nRoute = route.get();
+        nRoute.push(id); // set entity id
+        n->setRoute(nRoute);
+        items.insert({idNum, n});
+        n->restore();
+
+        // next
+        if (idNum >= idAutoIncrement)
+          idAutoIncrement = idNum + 1;
         directory_iterator++;
-        continue;
       }
-
-      /*
-       * add item */
-      T *n = createItemFunc(params);
-      ApiMessageRoute nRoute = route.get();
-      nRoute.push(id); // set entity id
-      n->setRoute(nRoute);
-      items.insert({idNum, n});
-      n->restore();
-
-      // next
-      if (idNum >= idAutoIncrement)
-        idAutoIncrement = idNum + 1;
-      directory_iterator++;
+      catch (exception &e)
+      {
+        err("restore (" + this->route.get().toStringStorePath() + " id(" + id + ")): " + string(e.what()));
+        directory_iterator++;
+      }
     }
   }
   catch (exception &e){
-    err("restore ("+this->route.get().toStringStorePath()+"): " + string(e.what()));
+    err("restore ("+this->route.get().toStringStorePath()+" all list items): " + string(e.what()));
   }
 }
 

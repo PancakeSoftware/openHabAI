@@ -77,7 +77,7 @@ class RootRoute : public ApiRoute
 TEST(ApiRouteTest, progressListAddGetRemove)
 {
   RootRoute root;
-  root.setStorePath("../test/apiTest/");
+  root.setStorePath("./test/apiTest/");
 
   /*
    * Add tow courses: SystemParallelProgramming, and Math1
@@ -121,7 +121,7 @@ TEST(ApiRouteTest, progressListAddGetRemove)
    */
   root.store();
   RootRoute rootRestored;
-  rootRestored.setStorePath("../test/apiTest/");
+  rootRestored.setStorePath("./test/apiTest/");
   rootRestored.restore();
   EXPECT_EQ(2, rootRestored.courses.length());
   EXPECT_EQ(3, rootRestored.courses.get(0).students.length());

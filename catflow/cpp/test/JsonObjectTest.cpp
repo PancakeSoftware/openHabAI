@@ -73,14 +73,14 @@ TEST(JsonObjectTest, saveLoad)
 
   MyObject myObject;
   myObject.fromJson(val);
-  myObject.save("../test/", "testJsonObject.json");
+  myObject.save("./test/", "testJsonObject.json");
   cout << "save finish" << endl;
 
 
   MyObject myObjectNew;
 
   cout << "now load" << endl;
-  myObjectNew.load("../test/", "testJsonObject.json");
+  myObjectNew.load("./test/", "testJsonObject.json");
 
 
   EXPECT_EQ(20, myObjectNew.i);
@@ -221,7 +221,7 @@ TEST(JsonObjectTest, notifyParamsChanged)
     EXPECT_EQ(0, Catflow::requestsToSend.size());
 
     MyObject obj;
-    obj.setStorePath("../test/jsonObjectTest");
+    obj.setStorePath("./test/jsonObjectTest");
     ApiRequest sub("", "subscribe");
     sub.client = new VoidClient();
     obj.processApi(sub);

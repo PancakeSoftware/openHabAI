@@ -18,6 +18,10 @@
       <div style="margin-top: 40px">
         <div class="btn waves-effect green" (click)="saveModel()">Save Model <i class="material-icons right">save</i></div>
       </div>
+
+      <a style="margin-top: 10px;" [ngClass]="modelValid ? 'green-text' : 'red-text'" class="btn white btn-flat no-select">{{modelValid ? 'Model is valid' : 'Model is invalid'}}
+        <i [ngClass]="modelValid ? 'green-text' : 'red-text'" class="material-icons red-text right">{{modelValid ? 'done' : 'warning'}}</i></a>
+
       <pre>{{modelJson | json}}</pre>
     </div>
 

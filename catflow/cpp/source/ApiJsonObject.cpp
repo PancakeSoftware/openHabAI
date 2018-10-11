@@ -25,9 +25,9 @@ ApiJsonObject::ApiJsonObject(Json params)
   fromJson(params);
 }
 
-vector<string> ApiJsonObject::fromJson(Json params)
+vector<string> ApiJsonObject::fromJson(Json params, bool  catchParameterErrors)
 {
-  vector<string> changedParams = JsonObject::fromJson(params);
+  vector<string> changedParams = JsonObject::fromJson(params, catchParameterErrors);
 
   // save all
   storeMe();
@@ -102,7 +102,7 @@ bool ApiJsonObject::load(string path, string fileName)
     return false;
   }
 
-  fromJson(params);
+  fromJson(params, true /*catch param assignment errors*/);
   ok("load from " + full);
   return true;
 }

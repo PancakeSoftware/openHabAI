@@ -33,6 +33,7 @@ class NeuralNetwork : public ApiRouteJson
     int x;
     int hiddenLayers, neuronsPerLayer;
     vector<OperationNode> modelDefinition;
+    bool modelValid = false;
 
     /* Json keys */
     void params() override { JsonObject::params();
@@ -44,9 +45,10 @@ class NeuralNetwork : public ApiRouteJson
         param("weightDecay", weightDecay);
         param("initUniformScale", initUniformDistributionScale);
         param("optimizer", optimizerType);
-        paramWithFunction("modelDefinition", [this](Json j) {setModelDefinition(j);}, [this](){
-            return modelDefinition;
-        });
+        paramWithFunction("modelDefinition",
+            [this](Json j)  { setModelDefinition(j); },
+            [this]()        { return modelDefinition;});
+        paramReadOnly("modelValid", modelValid);
     }
 
     static void init(Context *mxContext);
@@ -110,6 +112,14 @@ class OperationNode: public JsonObject {
       param("inputNodes", inputNodes);
       param("editorPosition", editorPosition);
       //param("index", index);
+    }
+
+    template <class T = string>
+    T getOpParam(string name) {
+      auto el = opParams.find(name);
+      if (el == opParams.end())
+        throw JsonObjectException("OperationNode's field 'opParams' missing member '"+name+"'");
+      return el->get<T>();
     }
 };
 

@@ -110,7 +110,6 @@ class JsonList : public ApiJsonObject, public __JsonList
     function<T *(Json params)> createItemFunc = [](Json params) -> T *
     {
       auto *t = new T();
-      t->fromJson(params);
       return t;
     };
 
