@@ -75,7 +75,7 @@ bool ApiJsonObject::save(string path, string fileName)
     err("save to " + full);
     return false;
   }
-  stream << toJson().dump(2);
+  stream << toJson(true).dump(2);
   stream.close();
   ok("save to " + full);
   return true;

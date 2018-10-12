@@ -46,8 +46,46 @@ class AJsonParam
     void onChanged(function<void ()> callback)
     {this->onChancedFunc = callback;};
 
+    /**
+     * make param read only
+     */
+    AJsonParam& readOnly() {
+      _writable = false;
+      return *this;
+    };
+
+    /**
+     * make param write only
+     */
+    AJsonParam& writeOnly() {
+      _readable = false;
+      return *this;
+    };
+
+    /**
+     * make param non save changes in .json file
+     */
+    AJsonParam& nonSave() {
+      _savable = false;
+      return *this;
+    };
+
+    /**
+     * make param hidden, value only visible on changes
+     * @warning not implemented
+     */
+    AJsonParam& hidden() {
+      _hidden = true;
+      return *this;
+    };
+
+
     function<void ()> onChanceFunc = nullptr;
     function<void ()> onChancedFunc = nullptr;
+    bool _readable = true;
+    bool _writable = true;
+    bool _savable = true;
+    bool _hidden = false;
 };
 
 namespace internal
@@ -84,8 +122,11 @@ namespace internal
     public:
       T* valuePtr;
       string key;
-      JsonParamReadOnly(T &value, string key)
-      {this->valuePtr = &value; this->key = key;}
+      JsonParamReadOnly(T &value, string key) {
+        this->valuePtr = &value;
+        this->key = key;
+        readOnly();
+      }
 
       Json toJson() const override {
         return Json(*valuePtr);
@@ -124,9 +165,11 @@ class JsonObject
   public:
     /**
      * @return configured class attributes as json
+     * @param onlySavableParams skip all params that are marked as nonSave()
+     * @param skipHiddenParams skip all params that are maked as hidden()
      * @see JsonObject::params()
      */
-    virtual Json toJson() const {
+    virtual Json toJson(bool onlySavableParams = false, bool skipHiddenParams = true) const {
       /* refresh param pointers
        * this is very inefficient but necessary (rebuild whole param list):
        * when the object is copied all param pointers have to be redefined (change pointer address) */
@@ -136,7 +179,10 @@ class JsonObject
       for (auto &paramPtr: paramPointers) {
         const auto& key = paramPtr.first;
         const auto& memberPtr = paramPtr.second;
-        json[key] = memberPtr->toJson();
+        if ((!onlySavableParams || memberPtr->_savable) &&
+            (!skipHiddenParams  || !memberPtr->_hidden) &&
+            memberPtr->_readable)
+          json[key] = memberPtr->toJson();
       }
       return json;
     };
@@ -154,7 +200,8 @@ class JsonObject
         const auto& key = paramPtr.first;
         const auto& memberPtr = paramPtr.second;
         if (find(params.begin(), params.end(), key) != params.end()) // if key in params
-          json[key] = memberPtr->toJson();
+          if (memberPtr->_readable)
+            json[key] = memberPtr->toJson();
       }
       return json;
     }
@@ -194,6 +241,9 @@ class JsonObject
           continue;
 
         try {
+          if (!memberPtr->_writable)
+            throw JsonObjectException("can't set '"+key+"' because it is readonly");
+
           //cout << "=fromJson= param " << key << ": " << params[key].dump() << endl;
           memberPtr->fromJson(params[key]);
           if (memberPtr->isPrimitive()) {
@@ -237,7 +287,7 @@ class JsonObject
      * @see defineParams()
      */
     template <class T>
-    AJsonParam paramReadOnly(string key, T &value) {
+    AJsonParam& paramReadOnly(string key, T &value) {
       auto param = make_shared<internal::JsonParamReadOnly<T>>(value, key);
       paramPointers.emplace(key, param); // unique_ptr -> deletes JsonParam when JsonObject is deleted
       return *param;
@@ -248,8 +298,10 @@ class JsonObject
      * @warning use this function only inside your implementation of defineParams() !
      * @see defineParams()
      */
-    void paramWithFunction(string key, function<void (Json)> onSet, function<Json ()> onGet) {
-      paramPointers.emplace(key, make_shared<internal::JsonParamFunction>(onSet, onGet, key)); // unique_ptr -> deletes JsonParam when JsonObject is deleted
+    AJsonParam& paramWithFunction(string key, function<void (Json)> onSet, function<Json ()> onGet) {
+      auto param = make_shared<internal::JsonParamFunction>(onSet, onGet, key);
+      paramPointers.emplace(key, param); // unique_ptr -> deletes JsonParam when JsonObject is deleted
+      return *param;
     }
 
     /**

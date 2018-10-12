@@ -16,6 +16,9 @@ class  MyObject : public ApiJsonObject
     int i = 10;
     string s = "";
     bool b = false;
+    string pNonSave = "";
+    string pReadonly = "keep this value";
+    string pHidden = "hidden value";
 
     bool iChanged = false, sChanged = false, bChanged = false;
 
@@ -23,6 +26,9 @@ class  MyObject : public ApiJsonObject
       param("i", i).onChanged([this]() {iChanged = true;} );
       param("s", s);
       param("b", b);
+      param("nonSave", pNonSave).nonSave();
+      param("readOnly", pReadonly).readOnly();
+      param("hidden", pHidden).hidden();
     }
 
     void onParamsChanged(vector<string> params) override {
@@ -40,26 +46,35 @@ TEST(JsonObjectTest, fromToJson)
       {"i", 20},
       {"s", "string"},
       {"b", true},
-      {"dontHave", "error"}
+      {"dontHave", "error"},
+      {"nonSave", "nonSave me"},
+      {"readOnly", "no write me"},
+      {"hidden", "new hiddenValue"}
   };
 
   Json valOut{
       {"i", 20},
       {"s", "string"},
       {"b", true},
+      {"nonSave", "nonSave me"},
+      {"readOnly", "keep this value"},
   };
 
   MyObject myObject;
-  myObject.fromJson(valIn);
+  myObject.fromJson(valIn, true /*catch all exceptions*/);
 
   EXPECT_EQ(20, myObject.i);
   EXPECT_EQ("string", myObject.s);
   EXPECT_EQ(true, myObject.b);
-  EXPECT_EQ(valOut, myObject.toJson());
-  EXPECT_TRUE( testCompareJson( Json{
+  EXPECT_TRUE(testCompareJson( Json{
       {"s", "string"},
       {"b", true},
   }, myObject.toJson({"s", "b"})));
+  EXPECT_TRUE(testCompareJson(valOut, myObject.toJson()));
+
+  // toJson with hidden
+  valOut["hidden"] = "new hiddenValue";
+  EXPECT_TRUE(testCompareJson(valOut, myObject.toJson(false, false)));
 }
 
 
@@ -68,11 +83,14 @@ TEST(JsonObjectTest, saveLoad)
   Json val{
       {"i", 20},
       {"s", "string"},
-      {"b", true}
+      {"b", true},
+      {"dontHave", "error"},
+      {"nonSave", "nonSave me"},
+      {"readOnly", "not write me"}
   };
 
   MyObject myObject;
-  myObject.fromJson(val);
+  myObject.fromJson(val, true /*catch all exceptions*/);
   myObject.save("./test/", "testJsonObject.json");
   cout << "save finish" << endl;
 
@@ -82,6 +100,10 @@ TEST(JsonObjectTest, saveLoad)
   cout << "now load" << endl;
   myObjectNew.load("./test/", "testJsonObject.json");
 
+  // non save should have changed
+  val["nonSave"] = "";
+  val["readOnly"] = "keep this value";
+  val.erase("dontHave");
 
   EXPECT_EQ(20, myObjectNew.i);
   EXPECT_EQ("string", myObjectNew.s);
@@ -228,14 +250,16 @@ TEST(JsonObjectTest, notifyParamsChanged)
 
     obj.s = "test";
     obj.i = 12345;
-    obj.notifyParamsChanged({"i", "s", "not-a-param"});
+    obj.pHidden = "some other hidden value";
+    obj.notifyParamsChanged({"i", "s", "not-a-param", "hidden"});
 
     // check send package queue
     EXPECT_TRUE(1 <= Catflow::requestsToSend.size());
     EXPECT_TRUE(testCompareJson(
             ApiRequest("", "update", Json{
                     {"s", "test"},
-                    {"i", 12345}
+                    {"i", 12345},
+                    {"hidden", "some other hidden value"}
             }).toJson(),
             Catflow::requestsToSend.back().second.toJson()));
 
