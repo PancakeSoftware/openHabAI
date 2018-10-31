@@ -21,8 +21,7 @@ First **install** these packages:
     * npm
 * For **trainServer**
     * zlib1g-dev
-    * openssl-devel
-    * zlib-devel
+    * libssl-dev
     * for **mxnet**
         * libopenblas-dev 
         * liblapack-dev
