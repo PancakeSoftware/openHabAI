@@ -38,7 +38,7 @@
     "ngx-take-until-destroy": "^5.2.3",
     "npm": "^6.4.1",
     "plotly.js": "^1.41.3",
-    "prismjs": "^1.15.0",
+    "prismjs": "^1.27.0",
     "protractor": "^5.4.1",
     "rxjs": "^6.3.3",
     "zone.js": "^0.8.26",
